@@ -1,4 +1,4 @@
-name: Autostyle
+name: Sonarlint
 
 on: [push, pull_request]
 
