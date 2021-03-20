@@ -7,11 +7,13 @@ import com.github.vlsi.gradle.properties.dsl.stringProperty
 import com.github.vlsi.gradle.properties.dsl.toBool
 import com.github.vlsi.gradle.publishing.dsl.simplifyXml
 import com.github.vlsi.gradle.publishing.dsl.versionFromResolution
+import name.remal.gradle_plugins.plugins.code_quality.sonar.SonarLintExtension
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.autostyle")
+    id("name.remal.sonarlint")
     id("com.github.vlsi.crlf")
     id("com.github.vlsi.gradle-extensions")
     id("com.github.vlsi.stage-vote-release")
@@ -20,6 +22,7 @@ plugins {
 }
 
 val skipJavadoc by props()
+val skipSonarlint by props()
 val enableMavenLocal by props()
 val enableGradleMetadata by props()
 val skipAutostyle by props()
@@ -150,6 +153,14 @@ allprojects {
         }
     }
 
+    if (!skipSonarlint) {
+        apply(plugin = "name.remal.sonarlint")
+        val allowSonarlintFailures by props()
+        configure<SonarLintExtension> {
+            isIgnoreFailures = allowSonarlintFailures
+        }
+    }
+
     tasks.withType<AbstractArchiveTask>().configureEach {
         // Ensure builds are reproducible
         isPreserveFileTimestamps = false
@@ -254,12 +265,6 @@ allprojects {
 
             withType<Javadoc>().configureEach {
                 (options as StandardJavadocDocletOptions).apply {
-                    // -add-exports requires target 9
-                    // The library is built with target=1.8, so add-exports
-                    if (project.the<JavaPluginExtension>().targetCompatibility.isJava9Compatible) {
-                        // Add necessary exports if using non exported packages on Java9
-                        // addStringOption("-add-exports", "module/package=ALL-UNNAMED")
-                    }
                     quiet()
                     locale = "en"
                     docEncoding = "UTF-8"
