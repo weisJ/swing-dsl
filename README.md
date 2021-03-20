@@ -1,3 +1,8 @@
+[![CI](https://github.com/weisJ/swing-dsl/actions/workflows/gradle.yml/badge.svg)](https://github.com/weisJ/swing-dsl/actions/workflows/gradle.yml)
+[![Autostyle](https://github.com/weisJ/swing-dsl/actions/workflows/autostyle.yml/badge.svg)](https://github.com/weisJ/swing-dsl/actions/workflows/autostyle.yml)
+[![Sonarlint](https://github.com/weisJ/swing-dsl/actions/workflows/sonarlint.yml/badge.svg)](https://github.com/weisJ/swing-dsl/actions/workflows/sonarlint.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.weisj/swing-dsl?label=Maven%20Central)](https://search.maven.org/artifact/com.github.weisj/swing-dsl)
+
 # Swing DSL
 
 A standalone library port of the IntelliJ plugin api UI builder dsl.
