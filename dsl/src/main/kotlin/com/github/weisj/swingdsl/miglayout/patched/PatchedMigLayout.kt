@@ -67,8 +67,8 @@ import net.miginfocom.layout.*
 
 open class PatchedMigLayout @JvmOverloads constructor(
     private val layoutConstraints: LC = LC(),
-    val columnConstraints: AC = AC(),
-    val rowConstraints: AC = AC()
+    private val columnConstraints: AC = AC(),
+    private val rowConstraints: AC = AC()
 ) : LayoutManager2 {
     @Transient
     private var cacheParentW: ContainerWrapper? = null
@@ -97,7 +97,7 @@ open class PatchedMigLayout @JvmOverloads constructor(
     @Transient
     private var dirty = true
 
-    var isDebugEnabled: Boolean = false
+    private var isDebugEnabled: Boolean = false
 
     private val debugMillis: Int
         get() {
@@ -424,7 +424,7 @@ open class PatchedMigLayout @JvmOverloads constructor(
         synchronized(comp.parent.treeLock) {
             if (constraints is CC && comp is JComponent) {
                 val componentWrapper = SwingComponentWrapper(comp)
-                componentWrapperToConstraints.put(componentWrapper, constraints)
+                componentWrapperToConstraints[componentWrapper] = constraints
             }
 
             dirty = true

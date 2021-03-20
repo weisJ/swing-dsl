@@ -108,7 +108,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuild
     val columnConstraints = AC()
 
     // MigLayout in any case always creates CC, so, create instance even if it is not required
-    internal val Component.constraints: CC
+    private val Component.constraints: CC
         get() = componentConstraints.getOrPut(this) { CC() }
 
     fun updateComponentConstraints(component: Component, callback: CC.() -> Unit) {

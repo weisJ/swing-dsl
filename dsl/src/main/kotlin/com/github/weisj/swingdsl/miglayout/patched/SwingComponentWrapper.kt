@@ -304,7 +304,7 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
         }
     }
 
-    fun unwrapBorder(border: Border): Border {
+    private fun unwrapBorder(border: Border): Border {
         var b = border
         while (b is CompoundBorder) {
             b = b.outsideBorder
