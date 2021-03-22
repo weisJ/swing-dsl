@@ -32,7 +32,7 @@ import com.github.weisj.swingdsl.text.TextLabel
 import javax.swing.JComponent
 import javax.swing.JLabel
 
-interface RowBuilder : BaseBuilder {
+interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row> {
 
     fun visible(isVisible: Boolean)
     fun visibleIf(predicate: Condition): Row
@@ -52,6 +52,10 @@ interface RowBuilder : BaseBuilder {
 
     fun row(label: Text?, separated: Boolean = false, init: Row.() -> Unit): Row {
         return createChildRow(label?.let { TextLabel(it) }, isSeparated = separated).apply(init)
+    }
+
+    fun row(label: String?, separated: Boolean = false, init: Row.() -> Unit): Row {
+        return row(textOfNullable(label), separated, init)
     }
 
     fun createChildRow(

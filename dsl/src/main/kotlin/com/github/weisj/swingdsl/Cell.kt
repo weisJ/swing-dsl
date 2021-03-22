@@ -249,6 +249,16 @@ abstract class Cell : BaseBuilder {
         )
     }
 
+    fun <T : JComponent> component(component: ModifiableComponent<T>): CellBuilder<T> =
+        component(component as WrappedComponent<T>).bindModifiable(component)
+
+    private fun <T : JComponent> CellBuilder<T>.bindModifiable(modifiable: Modifiable): CellBuilder<T> {
+        onApply { modifiable.apply() }
+        onReset { modifiable.reset() }
+        onIsModified { modifiable.isModified() }
+        return this
+    }
+
     abstract fun <T : JComponent> component(component: T): CellBuilder<T>
     abstract fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T>
 

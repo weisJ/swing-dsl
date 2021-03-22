@@ -33,7 +33,8 @@ import java.awt.LayoutManager
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class DialogPanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) : JPanel(layout) {
+class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) : JPanel(layout),
+    ModifiableComponent<JPanel> {
 
     constructor(title: String?, layout: LayoutManager? = BorderLayout()) : this(textOfNullable(title), layout)
 
@@ -45,11 +46,14 @@ class DialogPanel(val title: Text? = null, layout: LayoutManager? = BorderLayout
         putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
     }
 
+    override fun getComponent(): JPanel = this
+    override fun getContainer(): JComponent = this
+
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var isModifiedCallbacks: Map<JComponent?, List<() -> Boolean>> = emptyMap()
 
-    fun apply() {
+    override fun apply() {
         for ((component, callbacks) in applyCallbacks.entries) {
             if (component == null) continue
 
@@ -61,7 +65,7 @@ class DialogPanel(val title: Text? = null, layout: LayoutManager? = BorderLayout
         applyCallbacks[null]?.forEach { it() }
     }
 
-    fun reset() {
+    override fun reset() {
         for ((component, callbacks) in resetCallbacks.entries) {
             if (component == null) continue
 
@@ -70,7 +74,7 @@ class DialogPanel(val title: Text? = null, layout: LayoutManager? = BorderLayout
         resetCallbacks[null]?.forEach { it() }
     }
 
-    fun isModified(): Boolean {
+    override fun isModified(): Boolean {
         return isModifiedCallbacks.values.any { list -> list.any { it() } }
     }
 }
