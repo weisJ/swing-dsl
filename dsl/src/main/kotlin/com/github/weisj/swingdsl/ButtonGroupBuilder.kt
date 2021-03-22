@@ -27,20 +27,27 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.text.textOfNullable
 import javax.swing.ButtonGroup
 
 interface ButtonGroupBuilder {
     fun withButtonGroup(title: Text?, buttonGroup: ButtonGroup, body: () -> Unit)
 
     fun withButtonGroup(buttonGroup: ButtonGroup, body: () -> Unit) {
-        withButtonGroup(null, buttonGroup, body)
+        withButtonGroup(null as Text?, buttonGroup, body)
     }
 
     fun buttonGroup(init: () -> Unit) {
-        buttonGroup(null, init)
+        buttonGroup(null as Text?, init)
     }
 
     fun buttonGroup(title: Text? = null, init: () -> Unit) {
         withButtonGroup(title, ButtonGroup(), init)
     }
+
+    fun withButtonGroup(title: String?, buttonGroup: ButtonGroup, body: () -> Unit) =
+        withButtonGroup(textOfNullable(title), buttonGroup, body)
+
+    fun buttonGroup(title: String? = null, init: () -> Unit) =
+        buttonGroup(textOfNullable(title), init)
 }

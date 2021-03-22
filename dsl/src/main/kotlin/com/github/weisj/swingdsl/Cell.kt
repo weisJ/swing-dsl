@@ -68,7 +68,6 @@ abstract class Cell : ButtonGroupBuilder {
     val pushY = CCFlags.pushY
     val push = CCFlags.push
 
-    @JvmOverloads
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 
     @JvmOverloads
@@ -97,7 +96,6 @@ abstract class Cell : ButtonGroupBuilder {
             }
     }
 
-    @JvmOverloads
     fun checkBox(
         text: Text,
         isSelected: Boolean = false,
@@ -287,4 +285,57 @@ abstract class Cell : ButtonGroupBuilder {
         if (comment != null) comment(comment)
         if (growPolicy != null) growPolicy(growPolicy)
     }
+
+    // String overloads
+    fun button(text: String, actionListener: (event: ActionEvent) -> Unit): CellBuilder<JButton> =
+        button(textOf(text), actionListener)
+
+    @JvmOverloads
+    fun checkBox(
+        text: String,
+        isSelected: Boolean = false,
+        comment: String? = null,
+        actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
+    ): CellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment), actionListener)
+
+    @JvmOverloads
+    fun checkBox(
+        text: String,
+        isSelected: Boolean = false,
+        comment: String? = null
+    ): CellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment))
+
+    fun checkBox(
+        text: String,
+        prop: KMutableProperty0<Boolean>,
+        comment: String? = null
+    ): CellBuilder<JCheckBox> {
+        return checkBox(textOf(text), prop, textOfNullable(comment))
+    }
+
+    @JvmOverloads
+    fun checkBox(
+        text: String,
+        getter: () -> Boolean,
+        setter: (Boolean) -> Unit,
+        comment: String? = null
+    ): CellBuilder<JCheckBox> {
+        return checkBox(textOf(text), getter, setter, textOfNullable(comment))
+    }
+
+    fun radioButton(text: String, comment: String? = null): CellBuilder<JRadioButton> =
+        radioButton(textOf(text), textOfNullable(comment))
+
+    fun radioButton(
+        text: String,
+        getter: () -> Boolean,
+        setter: (Boolean) -> Unit,
+        comment: String? = null
+    ): CellBuilder<JRadioButton> = radioButton(textOf(text), getter, setter, textOfNullable(comment))
+
+    fun radioButton(
+        text: String,
+        prop: KMutableProperty0<Boolean>,
+        comment: String? = null
+    ): CellBuilder<JRadioButton> = radioButton(textOf(text), prop, textOfNullable(comment))
 }
