@@ -41,14 +41,19 @@ internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) 
         get() = super.getDelegate()
     private var effectiveDelegate = superDelegate
 
+    private fun updateDelegate() {
+        effectiveDelegate = (UIManager.get(COMPONENT_FACTORY_KEY) as? ComponentFactory) ?: superDelegate
+    }
+
     init {
         UIManager.addPropertyChangeListener { e: PropertyChangeEvent? ->
             e ?: return@addPropertyChangeListener
             val key: String = e.propertyName
             if ("lookAndFeel" == key) {
-                effectiveDelegate = (UIManager.get(COMPONENT_FACTORY_KEY) as? ComponentFactory) ?: superDelegate
+                updateDelegate()
             }
         }
+        updateDelegate()
     }
 
     override fun getDelegate(): ComponentFactory {
