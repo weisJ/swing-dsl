@@ -29,7 +29,7 @@ package com.github.weisj.swingdsl
 import com.github.weisj.swingdsl.text.Text
 import javax.swing.ButtonGroup
 
-interface BaseBuilder {
+interface ButtonGroupBuilder {
     fun withButtonGroup(title: Text?, buttonGroup: ButtonGroup, body: () -> Unit)
 
     fun withButtonGroup(buttonGroup: ButtonGroup, body: () -> Unit) {

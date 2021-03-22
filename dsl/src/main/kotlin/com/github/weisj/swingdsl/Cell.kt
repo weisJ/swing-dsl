@@ -39,7 +39,7 @@ import javax.swing.*
 import kotlin.reflect.KMutableProperty0
 
 @CellMarker
-abstract class Cell : BaseBuilder {
+abstract class Cell : ButtonGroupBuilder {
 
     internal companion object {
         const val UNBOUND_RADIO_BUTTON = "unbound.radio.button"
