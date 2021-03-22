@@ -26,9 +26,12 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOfNullable
 import javax.swing.ButtonGroup
+import javax.swing.JRadioButton
 
 interface ButtonGroupBuilder {
     fun withButtonGroup(title: Text?, buttonGroup: ButtonGroup, body: () -> Unit)
@@ -50,4 +53,43 @@ interface ButtonGroupBuilder {
 
     fun buttonGroup(title: String? = null, init: () -> Unit) =
         buttonGroup(textOfNullable(title), init)
+}
+
+class CellBuilderWithButtonGroupProperty<T>
+@PublishedApi internal constructor(private val prop: PropertyBinding<T>) {
+
+    fun Cell.radioButton(text: Text, value: T, comment: Text? = null): CellBuilder<JRadioButton> {
+        val component = UIFactory.createRadioButton(text)
+        component.component.isSelected = prop.get() == value
+        return component(comment = comment).bindValue(value)
+    }
+
+    fun CellBuilder<JRadioButton>.bindValue(value: T): CellBuilder<JRadioButton> = bindValueToProperty(prop, value)
+}
+
+class RowBuilderWithButtonGroupProperty<T>
+@PublishedApi internal constructor(private val builder: RowBuilder, private val prop: PropertyBinding<T>) :
+    RowBuilder by builder {
+
+    fun Row.radioButton(
+        text: Text,
+        value: T,
+        comment: Text? = null
+    ): CellBuilder<JRadioButton> {
+        val component = UIFactory.createRadioButton(text)
+        component.component.isSelected = prop.get() == value
+        attachSubRowsEnabled(component.component)
+        return component(comment = comment).bindValue(value)
+    }
+
+    fun CellBuilder<JRadioButton>.bindValue(value: T): CellBuilder<JRadioButton> = bindValueToProperty(prop, value)
+}
+
+private fun <T> CellBuilder<JRadioButton>.bindValueToProperty(
+    prop: PropertyBinding<T>,
+    value: T
+): CellBuilder<JRadioButton> = apply {
+    onApply { if (component.isSelected) prop.set(value) }
+    onReset { component.isSelected = prop.get() == value }
+    onIsModified { component.isSelected != (prop.get() == value) }
 }

@@ -26,11 +26,13 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.condition.Condition
+import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.binding.toBinding
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.text.textOfNullable
+import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
@@ -83,4 +85,28 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     fun createCommentRow(component: JComponent): Row
     fun commentRow(text: Text)
     fun commentRow(text: String) = commentRow(textOf(text))
+}
+
+inline fun <reified T : Any> RowBuilder.buttonGroup(
+    prop: KMutableProperty0<T>,
+    crossinline init: RowBuilderWithButtonGroupProperty<T>.() -> Unit
+) {
+    buttonGroup(prop.toBinding(), init)
+}
+
+inline fun <reified T : Any> RowBuilder.buttonGroup(
+    noinline getter: () -> T,
+    noinline setter: (T) -> Unit,
+    crossinline init: RowBuilderWithButtonGroupProperty<T>.() -> Unit
+) {
+    buttonGroup(PropertyBinding(getter, setter), init)
+}
+
+inline fun <reified T : Any> RowBuilder.buttonGroup(
+    binding: PropertyBinding<T>,
+    crossinline init: RowBuilderWithButtonGroupProperty<T>.() -> Unit
+) {
+    withButtonGroup(ButtonGroup()) {
+        RowBuilderWithButtonGroupProperty(this, binding).init()
+    }
 }
