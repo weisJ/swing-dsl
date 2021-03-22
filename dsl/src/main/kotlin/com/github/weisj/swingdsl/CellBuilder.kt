@@ -27,7 +27,6 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import javax.swing.AbstractButton
@@ -40,7 +39,7 @@ import javax.swing.event.DocumentListener
 @DslMarker
 annotation class CellMarker
 
-interface CellBuilder<out T : JComponent> {
+interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuilder<T>> {
     val component: T
 
     fun onApply(callback: () -> Unit): CellBuilder<T>
@@ -75,12 +74,6 @@ interface CellBuilder<out T : JComponent> {
     ): CellBuilder<T> = comment(textOf(text), maxLineLength, forComponent)
 
     fun commentComponent(component: JComponent, forComponent: Boolean = false): CellBuilder<T>
-
-    fun visible(isVisible: Boolean)
-    fun visibleIf(predicate: Condition): CellBuilder<T>
-
-    fun enabled(isEnabled: Boolean)
-    fun enableIf(predicate: Condition): CellBuilder<T>
 
     fun withLargeLeftGap(): CellBuilder<T>
     fun withLeftGap(): CellBuilder<T>

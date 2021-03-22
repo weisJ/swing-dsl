@@ -33,15 +33,9 @@ import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.text.textOfNullable
 import javax.swing.JComponent
 import javax.swing.JLabel
+import kotlin.reflect.KMutableProperty0
 
-interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row> {
-
-    fun visible(isVisible: Boolean)
-    fun visibleIf(predicate: Condition): Row
-
-    fun enabled(isEnabled: Boolean)
-    fun enableIf(predicate: Condition): Row
-
+interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, BuilderWithEnabledProperty<Row> {
     fun commitImmediately()
 
     // manual JvmOverloads
