@@ -89,6 +89,8 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     fun applyToComponent(task: T.() -> Unit): CellBuilder<T> {
         return also { task(component) }
     }
+
+    operator fun invoke(action: CellBuilder<T>.() -> Unit): CellBuilder<T> = apply(action)
 }
 
 internal interface ScrollPaneCellBuilder {
