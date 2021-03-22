@@ -25,9 +25,22 @@ import javax.swing.JComponent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SelfWrappedComponent<T extends JComponent> extends DefaultWrappedComponent<T, T> {
+public class DefaultWrappedComponent<T extends JComponent, K extends JComponent> implements WrappedComponent<T> {
+    private final @NotNull T component;
+    private final @NotNull K container;
 
-    public SelfWrappedComponent(@NotNull T component) {
-        super(component, component);
+    public DefaultWrappedComponent(@NotNull T component, @NotNull K container) {
+        this.component = component;
+        this.container = container;
+    }
+
+    @Override
+    public @NotNull T getComponent() {
+        return component;
+    }
+
+    @Override
+    public @NotNull JComponent getContainer() {
+        return container;
     }
 }
