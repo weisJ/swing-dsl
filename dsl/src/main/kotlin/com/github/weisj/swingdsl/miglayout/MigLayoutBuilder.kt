@@ -210,17 +210,25 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                 }
 
                 if (index >= row.rightIndex) {
-                    val cellModeSpan = row.cellModeSpans.find { it.contains(index) }
-                    if (cellModeSpan == null || index == cellModeSpan.start || cellModeSpan.isVerticalFlow) {
-                        // If we aren't in a joined cell simply add the spacing.
-                        // If we are in a joined cell which is vertical we need to add the spacer to all components.
-                        // Otherwise we need to make sure to only add the spacing to the first component.
-                        cc.horizontal.gapBefore = BoundSize(null, null, null, true, null)
-                    }
+                    configureRightAlignment(row, index, cc)
                 }
 
                 container.add(component, cc)
             }
+        }
+    }
+
+    private fun configureRightAlignment(
+        row: MigLayoutRow,
+        index: Int,
+        cc: CC
+    ) {
+        val cellModeSpan = row.cellModeSpans.find { it.contains(index) }
+        if (cellModeSpan == null || index == cellModeSpan.start || cellModeSpan.isVerticalFlow) {
+            // If we aren't in a joined cell simply add the spacing.
+            // If we are in a joined cell which is vertical we need to add the spacer to all components.
+            // Otherwise we need to make sure to only add the spacing to the first component.
+            cc.horizontal.gapBefore = BoundSize(null, null, null, true, null)
         }
     }
 

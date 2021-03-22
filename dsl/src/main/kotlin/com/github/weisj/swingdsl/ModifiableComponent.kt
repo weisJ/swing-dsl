@@ -39,8 +39,8 @@ interface Modifiable {
 
     companion object {
         val NO_OP_IMPL = object : Modifiable {
-            override fun apply() {}
-            override fun reset() {}
+            override fun apply() { /* Do nothing */ }
+            override fun reset() { /* Do nothing */ }
             override fun isModified(): Boolean = false
         }
     }

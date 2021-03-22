@@ -150,8 +150,7 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         immediateModeUpdater: (() -> Unit)?
     ): CellBuilder<T> {
         bindingUpdaters.add(immediateModeUpdater ?: {
-            // Todo Proper logging
-            println("Warning!: Immediate mode committing is not supported for $component")
+            error("Warning!: Immediate mode committing is not supported for $component")
         })
         immediateModeUpdater?.let { updater ->
             if (commitImmediately) {
