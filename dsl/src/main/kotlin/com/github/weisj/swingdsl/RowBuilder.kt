@@ -67,6 +67,14 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     fun titledRow(title: String, init: Row.() -> Unit): Row = titledRow(textOf(title), init)
 
     /**
+     * Creates row with hideable decorator.
+     * It allows to hide some information under the titled decorator
+     */
+    fun hideableRow(title: Text, startHidden: Boolean = true, init: Row.() -> Unit): Row
+    fun hideableRow(title: String, startHidden: Boolean = true, init: Row.() -> Unit): Row =
+        hideableRow(textOf(title), startHidden, init)
+
+    /**
      * Creates row with a huge gap after it, that can be used to group related components.
      * Think of [titledRow] without a title and additional indent.
      */

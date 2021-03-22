@@ -67,6 +67,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
     private val buttonGroupStack: MutableList<ButtonGroup> = mutableListOf()
     internal val topButtonGroup: ButtonGroup?
         get() = buttonGroupStack.lastOrNull()
+    internal var hideableRowNestingLevel = 0
 
     override val rootRow = MigLayoutRow(parent = null, builder = this, indentationLevel = 0)
     override var applyCallbacks: MutableMap<JComponent?, MutableList<() -> Unit>> = linkedMapOf()

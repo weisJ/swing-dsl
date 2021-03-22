@@ -29,14 +29,14 @@ package com.github.weisj.swingdsl.miglayout
 import com.github.weisj.swingdsl.CellBuilder
 import com.github.weisj.swingdsl.Row
 import com.github.weisj.swingdsl.SpacingConfiguration
+import com.github.weisj.swingdsl.component.HideableTitledSeparator
+import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.condition.registerListener
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
-import java.awt.Component
-import java.awt.Dimension
 import javax.swing.*
 import javax.swing.border.LineBorder
 import javax.swing.text.JTextComponent
@@ -87,23 +87,7 @@ internal class MigLayoutRow(
 
         // as static method to ensure that members of current row are not used
         private fun configureSeparatorRow(row: MigLayoutRow, title: Text?) {
-            val separatorComponent = DynamicUI.withTitledDivider(
-                object : JComponent() {
-                    override fun getMinimumSize(): Dimension {
-                        return insets.run {
-                            Dimension(left + right, bottom + top)
-                        }
-                    }
-
-                    override fun getMaximumSize(): Dimension {
-                        return Dimension(Int.MAX_VALUE, preferredSize.height)
-                    }
-
-                    override fun getPreferredSize(): Dimension = minimumSize
-                },
-                title
-            )
-            row.addTitleComponent(separatorComponent, isEmpty = title == null)
+            row.addTitleComponent(TitledSeparator(title), isEmpty = title == null)
         }
     }
 
@@ -305,6 +289,26 @@ internal class MigLayoutRow(
         result.placeholder()
         result.largeGapAfter()
         return result
+    }
+
+    override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
+        val titledSeparator = HideableTitledSeparator(title)
+        val separatorRow = createChildRow()
+        separatorRow.addTitleComponent(titledSeparator, isEmpty = false)
+        builder.hideableRowNestingLevel++
+        try {
+            val panelRow = createChildRow(indentationLevel + spacing.indentLevel)
+            panelRow.init()
+            titledSeparator.row = panelRow
+            if (startHidden) {
+                titledSeparator.collapse()
+            } else {
+                titledSeparator.expand()
+            }
+            return panelRow
+        } finally {
+            builder.hideableRowNestingLevel--
+        }
     }
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
