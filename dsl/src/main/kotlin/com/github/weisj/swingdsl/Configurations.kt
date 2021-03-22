@@ -139,6 +139,10 @@ interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
     var glassPane: Component
     var menuBar: JMenuBar?
 
+    fun content(provider: () -> JComponent) {
+        contentPane = provider()
+    }
+
     companion object {
         operator fun <T : JFrame> invoke(comp: T): JFrameConfiguration<T> = JFrameConfigurationImpl(comp)
     }

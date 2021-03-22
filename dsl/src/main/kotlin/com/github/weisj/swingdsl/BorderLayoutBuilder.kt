@@ -61,4 +61,40 @@ class BorderLayoutBuilder private constructor(override val component: JPanel) :
     var pageEnd: JComponent by layout(BorderLayout.PAGE_END)
     var lineStart: JComponent by layout(BorderLayout.LINE_START)
     var lineEnd: JComponent by layout(BorderLayout.LINE_END)
+
+    fun north(componentProvider: () -> JComponent) {
+        north = componentProvider()
+    }
+
+    fun south(componentProvider: () -> JComponent) {
+        south = componentProvider()
+    }
+
+    fun east(componentProvider: () -> JComponent) {
+        east = componentProvider()
+    }
+
+    fun west(componentProvider: () -> JComponent) {
+        west = componentProvider()
+    }
+
+    fun center(componentProvider: () -> JComponent) {
+        center = componentProvider()
+    }
+
+    fun pageStart(componentProvider: () -> JComponent) {
+        pageStart = componentProvider()
+    }
+
+    fun pageEnd(componentProvider: () -> JComponent) {
+        pageEnd = componentProvider()
+    }
+
+    fun lineStart(componentProvider: () -> JComponent) {
+        lineStart = componentProvider()
+    }
+
+    fun lineEnd(componentProvider: () -> JComponent) {
+        lineStart = componentProvider()
+    }
 }

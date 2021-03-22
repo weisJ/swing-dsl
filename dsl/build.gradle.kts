@@ -13,7 +13,9 @@ dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
     testImplementation(kotlin("stdlib-jdk8"))
-    testImplementation("com.github.weisj:darklaf-core")
+    testImplementation("com.github.weisj:darklaf-core") {
+        isChanging = true
+    }
 }
 
 fun Jar.includeLicenses() {

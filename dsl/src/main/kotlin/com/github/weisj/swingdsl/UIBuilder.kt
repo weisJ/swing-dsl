@@ -37,7 +37,7 @@ interface UIBuilder<T : JComponent> {
 
 fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     val frame = JFrame()
-    val config = object : JFrameConfiguration<JFrame> by JFrameConfiguration(frame) {
+    val config = object : JFrameConfigurationImpl<JFrame>(frame) {
         // Override and do nothing to ensure pack() can be called first.
         override var visible: Boolean = false
         override var locationRelativeTo: Component? = null
