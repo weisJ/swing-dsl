@@ -183,8 +183,14 @@ open class PatchedMigLayout @JvmOverloads constructor(
         }
 
         if (grid == null) {
-            grid =
-                Grid(par!!, layoutConstraints, rowConstraints, columnConstraints, componentWrapperToConstraints, null)
+            grid = Grid(
+                par!!,
+                layoutConstraints,
+                rowConstraints,
+                columnConstraints,
+                componentWrapperToConstraints,
+                null
+            )
         }
 
         dirty = false

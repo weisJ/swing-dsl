@@ -209,7 +209,13 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                 }
 
                 if (index >= row.rightIndex) {
-                    cc.horizontal.gapBefore = BoundSize(null, null, null, true, null)
+                    val cellModeSpan = row.cellModeSpans.find { it.contains(index) }
+                    if (cellModeSpan == null || index == cellModeSpan.start || cellModeSpan.isVerticalFlow) {
+                        // If we aren't in a joined cell simply add the spacing.
+                        // If we are in a joined cell which is vertical we need to add the spacer to all components.
+                        // Otherwise we need to make sure to only add the spacing to the first component.
+                        cc.horizontal.gapBefore = BoundSize(null, null, null, true, null)
+                    }
                 }
 
                 container.add(component, cc)
@@ -291,16 +297,15 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
 
     private fun getRowType(row: MigLayoutRow): RowType {
         if (row.components[0] is JCheckBox) {
-            if (row.components.all {
-                it is JCheckBox || it is JLabel
+            when {
+                row.components.all {
+                    it is JCheckBox || it is JLabel
+                } -> return RowType.CHECKBOX
+                row.components.all {
+                    it is JCheckBox || it is JLabel || it is JTextField ||
+                            it is JPasswordField || it is JComboBox<*>
+                } -> return RowType.CHECKBOX_TALL
             }
-            ) return RowType.CHECKBOX
-            if (row.components.all {
-                it is JCheckBox || it is JLabel ||
-                    it is JTextField || it is JPasswordField ||
-                    it is JComboBox<*>
-            }
-            ) return RowType.CHECKBOX_TALL
         }
         return RowType.GENERIC
     }

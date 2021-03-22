@@ -44,6 +44,7 @@ import kotlin.math.max
 import kotlin.reflect.KMutableProperty0
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
+import net.miginfocom.layout.LayoutUtil
 
 internal class MigLayoutRow(
     private val parent: MigLayoutRow?,
@@ -207,6 +208,19 @@ internal class MigLayoutRow(
 
     internal var commitImmediately: Boolean = parent?.commitImmediately ?: false
 
+    internal data class CellModeSpan(var start: Int, var end: Int = -1, var isVerticalFlow: Boolean = false) {
+        val length: Int
+            get() = end - start
+
+        operator fun contains(index: Int): Boolean {
+            if (start == -1) return false
+            if (end == -1) return index >= start
+            return index in start..end
+        }
+    }
+
+    internal var cellModeSpans = mutableListOf(CellModeSpan(start = -1, end = -1))
+
     override fun createChildRow(label: JLabel?, isSeparated: Boolean, noGrid: Boolean, title: Text?): MigLayoutRow {
         return createChildRow(indentationLevel, label, isSeparated, noGrid, title)
     }
@@ -307,12 +321,48 @@ internal class MigLayoutRow(
         return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
     }
 
+    override fun setCellMode(value: Boolean, isVerticalFlow: Boolean, fullWidth: Boolean) {
+        if (value) {
+            assert(cellModeSpans.isNotEmpty() && cellModeSpans.last().start == -1)
+            cellModeSpans.last().also {
+                it.start = components.size
+                it.isVerticalFlow = isVerticalFlow
+            }
+        } else {
+            val span = cellModeSpans.last()
+            span.end = components.size
+
+            cellModeSpans.add(CellModeSpan(start = -1, end = -1))
+
+            val componentCount = span.length
+            if (componentCount == 0) return
+            val component = components[span.start]
+            val cc = component.constraints
+
+            // do not add split if cell empty or contains the only component
+            if (componentCount > 1) {
+                cc.split(componentCount)
+            }
+            if (fullWidth) {
+                cc.spanX(LayoutUtil.INF)
+            }
+            if (isVerticalFlow) {
+                cc.flowY()
+                // because when vertical buttons placed near scroll pane, it wil be centered by baseline (and baseline not applicable for grow elements, so, will be centered)
+                cc.alignY("top")
+            }
+        }
+    }
+
     internal fun addComponent(component: JComponent, cc: CC = CC()) {
         components.add(component)
         builder.componentConstraints[component] = cc
 
         configureComponentState(component)
-        columnIndex++
+        val currentCellSpan = cellModeSpans.last()
+        if (currentCellSpan.start == -1 || currentCellSpan.start == components.size - 1) {
+            columnIndex++
+        }
 
         if (labeled && components.size == 2 && component.border is LineBorder) {
             builder.componentConstraints[components.first()]?.vertical?.gapBefore =
@@ -367,8 +417,8 @@ internal class MigLayoutRow(
         }
     }
 
-    private val Component.constraints: CC
-        get() = builder.run { this@constraints.constraints }
+    private val JComponent.constraints: CC
+        get() = builder.componentConstraints.getOrPut(this) { CC() }
 
     fun addCommentRow(comment: Text, maxLineLength: Int = 70, forComponent: Boolean) {
         addCommentRow(createCommentComponent(comment, maxLineLength), forComponent)

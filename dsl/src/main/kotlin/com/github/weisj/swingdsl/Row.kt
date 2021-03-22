@@ -57,6 +57,20 @@ abstract class Row : Cell(), RowBuilder {
 
     abstract fun largeGapAfter()
 
+    /**
+     * Shares cell between components.
+     *
+     * @param isFullWidth If `true`, the cell occupies the full width of the enclosing component.
+     */
+    inline fun cell(isVerticalFlow: Boolean = false, isFullWidth: Boolean = false, init: InnerCell.() -> Unit) {
+        setCellMode(true, isVerticalFlow, isFullWidth)
+        InnerCell(this).init()
+        setCellMode(false, isVerticalFlow, isFullWidth)
+    }
+
+    @PublishedApi
+    internal abstract fun setCellMode(value: Boolean, isVerticalFlow: Boolean, fullWidth: Boolean)
+
     @PublishedApi
     internal abstract fun createRow(label: Text?): Row
 

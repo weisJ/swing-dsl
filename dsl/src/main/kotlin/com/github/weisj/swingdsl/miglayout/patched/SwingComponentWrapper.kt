@@ -61,6 +61,8 @@ package com.github.weisj.swingdsl.miglayout.patched
 
 import com.github.weisj.swingdsl.laf.VisualPaddingProvider
 import java.awt.*
+import java.awt.geom.Point2D
+import java.util.*
 import javax.swing.JComponent
 import javax.swing.JEditorPane
 import javax.swing.JTextArea
@@ -84,6 +86,20 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
 
     private var visualPaddings: IntArray? = null
 
+    companion object {
+        private val FONT_METRICS_CACHE = IdentityHashMap<FontMetrics, Point2D.Float>(4)
+        private val SUBST_FONT = Font("sansserif", Font.PLAIN, 11)
+        private val isJava9orLater = try {
+            // Java 9 version-String Scheme: http://openjdk.java.net/jeps/223
+            val st = StringTokenizer(System.getProperty("java.version"), "._-+")
+            val majorVersion = st.nextToken().toInt()
+            majorVersion >= 9
+        } catch (e: Exception) {
+            // Java 8 or older
+            false
+        }
+    }
+
     override fun getBaseline(width: Int, height: Int): Int {
         var h = height
         val visualPaddings = visualPadding
@@ -102,7 +118,40 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
     override fun getComponent() = c
 
     override fun getPixelUnitFactor(isHor: Boolean): Float {
-        throw RuntimeException("Do not use LPX/LPY")
+        // The usage of these metrics is discouraged but necessary when no GAP_PROVIDER is set.
+        return when (PlatformDefaults.getLogicalPixelBase()) {
+            PlatformDefaults.BASE_FONT_SIZE -> {
+                val font = c.font
+                val fm = c.getFontMetrics(font ?: SUBST_FONT)
+                var p = FONT_METRICS_CACHE[fm]
+                if (p == null) {
+                    val r = fm.getStringBounds("X", c.graphics)
+                    p = Point2D.Float(r.width.toFloat() / 6f, r.height.toFloat() / 13.27734375f)
+                    FONT_METRICS_CACHE[fm] = p
+                }
+                if (isHor) p.x else p.y
+            }
+            PlatformDefaults.BASE_SCALE_FACTOR -> {
+                val s = if (isHor) {
+                    PlatformDefaults.getHorizontalScaleFactor()
+                } else {
+                    PlatformDefaults.getVerticalScaleFactor()
+                }
+                val scaleFactor = s ?: 1f
+
+                // Swing in Java 9 scales automatically using the system scale factor(s) that the
+                // user can change in the system settings (Windows: Control Panel; Mac: System Preferences).
+                // Each connected screen may use its own scale factor
+                // (e.g. 1.5 for primary 4K 40inch screen and 1.0 for secondary HD screen).
+                val screenScale = when {
+                    isJava9orLater -> 1f // use system scale factor(s)
+                    isHor -> horizontalScreenDPI.toFloat() / PlatformDefaults.getDefaultDPI().toFloat()
+                    else -> verticalScreenDPI.toFloat() / PlatformDefaults.getDefaultDPI().toFloat()
+                }
+                scaleFactor * screenScale
+            }
+            else -> 1f
+        }
     }
 
     override fun getX() = c.x
