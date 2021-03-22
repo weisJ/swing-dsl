@@ -118,14 +118,10 @@ class DynamicUI private constructor() {
             title: Text?
         ): T {
             return withDynamic(comp) { c: T ->
-                if (title != null) {
+                c.border = UIFactory.createDividerBorder(title?.let {
                     val text = title.text
-                    if (!text.isEmpty()) {
-                        c.border = UIFactory.createDividerBorder(text)
-                        return@withDynamic
-                    }
-                }
-                c.border = UIFactory.createDividerBorder(null)
+                    if (!text.isEmpty()) text else null
+                })
             }
         }
 
