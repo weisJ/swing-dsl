@@ -35,25 +35,45 @@ import org.jetbrains.annotations.Nullable;
 
 import com.github.weisj.swingdsl.text.Text;
 
-public interface ComponentFactory {
+public class ComponentFactoryDelegate implements ComponentFactory {
 
-    String COMPONENT_FACTORY_KEY = "swingdsl.componentFactory";
+    private final ComponentFactory delegate;
 
-    @NotNull
-    WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon);
+    public ComponentFactoryDelegate(final ComponentFactory delegate) {
+        this.delegate = delegate;
+    }
 
-    @NotNull
-    WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon);
+    public ComponentFactory getDelegate() {
+        return delegate;
+    }
 
-    @NotNull
-    WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon);
+    @Override
+    public @NotNull WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon) {
+        return getDelegate().createButton(text, icon);
+    }
 
-    @NotNull
-    WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content);
+    @Override
+    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon) {
+        return getDelegate().createCheckBox(text, icon);
+    }
 
-    @NotNull
-    WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right);
+    @Override
+    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon) {
+        return getDelegate().createRadioButton(text, icon);
+    }
 
-    @NotNull
-    Border createDividerBorder(@Nullable String title);
+    @Override
+    public @NotNull WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content) {
+        return getDelegate().createScrollPane(content);
+    }
+
+    @Override
+    public @NotNull WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right) {
+        return getDelegate().createSplitPane(left, right);
+    }
+
+    @Override
+    public @NotNull Border createDividerBorder(@Nullable String title) {
+        return getDelegate().createDividerBorder(title);
+    }
 }

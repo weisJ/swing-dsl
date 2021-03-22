@@ -34,7 +34,7 @@ import java.awt.event.ActionListener
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 
-open class LayoutBuilder @PublishedApi internal constructor(@PublishedApi internal val builder: LayoutBuilderImpl) :
+open class PanelBuilder @PublishedApi internal constructor(@PublishedApi internal val builder: PanelBuilderImpl) :
     RowBuilder by builder.rootRow {
     override fun withButtonGroup(title: Text?, buttonGroup: ButtonGroup, body: () -> Unit) {
         builder.withButtonGroup(buttonGroup, body)
@@ -42,12 +42,12 @@ open class LayoutBuilder @PublishedApi internal constructor(@PublishedApi intern
 
     inline fun buttonGroup(
         crossinline elementActionListener: () -> Unit,
-        crossinline init: LayoutBuilder.() -> Unit
+        crossinline init: PanelBuilder.() -> Unit
     ): ButtonGroup {
         val group = ButtonGroup()
 
         builder.withButtonGroup(group) {
-            LayoutBuilder(builder).init()
+            PanelBuilder(builder).init()
         }
 
         val listener = ActionListener { elementActionListener() }
@@ -59,7 +59,7 @@ open class LayoutBuilder @PublishedApi internal constructor(@PublishedApi intern
 }
 
 @PublishedApi
-internal interface LayoutBuilderImpl {
+internal interface PanelBuilderImpl {
     val rootRow: Row
     fun withButtonGroup(buttonGroup: ButtonGroup, body: () -> Unit)
 
@@ -68,11 +68,6 @@ internal interface LayoutBuilderImpl {
     val applyCallbacks: Map<JComponent?, List<() -> Unit>>
     val resetCallbacks: Map<JComponent?, List<() -> Unit>>
     val isModifiedCallbacks: Map<JComponent?, List<() -> Boolean>>
-}
-
-@PublishedApi
-internal fun createLayoutBuilder(): LayoutBuilder {
-    return LayoutBuilder(MigLayoutBuilder(createDefaultSpacingConfiguration()))
 }
 
 /**
@@ -84,27 +79,33 @@ internal fun createLayoutBuilder(): LayoutBuilder {
 fun panel(
     vararg constraints: LCFlags = emptyArray(),
     title: Text? = null,
-    init: LayoutBuilder.() -> Unit
-): DialogPanel {
+    init: PanelBuilder.() -> Unit
+): ModifiablePanel {
     val builder = createLayoutBuilder()
     builder.init()
 
-    val panel = DialogPanel(title, layout = null)
+    val panel = ModifiablePanel(title, layout = null)
     builder.builder.build(panel, constraints)
     initPanel(builder, panel)
     return panel
 }
 
+@JvmOverloads
 fun panel(
     vararg constraints: LCFlags = emptyArray(),
-    title: String? = null,
-    init: LayoutBuilder.() -> Unit
-): DialogPanel {
+    title: String,
+    init: PanelBuilder.() -> Unit
+): ModifiablePanel {
     return panel(*constraints, title = textOfNullable(title), init = init)
 }
 
 @PublishedApi
-internal fun initPanel(builder: LayoutBuilder, panel: DialogPanel) {
+internal fun createLayoutBuilder(): PanelBuilder {
+    return PanelBuilder(MigLayoutBuilder(createDefaultSpacingConfiguration()))
+}
+
+@PublishedApi
+internal fun initPanel(builder: PanelBuilder, panel: ModifiablePanel) {
     panel.applyCallbacks = builder.builder.applyCallbacks
     panel.resetCallbacks = builder.builder.resetCallbacks
     panel.isModifiedCallbacks = builder.builder.isModifiedCallbacks

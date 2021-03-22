@@ -32,20 +32,20 @@ import kotlin.reflect.KProperty1
 typealias BiConsumer<T> = (T, T) -> Unit
 
 class ObservableManager<T> {
-    private val properties = mutableMapOf<String, Any>()
-    private val listeners = mutableMapOf<String, MutableList<BiConsumer<Any>>>()
+    private val properties = mutableMapOf<String, Any?>()
+    private val listeners = mutableMapOf<String, MutableList<BiConsumer<Any?>>>()
 
-    private fun updateValue(name: String, old: Any, new: Any) {
+    private fun updateValue(name: String, old: Any?, new: Any?) {
         if (old != new) {
             listeners[name]?.forEach { it(old, new) }
         }
     }
 
-    private fun updateValue(name: String, value: Any) {
-        updateValue(name, properties.put(name, value)!!, value)
+    private fun updateValue(name: String, value: Any?) {
+        updateValue(name, properties.put(name, value), value)
     }
 
-    fun registerListener(name: String, biConsumer: BiConsumer<Any>) {
+    fun registerListener(name: String, biConsumer: BiConsumer<Any?>) {
         listeners.getOrPut(name) { mutableListOf() }.add(biConsumer)
         properties[name]?.let { biConsumer(it, it) }
     }
@@ -55,13 +55,13 @@ class ObservableManager<T> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <V : Any> registerListener(property: KProperty1<T, V>, crossinline consumer: BiConsumer<V>) =
+    inline fun <V> registerListener(property: KProperty1<T, V>, crossinline consumer: BiConsumer<V>) =
         registerListener(property.name) { old, new -> consumer(old as V, new as V) }
 
-    inline fun <reified V : Any> removeListeners(property: KProperty1<T, V>) =
+    inline fun <reified V> removeListeners(property: KProperty1<T, V>) =
         removeListeners(property.name)
 
-    inner class WrappingRWProperty<V : Any>(
+    inner class WrappingRWProperty<V>(
         prop: KProperty<*>,
         value: V
     ) : ReadWriteProperty<T, V> {
@@ -77,7 +77,7 @@ class ObservableManager<T> {
             updateValue(property.name, value)
     }
 
-    inner class WrappingDelegateRWProperty<V : Any>(
+    inner class WrappingDelegateRWProperty<V>(
         private val delegate: KMutableProperty0<V>
     ) : ReadWriteProperty<T, V> {
 
@@ -98,7 +98,7 @@ interface DelegateProvider<T, V> {
     ): ReadWriteProperty<T, V>
 }
 
-class ObservableValue<T, V : Any>(
+class ObservableValue<T, V>(
     private val delegate: ObservableManager<T>,
     private val value: V
 ) : DelegateProvider<T, V> {
@@ -108,7 +108,7 @@ class ObservableValue<T, V : Any>(
     ): ReadWriteProperty<T, V> = delegate.WrappingRWProperty(prop, value)
 }
 
-class ObservablePropertyValue<T, V : Any>(
+class ObservablePropertyValue<T, V>(
     private val delegate: ObservableManager<T>,
     private val property: KMutableProperty0<V>
 ) : DelegateProvider<T, V> {
@@ -132,19 +132,19 @@ open class DefaultObservable<T> : Observable<T> {
 /**
  * Create an observable property with the given initial value.
  */
-fun <T, V : Any> Observable<T>.observable(value: V): DelegateProvider<T, V> =
+fun <T, V> Observable<T>.observable(value: V): DelegateProvider<T, V> =
     ObservableValue(manager, value)
 
 /**
  * Create an observable property which is delegated to the given property.
  */
-fun <T, V : Any> Observable<T>.observable(prop: KMutableProperty0<V>): DelegateProvider<T, V> =
+fun <T, V> Observable<T>.observable(prop: KMutableProperty0<V>): DelegateProvider<T, V> =
     ObservablePropertyValue(manager, prop)
 
 /**
  * Add a listener to receive events when a property has changed.
  */
-inline fun <T, V : Any> Observable<T>.registerListener(
+inline fun <T, V> Observable<T>.registerListener(
     property: KProperty1<T, V>,
     crossinline consumer: BiConsumer<V>
 ) = manager.registerListener(property, consumer)
@@ -152,6 +152,10 @@ inline fun <T, V : Any> Observable<T>.registerListener(
 /**
  * Remove all listeners registered to a given property.
  */
-inline fun <T, reified V : Any> Observable<T>.removeListeners(
+inline fun <T, reified V> Observable<T>.removeListeners(
     property: KProperty1<T, V>
 ) = manager.removeListeners(property)
+
+data class ObservableInstanceProperty<T, R : Observable<R>>(val receiver: R, val property: KProperty1<R, T>)
+
+infix fun <T, R : Observable<R>> KProperty1<R, T>.on(receiver: R) = ObservableInstanceProperty(receiver, this)

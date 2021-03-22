@@ -107,6 +107,7 @@ internal class MigLayoutRow(
     }
 
     internal val components: MutableList<JComponent> = mutableListOf()
+    private val childCells: MutableList<MigLayoutCellBuilder<*>> = mutableListOf()
     internal var rightIndex = Int.MAX_VALUE
 
     private var columnIndex = -1
@@ -204,6 +205,8 @@ internal class MigLayoutRow(
     internal val columnIndexIncludingSubRows: Int
         get() = max(columnIndex, subRows?.asSequence()?.map { it.columnIndexIncludingSubRows }?.max() ?: -1)
 
+    internal var commitImmediately: Boolean = parent?.commitImmediately ?: false
+
     override fun createChildRow(label: JLabel?, isSeparated: Boolean, noGrid: Boolean, title: Text?): MigLayoutRow {
         return createChildRow(indentationLevel, label, isSeparated, noGrid, title)
     }
@@ -292,12 +295,16 @@ internal class MigLayoutRow(
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
         addComponent(component)
-        return MigLayoutCellBuilder(builder, this, component)
+        return addCell(component)
     }
 
     override fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T> {
         addComponent(wrappedComponent.container)
-        return MigLayoutCellBuilder(builder, this, wrappedComponent.component)
+        return addCell(wrappedComponent.component)
+    }
+
+    private fun <T : JComponent> addCell(comp: T): CellBuilder<T> {
+        return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
     }
 
     internal fun addComponent(component: JComponent, cc: CC = CC()) {
@@ -479,6 +486,14 @@ internal class MigLayoutRow(
         this.visible = predicate()
         predicate.registerListener(Condition::value) { _, it -> this.visible = it }
         return this
+    }
+
+    override fun commitImmediately() {
+        if (commitImmediately) return
+        commitImmediately = true
+        // Update child rows
+        getOrCreateSubRowsList().forEach { it.commitImmediately() }
+        childCells.forEach { it.commitImmediately() }
     }
 
     private class ConstrainedTextArea(val boundText: Text, val maxLineLength: Int) : JTextArea() {

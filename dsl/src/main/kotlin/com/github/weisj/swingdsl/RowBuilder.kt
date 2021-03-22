@@ -29,6 +29,8 @@ package com.github.weisj.swingdsl
 import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
+import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.text.textOfNullable
 import javax.swing.JComponent
 import javax.swing.JLabel
 
@@ -39,6 +41,8 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row> {
 
     fun enabled(isEnabled: Boolean)
     fun enableIf(predicate: Condition): Row
+
+    fun commitImmediately()
 
     // manual JvmOverloads
     fun row(init: Row.() -> Unit): Row = row(null as JLabel?, false, init)
@@ -66,6 +70,8 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row> {
     ): Row
 
     fun titledRow(title: Text, init: Row.() -> Unit): Row
+    fun titledRow(title: String, init: Row.() -> Unit): Row = titledRow(textOf(title), init)
+
     /**
      * Creates row with a huge gap after it, that can be used to group related components.
      * Think of [titledRow] without a title and additional indent.
@@ -74,8 +80,5 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row> {
 
     fun createCommentRow(component: JComponent): Row
     fun commentRow(text: Text)
-
-    fun onGlobalApply(callback: () -> Unit): Row
-    fun onGlobalReset(callback: () -> Unit): Row
-    fun onGlobalIsModified(callback: () -> Boolean): Row
+    fun commentRow(text: String) = commentRow(textOf(text))
 }

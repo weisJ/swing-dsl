@@ -23,21 +23,23 @@ package com.github.weisj.swingdsl.laf;
 
 import javax.swing.JComponent;
 
+import org.jetbrains.annotations.NotNull;
+
 public class SelfWrappedComponent<T extends JComponent> implements WrappedComponent<T> {
 
-    private final T comp;
+    private final @NotNull T comp;
 
-    public SelfWrappedComponent(final T comp) {
+    public SelfWrappedComponent(final @NotNull T comp) {
         this.comp = comp;
     }
 
     @Override
-    public T getComponent() {
+    public @NotNull T getComponent() {
         return comp;
     }
 
     @Override
-    public JComponent getContainer() {
+    public @NotNull JComponent getContainer() {
         return getComponent();
     }
 }

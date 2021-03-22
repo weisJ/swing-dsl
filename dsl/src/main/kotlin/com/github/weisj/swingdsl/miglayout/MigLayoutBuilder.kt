@@ -27,9 +27,9 @@
 package com.github.weisj.swingdsl.miglayout
 
 import com.github.weisj.swingdsl.Cell.Companion.UNBOUND_RADIO_BUTTON
-import com.github.weisj.swingdsl.DialogPanel
 import com.github.weisj.swingdsl.LCFlags
-import com.github.weisj.swingdsl.LayoutBuilderImpl
+import com.github.weisj.swingdsl.ModifiablePanel
+import com.github.weisj.swingdsl.PanelBuilderImpl
 import com.github.weisj.swingdsl.SpacingConfiguration
 import com.github.weisj.swingdsl.miglayout.patched.PatchedMigLayout
 import java.awt.Component
@@ -41,7 +41,7 @@ import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
 
-internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuilderImpl {
+internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilderImpl {
     companion object {
         private var hRelatedGap = -1
         private var vRelatedGap = -1
@@ -149,7 +149,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuild
             override fun layoutContainer(parent: Container) {
                 if (!isLayoutInsetsAdjusted) {
                     isLayoutInsetsAdjusted = true
-                    if ((container as? JComponent)?.getClientProperty(DialogPanel.DIALOG_CONTENT_PANEL_PROPERTY) != null) {
+                    if ((container as? JComponent)?.getClientProperty(ModifiablePanel.DIALOG_CONTENT_PANEL_PROPERTY) != null) {
                         // since we compensate visual padding, child components should be not clipped,
                         // so, we do not use content pane DialogWrapper border (returns null),
                         // but instead set insets to our content panel (so, child components are not clipped)

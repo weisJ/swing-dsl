@@ -30,16 +30,17 @@ import java.awt.Font
 import java.beans.PropertyChangeEvent
 import java.util.*
 import java.util.function.BiFunction
-import java.util.function.Consumer
 import java.util.function.UnaryOperator
 import javax.swing.JComponent
 import javax.swing.UIManager
 import javax.swing.plaf.FontUIResource
 import javax.swing.plaf.UIResource
 
+private typealias UIUpdate = (Component) -> Unit
+
 class DynamicUI private constructor() {
     companion object {
-        private val listeners: MutableMap<Component, MutableList<Consumer<Component>>> = WeakHashMap()
+        private val listeners: MutableMap<Component, MutableList<UIUpdate>> = WeakHashMap()
 
         /**
          * Attaches a configuration action that is executed when Look and Feel changes.
@@ -65,11 +66,11 @@ class DynamicUI private constructor() {
             synchronized(listeners) {
                 listeners.compute(component, BiFunction { _, v ->
                     @Suppress("UNCHECKED_CAST")
-                    v ?: return@BiFunction mutableListOf(onUpdateUi as Consumer<Component>)
-                    val res: MutableList<Consumer<Component>> = if (v.size == 1) ArrayList(v) else v
+                    v ?: return@BiFunction mutableListOf(onUpdateUi as UIUpdate)
+                    val res: MutableList<UIUpdate> = if (v.size == 1) ArrayList(v) else v
                     // noinspection unchecked
                     @Suppress("UNCHECKED_CAST")
-                    res.add(onUpdateUi as Consumer<Component>)
+                    res.add(onUpdateUi as UIUpdate)
                     res
                 })
             }
@@ -107,7 +108,7 @@ class DynamicUI private constructor() {
                 val list = listeners[component]
                     ?: return
                 for (action in list) {
-                    action.accept(component)
+                    action(component)
                 }
             }
         }

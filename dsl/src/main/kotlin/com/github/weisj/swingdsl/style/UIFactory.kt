@@ -25,75 +25,37 @@
 package com.github.weisj.swingdsl.style
 
 import com.github.weisj.swingdsl.laf.ComponentFactory
-import com.github.weisj.swingdsl.laf.ComponentFactory.COMPONENT_FACTORY_KEY
-import com.github.weisj.swingdsl.laf.SelfWrappedComponent
+import com.github.weisj.swingdsl.laf.ComponentFactoryDelegate
+import com.github.weisj.swingdsl.laf.DefaultComponentFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextButton
-import com.github.weisj.swingdsl.text.TextCheckBox
-import com.github.weisj.swingdsl.text.TextRadioButton
 import java.beans.PropertyChangeEvent
-import javax.swing.BorderFactory
-import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JCheckBox
-import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JRadioButton
-import javax.swing.JScrollPane
 import javax.swing.UIManager
-import javax.swing.border.Border
 
-internal object UIFactory : ComponentFactory {
-    private var delegate: ComponentFactory = DefaultComponentFactory()
+internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) {
+
+    private val superDelegate
+        get() = super.getDelegate()
+    private var effectiveDelegate = superDelegate
 
     init {
         UIManager.addPropertyChangeListener { e: PropertyChangeEvent? ->
             e ?: return@addPropertyChangeListener
             val key: String = e.propertyName
             if ("lookAndFeel" == key) {
-                delegate = (UIManager.get(COMPONENT_FACTORY_KEY) as? ComponentFactory) ?: DefaultComponentFactory()
+                effectiveDelegate = (UIManager.get(COMPONENT_FACTORY_KEY) as? ComponentFactory) ?: superDelegate
             }
         }
     }
 
-    override fun createButton(text: Text, icon: Icon?): WrappedComponent<JButton> =
-        delegate.createButton(text, icon)
-
-    override fun createCheckBox(text: Text, icon: Icon?): WrappedComponent<JCheckBox> =
-        delegate.createCheckBox(text, icon)
-
-    override fun createRadioButton(text: Text, icon: Icon?): WrappedComponent<JRadioButton> =
-        delegate.createRadioButton(text, icon)
+    override fun getDelegate(): ComponentFactory {
+        return effectiveDelegate
+    }
 
     fun createButton(text: Text): WrappedComponent<JButton> = createButton(text, null)
     fun createCheckBox(text: Text): WrappedComponent<JCheckBox> = createCheckBox(text, null)
     fun createRadioButton(text: Text): WrappedComponent<JRadioButton> = createRadioButton(text, null)
-
-    override fun createScrollPane(content: JComponent): WrappedComponent<JScrollPane> =
-        delegate.createScrollPane(content)
-
-    override fun createDividerBorder(title: String?): Border =
-        delegate.createDividerBorder(title)
-}
-
-internal class DefaultComponentFactory : ComponentFactory {
-    override fun createButton(text: Text, icon: Icon?): WrappedComponent<JButton> =
-        SelfWrappedComponent(TextButton(text, icon))
-
-    override fun createCheckBox(text: Text, icon: Icon?): WrappedComponent<JCheckBox> =
-        SelfWrappedComponent(TextCheckBox(text, icon))
-
-    override fun createRadioButton(text: Text, icon: Icon?): WrappedComponent<JRadioButton> =
-        SelfWrappedComponent(TextRadioButton(text, icon))
-
-    override fun createScrollPane(content: JComponent): WrappedComponent<JScrollPane> =
-        SelfWrappedComponent(JScrollPane(content))
-
-    override fun createDividerBorder(title: String?): Border {
-        return BorderFactory.createTitledBorder(
-            BorderFactory.createMatteBorder(1, 0, 0, 0, JLabel().foreground),
-            title
-        )
-    }
 }

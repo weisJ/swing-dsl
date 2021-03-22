@@ -42,7 +42,7 @@ abstract class Row : Cell(), RowBuilder {
      */
     abstract var subRowIndentationLevel: Int
 
-    internal abstract val builder: LayoutBuilderImpl
+    internal abstract val builder: PanelBuilderImpl
 
     /**
      * Specifies the right alignment for the component if the cell is larger than the component plus its gaps.

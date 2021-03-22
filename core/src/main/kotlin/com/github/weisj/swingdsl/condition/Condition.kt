@@ -31,14 +31,6 @@ import kotlin.reflect.KProperty0
  */
 interface Condition : () -> Boolean, Observable<Condition> {
     var value: Boolean
-
-    /**
-     * Build the condition (Specifically important for more complex conditions which are
-     * bound to property value).
-     */
-    fun build() {
-        this()
-    }
 }
 
 /**
@@ -71,20 +63,39 @@ class CompoundCondition(
 ) : Condition, Observable<Condition> by first {
     override var value: Boolean by observable(combinator(first.value, second.value))
 
-    override fun invoke(): Boolean {
-        value = combinator(first(), second())
-        return value
-    }
-
-    override fun build() {
-        first.build()
-        second.build()
+    init {
         first.registerListener(Condition::value) { _, _ ->
             value = combinator(first.value, second())
         }
         second.registerListener(Condition::value) { _, _ ->
             value = combinator(first(), second.value)
         }
+    }
+
+    override fun invoke(): Boolean {
+        value = combinator(first(), second())
+        return value
+    }
+}
+
+class ObservableCondition<T, K : Observable<K>>(
+    private val observableInstanceProperty: ObservableInstanceProperty<T, K>,
+    private val checker: (T) -> Boolean
+) : Condition, Observable<Condition> by DefaultObservable() {
+    private fun computeValue(): Boolean =
+        checker(observableInstanceProperty.property.get(observableInstanceProperty.receiver))
+
+    override var value: Boolean by observable(computeValue())
+
+    init {
+        observableInstanceProperty.run {
+            receiver.registerListener(property) { _, _ -> invoke() }
+        }
+    }
+
+    override fun invoke(): Boolean {
+        value = computeValue()
+        return value
     }
 }
 
@@ -117,3 +128,12 @@ fun conditionOf(cond: () -> Boolean): Condition = DefaultCondition(cond(), cond)
  * Create condition from a boolean property.
  */
 fun conditionOf(prop: KProperty0<Boolean>): Condition = DefaultCondition(prop.get()) { prop.get() }
+
+infix fun <T, R : Observable<R>> ObservableInstanceProperty<T, R>.isEqualTo(value: T): Condition =
+    ObservableCondition(this) { it == value }
+
+infix fun <T, R : Observable<R>> ObservableInstanceProperty<T, R>.isEqualTo(valueSupplier: () -> T): Condition =
+    ObservableCondition(this) { it == valueSupplier() }
+
+fun <R : Observable<R>> ObservableInstanceProperty<Boolean, R>.isTrue(): Condition = this isEqualTo true
+fun <R : Observable<R>> ObservableInstanceProperty<Boolean, R>.isFalse(): Condition = this isEqualTo false

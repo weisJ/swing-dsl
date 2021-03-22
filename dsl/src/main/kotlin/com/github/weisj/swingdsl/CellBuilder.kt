@@ -26,11 +26,16 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.text.textOf
 import javax.swing.AbstractButton
 import javax.swing.JComponent
+import javax.swing.JSpinner
 import javax.swing.JTextField
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
 
 @DslMarker
 annotation class CellMarker
@@ -42,12 +47,14 @@ interface CellBuilder<out T : JComponent> {
     fun onReset(callback: () -> Unit): CellBuilder<T>
     fun onIsModified(callback: () -> Boolean): CellBuilder<T>
 
+    fun commitImmediately()
     fun shouldSaveOnApply(): Boolean
 
     fun <V> withBinding(
         componentGet: (T) -> V,
         componentSet: (T, V) -> Unit,
-        modelBinding: PropertyBinding<V>
+        modelBinding: PropertyBinding<V>,
+        immediateModeUpdater: (() -> Unit)? = null
     ): CellBuilder<T> {
         onApply { if (shouldSaveOnApply()) modelBinding.set(componentGet(component)) }
         onReset { componentSet(component, modelBinding.get()) }
@@ -60,6 +67,12 @@ interface CellBuilder<out T : JComponent> {
         maxLineLength: Int = 70,
         forComponent: Boolean = false
     ): CellBuilder<T>
+
+    fun comment(
+        text: String,
+        maxLineLength: Int = 70,
+        forComponent: Boolean = false
+    ): CellBuilder<T> = comment(textOf(text), maxLineLength, forComponent)
 
     fun commentComponent(component: JComponent, forComponent: Boolean = false): CellBuilder<T>
 
@@ -93,10 +106,35 @@ internal interface CheckboxCellBuilder {
     fun actsAsLabel()
 }
 
+fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: PropertyBinding<Int>): CellBuilder<T> {
+    return withBinding({ it.value as Int }, JSpinner::setValue, modelBinding) {
+        component.addChangeListener {
+            modelBinding.set(component.value as Int)
+        }
+    }
+}
+
 fun <T : JTextField> CellBuilder<T>.withTextBinding(modelBinding: PropertyBinding<String>): CellBuilder<T> {
-    return withBinding(JTextField::getText, JTextField::setText, modelBinding)
+    return withBinding(JTextField::getText, JTextField::setText, modelBinding) {
+        component.document.addDocumentListener(DocumentChangeListener {
+            modelBinding.set(component.text)
+        })
+    }
 }
 
 fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: PropertyBinding<Boolean>): CellBuilder<T> {
-    return withBinding(AbstractButton::isSelected, AbstractButton::setSelected, modelBinding)
+    return withBinding(AbstractButton::isSelected, AbstractButton::setSelected, modelBinding) {
+        component.addChangeListener {
+            modelBinding.set((it.source as AbstractButton).model.isSelected)
+        }
+    }
+}
+
+private class DocumentChangeListener(val onChange: () -> Unit) : DocumentListener {
+
+    override fun insertUpdate(e: DocumentEvent?) = onChange()
+
+    override fun removeUpdate(e: DocumentEvent?) = onChange()
+
+    override fun changedUpdate(e: DocumentEvent?) = onChange()
 }

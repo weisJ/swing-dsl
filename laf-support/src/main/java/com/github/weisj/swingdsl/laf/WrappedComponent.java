@@ -23,6 +23,8 @@ package com.github.weisj.swingdsl.laf;
 
 import javax.swing.JComponent;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface WrappedComponent<T extends JComponent> {
 
     /**
@@ -30,6 +32,7 @@ public interface WrappedComponent<T extends JComponent> {
      *
      * @return the component.
      */
+    @NotNull
     T getComponent();
 
     /**
@@ -37,5 +40,6 @@ public interface WrappedComponent<T extends JComponent> {
      *
      * @return the container.
      */
+    @NotNull
     JComponent getContainer();
 }

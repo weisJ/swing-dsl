@@ -26,6 +26,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.binding.toBinding
+import com.github.weisj.swingdsl.binding.toNullable
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
 import com.github.weisj.swingdsl.style.DynamicUI
@@ -33,6 +36,7 @@ import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.Dimension
 import java.awt.event.ActionEvent
 import javax.swing.*
@@ -213,7 +217,7 @@ abstract class Cell : ButtonGroupBuilder {
     fun spinner(prop: KMutableProperty0<Int>, minValue: Int, maxValue: Int, step: Int = 1): CellBuilder<JSpinner> {
         val spinnerModel = SpinnerNumberModel(prop.get(), minValue, maxValue, step)
         val spinner = JSpinner(spinnerModel)
-        return component(spinner).withBinding({ it.value as Int }, JSpinner::setValue, prop.toBinding())
+        return component(spinner).withIntBinding(prop.toBinding())
     }
 
     @JvmOverloads
@@ -231,6 +235,10 @@ abstract class Cell : ButtonGroupBuilder {
             JSpinner::setValue,
             PropertyBinding(getter, setter)
         )
+    }
+
+    fun <T : JComponent> scrollPane(component: ModifiableComponent<T>): CellBuilder<JScrollPane> {
+        return scrollPane(component.container).bindModifiable(component)
     }
 
     fun scrollPane(component: JComponent): CellBuilder<JScrollPane> {

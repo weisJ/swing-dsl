@@ -29,6 +29,7 @@ package com.github.weisj.swingdsl.miglayout
 import com.github.weisj.swingdsl.*
 import com.github.weisj.swingdsl.CheckboxCellBuilder
 import com.github.weisj.swingdsl.ScrollPaneCellBuilder
+import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.condition.registerListener
 import com.github.weisj.swingdsl.text.Text
@@ -40,6 +41,12 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     override val component: T
 ) : CellBuilder<T>, CheckboxCellBuilder, ScrollPaneCellBuilder {
     private var applyIfEnabled = false
+    private val bindingUpdaters = mutableListOf<() -> Unit>()
+    private var commitImmediately = row.commitImmediately
+
+    init {
+        if (commitImmediately) commitImmediately()
+    }
 
     override fun comment(text: Text, maxLineLength: Int, forComponent: Boolean): CellBuilder<T> {
         row.addCommentRow(text, maxLineLength, forComponent)
@@ -134,5 +141,32 @@ internal class MigLayoutCellBuilder<T : JComponent>(
             horizontal.gapBefore = gapToBoundSize(builder.spacing.horizontalGap, true)
         }
         return this
+    }
+
+    override fun <V> withBinding(
+        componentGet: (T) -> V,
+        componentSet: (T, V) -> Unit,
+        modelBinding: PropertyBinding<V>,
+        immediateModeUpdater: (() -> Unit)?
+    ): CellBuilder<T> {
+        bindingUpdaters.add(immediateModeUpdater ?: {
+            // Todo Proper logging
+            println("Warning!: Immediate mode committing is not supported for $component")
+        })
+        immediateModeUpdater?.let { updater ->
+            if (commitImmediately) {
+                updater()
+            } else {
+                bindingUpdaters.add(updater)
+            }
+        }
+        return super.withBinding(componentGet, componentSet, modelBinding, immediateModeUpdater)
+    }
+
+    override fun commitImmediately() {
+        if (commitImmediately) return
+        commitImmediately = true
+        bindingUpdaters.forEach { it() }
+        bindingUpdaters.clear()
     }
 }

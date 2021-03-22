@@ -11,6 +11,8 @@ dependencies {
     implementation(project(":swing-dsl-laf-support"))
     implementation("com.miglayout:miglayout-swing")
     compileOnly(kotlin("stdlib-jdk8"))
+
+    testImplementation(kotlin("stdlib-jdk8"))
 }
 
 fun Jar.includeLicenses() {

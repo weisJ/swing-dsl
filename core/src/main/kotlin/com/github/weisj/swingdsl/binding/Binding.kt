@@ -24,7 +24,7 @@
  */
 
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl
+package com.github.weisj.swingdsl.binding
 
 import kotlin.reflect.KMutableProperty0
 
@@ -35,10 +35,14 @@ internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): PropertyBind
     return PropertyBinding({ prop.get() }, { prop.set(it) })
 }
 
-fun <T : Any> KMutableProperty0<T>.toBinding(): PropertyBinding<T> {
+fun <T> KMutableProperty0<T>.toBinding(): PropertyBinding<T> {
     return createPropertyBinding(this)
 }
 
+fun <T> PropertyBinding<T?>.withFallback(fallback: T): PropertyBinding<T> {
+    return PropertyBinding({ get() ?: fallback }, { set(it) })
+}
+
 fun <T> PropertyBinding<T>.toNullable(): PropertyBinding<T?> {
-    return PropertyBinding<T?>({ get() }, { set(it!!) })
+    return PropertyBinding<T?>({ get() }, { if (it != null) set(it) })
 }
