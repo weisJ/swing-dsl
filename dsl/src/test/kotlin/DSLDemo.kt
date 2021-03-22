@@ -22,6 +22,10 @@
  * SOFTWARE.
  *
  */
+import com.github.weisj.darklaf.LafManager
+import com.github.weisj.darklaf.components.OverlayScrollPane
+import com.github.weisj.darklaf.components.border.DarkBorders
+import com.github.weisj.darklaf.theme.DarculaTheme
 import com.github.weisj.swingdsl.CloseOperation
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.centered
@@ -32,8 +36,18 @@ import com.github.weisj.swingdsl.condition.isTrue
 import com.github.weisj.swingdsl.condition.observable
 import com.github.weisj.swingdsl.condition.on
 import com.github.weisj.swingdsl.frame
+import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.laf.ComponentFactory
+import com.github.weisj.swingdsl.laf.DefaultComponentFactory
+import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.panel
+import java.awt.Insets
+import javax.swing.BorderFactory
+import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JScrollPane
+import javax.swing.border.Border
 
 class Model(initialBool: Boolean, initialText: String) : Observable<Model> by DefaultObservable() {
     var boolValue: Boolean by observable(initialBool)
@@ -42,44 +56,70 @@ class Model(initialBool: Boolean, initialText: String) : Observable<Model> by De
 
 fun main() {
     val model = Model(false, "This is a text field")
-    frame {
-        defaultCloseOperation = CloseOperation.EXIT
-        contentPane = borderPanel {
-            north = centered { JLabel("North") }
-            val content = panel {
-                titledRow("Row 1") {
-                    row {
-                        label("Hello Row 1")
-                    }
-                    row {
-                        checkBox("Check", model::boolValue)
-                    }
-                    row {
-                        textField(model::textValue)
-                    }
-                    row {
-                        enableIf((Model::boolValue on model).isTrue())
-                        label("Enabled if checkbox is enabled")
-                    }
-                    row {
-                        label("Enabled if text field has value 'Hello'")
-                        enableIf(Model::textValue on model isEqualTo "Hello")
-                    }
-                    commitImmediately()
+    invokeLater {
+        LafManager.registerInitTask { _, defaults ->
+            defaults[ComponentFactory.COMPONENT_FACTORY_KEY] = object : DefaultComponentFactory() {
+                override fun createDividerBorder(title: String?): Border {
+                    return BorderFactory.createTitledBorder(DarkBorders.createTopBorder(), title)
+                }
+
+                override fun createScrollPane(content: JComponent): WrappedComponent<JScrollPane> {
+                    val overlayScroll = OverlayScrollPane(content)
+                    return DefaultWrappedComponent(overlayScroll.scrollPane, overlayScroll)
                 }
             }
-            center = content
-            south = panel {
-                row {
-                    right {
-                        button("Apply") { content.apply() }
-                        button("Reset") { content.reset() }
-                    }
-                }
-            }
+            defaults["CheckBox.visualInsets"] = Insets(0, 20, 0, 0)
         }
-        locationByPlatform = true
-        locationRelativeTo = null
-        visible = true
+        LafManager.installTheme(DarculaTheme())
+        frame {
+            defaultCloseOperation = CloseOperation.EXIT
+            contentPane = borderPanel {
+                north = centered { JLabel("North") }
+                val content = panel {
+                    hideableRow("Row 1", startHidden = false) {
+                        row {
+                            label("Hello Row 1")
+                        }
+                        row {
+                            checkBox("Check", model::boolValue)
+                        }
+                        row {
+                            textField(model::textValue)
+                            commentRow(
+                                """
+                                This is a comment
+                                This is a comment
+                                This is a comment
+                                This is a comment
+                                """.trimIndent()
+                            )
+                        }
+                        row {
+                            enableIf((Model::boolValue on model).isTrue())
+                            label("Enabled if checkbox is enabled")
+                        }
+                        row {
+                            label("Enabled if text field has value 'Hello'")
+                            enableIf(Model::textValue on model isEqualTo "Hello")
+                        }
+                        commitImmediately()
+                    }
+                }
+                center = content
+                south = panel {
+                    row {
+                        right {
+                            cell {
+                                button("Apply") { content.apply() }
+                                button("Reset") { content.reset() }
+                            }
+                        }
+                    }
+                }
+            }
+            locationByPlatform = true
+            locationRelativeTo = null
+            visible = true
+        }
     }
 }
