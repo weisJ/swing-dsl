@@ -26,9 +26,7 @@ package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.style.UIFactory
 import javax.swing.JComponent
-import javax.swing.JSplitPane
 
 interface Modifiable {
     fun apply()
@@ -38,9 +36,15 @@ interface Modifiable {
     fun isModified(): Boolean
 
     companion object {
-        val NO_OP_IMPL = object : Modifiable {
-            override fun apply() { /* Do nothing */ }
-            override fun reset() { /* Do nothing */ }
+        val NO_OP_IMPL: Modifiable = object : Modifiable {
+            override fun apply() {
+                /* Do nothing */
+            }
+
+            override fun reset() {
+                /* Do nothing */
+            }
+
             override fun isModified(): Boolean = false
         }
     }
@@ -69,29 +73,10 @@ interface ModifiableComponent<T : JComponent> : WrappedComponent<T>, Modifiable 
                     onReset()
                 }
 
-                override fun isModified(): Boolean = onIsModified()
+                override fun isModified(): Boolean {
+                    return onIsModified()
+                }
             }
         }
     }
-}
-
-class ModifiableSplitPane<T : JComponent>(
-    val leftComponent: ModifiableComponent<T>,
-    val rightComponent: ModifiableComponent<T>
-) : ModifiableComponent<JSplitPane>,
-    WrappedComponent<JSplitPane> by UIFactory.createSplitPane(leftComponent.container, rightComponent.container) {
-
-    constructor(left: T, right: T) : this(ModifiableComponent(left), ModifiableComponent(right))
-
-    override fun apply() {
-        leftComponent.apply()
-        rightComponent.apply()
-    }
-
-    override fun reset() {
-        leftComponent.reset()
-        rightComponent.reset()
-    }
-
-    override fun isModified(): Boolean = leftComponent.isModified() || rightComponent.isModified()
 }
