@@ -24,14 +24,14 @@
  */
 
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.miglayout
+package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.Cell.Companion.UNBOUND_RADIO_BUTTON
-import com.github.weisj.swingdsl.LCFlags
-import com.github.weisj.swingdsl.ModifiablePanel
-import com.github.weisj.swingdsl.PanelBuilderImpl
-import com.github.weisj.swingdsl.SpacingConfiguration
-import com.github.weisj.swingdsl.miglayout.patched.PatchedMigLayout
+import com.github.weisj.swingdsl.layout.Cell.Companion.UNBOUND_RADIO_BUTTON
+import com.github.weisj.swingdsl.layout.LCFlags
+import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.PanelBuilderImpl
+import com.github.weisj.swingdsl.layout.SpacingConfiguration
+import com.github.weisj.swingdsl.layout.miglayout.patched.PatchedMigLayout
 import java.awt.Component
 import java.awt.Container
 import java.util.*

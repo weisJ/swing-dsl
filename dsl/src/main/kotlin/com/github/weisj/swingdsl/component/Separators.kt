@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl.component
 
-import com.github.weisj.swingdsl.Row
 import com.github.weisj.swingdsl.bindEvent
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
+import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.emptyText

@@ -23,58 +23,53 @@
  *
  */
 import com.github.weisj.darklaf.LafManager
-import com.github.weisj.darklaf.theme.DarculaTheme
+import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.swingdsl.CloseOperation
-import com.github.weisj.swingdsl.Modifiable
+import com.github.weisj.swingdsl.binding.BoundProperty
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.centered
-import com.github.weisj.swingdsl.condition.DefaultObservable
-import com.github.weisj.swingdsl.condition.Observable
 import com.github.weisj.swingdsl.condition.isEqualTo
 import com.github.weisj.swingdsl.condition.isTrue
-import com.github.weisj.swingdsl.condition.observable
-import com.github.weisj.swingdsl.condition.on
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.panel
+import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.panel
+import com.github.weisj.swingdsl.layout.selectionStatus
+import com.github.weisj.swingdsl.layout.textValue
 import javax.swing.JLabel
 
-class Model(initialBool: Boolean, initialText: String) : Observable<Model> by DefaultObservable() {
-    var boolValue: Boolean by observable(initialBool)
-    var textValue: String by observable(initialText)
-}
+data class Model(var boolValue: Boolean, var textValue: String)
 
 fun main() {
     val model = Model(false, "This is a text field")
     invokeLater {
-        LafManager.installTheme(DarculaTheme())
+        LafManager.installTheme(IntelliJTheme())
         frame {
             content {
                 borderPanel {
                     north {
-                        centered { JLabel("North") }
+                        centered {
+                            JLabel("North").apply {
+                                font = font.deriveFont(20f)
+                            }
+                        }
                     }
                     center {
                         panel {
                             hideableRow("Row 1", startHidden = false) {
+                                lateinit var boolProp: BoundProperty<Boolean>
+                                lateinit var stringProp: BoundProperty<String>
+                                row { label("Hello Row 1") }
+                                row { boolProp = checkBox("Check", model::boolValue).selectionStatus() }
+                                row { stringProp = textField(model::textValue).textValue() }
                                 row {
-                                    label("Hello Row 1")
-                                }
-                                row {
-                                    checkBox("Check", model::boolValue)
-                                }
-                                row {
-                                    textField(model::textValue)
-                                }
-                                row {
-                                    enableIf((Model::boolValue on model).isTrue())
+                                    enableIf(boolProp.isTrue())
                                     label("Enabled if checkbox is enabled")
                                 }
                                 row {
                                     label("Enabled if text field has value 'Hello'")
-                                    enableIf(Model::textValue on model isEqualTo "Hello")
+                                    enableIf(stringProp isEqualTo "Hello")
                                 }
-                                commitImmediately()
                             }
                         }
                     }
@@ -83,9 +78,11 @@ fun main() {
                             row {
                                 right {
                                     cell {
-                                        val centerPanel = center as Modifiable
+                                        val centerPanel = center as ModifiablePanel
                                         button("Apply") { centerPanel.apply() }
-                                        button("Reset") { centerPanel.reset() }
+                                        button("Reset") { centerPanel.reset() }() {
+                                            enableIf(centerPanel.modifiedCondition)
+                                        }
                                     }
                                 }
                             }

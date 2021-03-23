@@ -24,11 +24,11 @@
  */
 
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.miglayout
+package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.CCFlags
-import com.github.weisj.swingdsl.GrowPolicy
-import com.github.weisj.swingdsl.SpacingConfiguration
+import com.github.weisj.swingdsl.layout.CCFlags
+import com.github.weisj.swingdsl.layout.GrowPolicy
+import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import java.awt.Component
 import javax.swing.JScrollPane
 import javax.swing.JTextArea

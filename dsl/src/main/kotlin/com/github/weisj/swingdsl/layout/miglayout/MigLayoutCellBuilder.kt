@@ -24,13 +24,15 @@
  */
 
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.miglayout
+package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.*
-import com.github.weisj.swingdsl.CheckboxCellBuilder
-import com.github.weisj.swingdsl.ScrollPaneCellBuilder
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.layout.CCFlags
+import com.github.weisj.swingdsl.layout.CellBuilder
+import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
+import com.github.weisj.swingdsl.layout.GrowPolicy
+import com.github.weisj.swingdsl.layout.ScrollPaneCellBuilder
 import com.github.weisj.swingdsl.text.Text
 import javax.swing.JComponent
 

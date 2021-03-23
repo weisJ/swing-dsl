@@ -80,6 +80,7 @@ public class DefaultComponentFactory implements ComponentFactory {
 
     protected Color getSeparatorColor(boolean enabled) {
         Color c = UIManager.getColor(enabled ? "Label.foreground" : "Label.disabledForeground");
-        return c != null ? c : enabled ? Color.BLACK : Color.GRAY;
+        if (c != null) return c;
+        return enabled ? Color.BLACK : Color.GRAY;
     }
 }

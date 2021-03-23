@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl
+package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.laf.WrappedComponent

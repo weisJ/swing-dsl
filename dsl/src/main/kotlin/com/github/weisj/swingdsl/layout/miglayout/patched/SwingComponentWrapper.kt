@@ -57,7 +57,7 @@
  *         Date: 2006-sep-08
  */
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.miglayout.patched
+package com.github.weisj.swingdsl.layout.miglayout.patched
 
 import com.github.weisj.swingdsl.laf.VisualPaddingProvider
 import java.awt.*

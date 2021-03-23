@@ -24,16 +24,15 @@
  */
 
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.miglayout
+package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.CellBuilder
-import com.github.weisj.swingdsl.Row
-import com.github.weisj.swingdsl.SpacingConfiguration
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.BoundCondition
-import com.github.weisj.swingdsl.condition.registerListener
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.layout.CellBuilder
+import com.github.weisj.swingdsl.layout.Row
+import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
