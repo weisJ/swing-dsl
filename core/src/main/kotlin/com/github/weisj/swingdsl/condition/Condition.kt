@@ -24,116 +24,115 @@
  */
 package com.github.weisj.swingdsl.condition
 
+import com.github.weisj.swingdsl.binding.BoundProperty
 import kotlin.reflect.KProperty0
 
 /**
  * Condition whose value can be observed.
  */
-interface Condition : () -> Boolean, Observable<Condition> {
-    var value: Boolean
+interface Condition : () -> Boolean
+
+interface ConditionCallback : (Boolean) -> Unit
+
+/**
+ * Bound conditions promise to update their value as soon as a new invocation would return a different
+ * boolean value than the previous.
+ */
+interface BoundCondition : Condition {
+
+    fun registerListener(callback: ConditionCallback)
+    fun registerListener(callback: (Boolean) -> Unit) = registerListener(object : ConditionCallback {
+        override fun invoke(b: Boolean) = callback(b)
+    })
 }
 
 /**
  * Condition with a constant value.
  */
-class ConstantCondition(value: Boolean) : Condition, Observable<Condition> by DefaultObservable() {
-    override var value: Boolean = value
-        set(_) = throw UnsupportedOperationException()
+class ConstantCondition(private val value: Boolean) : BoundCondition {
+    override fun registerListener(callback: ConditionCallback) {
+        /* Do nothing. Value never changes */
+    }
 
+    override fun invoke(): Boolean = value
+}
+
+class DefaultCondition(private val cond: () -> Boolean) : Condition {
+    override operator fun invoke() = cond()
+}
+
+internal open class CompoundCondition<C1 : Condition, C2 : Condition>(
+    internal val first: C2,
+    internal val second: C1,
+    internal val combinator: (Boolean, Boolean) -> Boolean
+) : Condition {
     override fun invoke(): Boolean {
-        return value
+        return combinator(first(), second())
     }
 }
 
-class DefaultCondition(initial: Boolean, private val cond: () -> Boolean = { initial }) :
-    Condition,
-    Observable<Condition> by DefaultObservable() {
-    override var value: Boolean by observable(initial)
+internal class BoundCompoundCondition(
+    first: BoundCondition,
+    second: BoundCondition,
+    combinator: (Boolean, Boolean) -> Boolean
+) : CompoundCondition<BoundCondition, BoundCondition>(first, second, combinator), BoundCondition {
 
-    override operator fun invoke(): Boolean {
-        value = cond()
-        return value
+    override fun registerListener(callback: ConditionCallback) {
+        first.registerListener(callback)
+        second.registerListener(callback)
     }
 }
 
-class CompoundCondition(
-    private val first: Condition,
-    private val second: Condition,
-    private val combinator: (Boolean, Boolean) -> Boolean
-) : Condition, Observable<Condition> by first {
-    override var value: Boolean by observable(combinator(first.value, second.value))
-
-    init {
-        first.registerListener(Condition::value) { _, _ ->
-            value = combinator(first.value, second())
-        }
-        second.registerListener(Condition::value) { _, _ ->
-            value = combinator(first(), second.value)
-        }
-    }
-
-    override fun invoke(): Boolean {
-        value = combinator(first(), second())
-        return value
-    }
-}
-
-class ObservableCondition<T, K : Observable<K>>(
-    private val observableInstanceProperty: ObservableInstanceProperty<T, K>,
+internal class BoundPropertyCondition<T>(
+    private val property: BoundProperty<T>,
     private val checker: (T) -> Boolean
-) : Condition, Observable<Condition> by DefaultObservable() {
-    private fun computeValue(): Boolean =
-        checker(observableInstanceProperty.property.get(observableInstanceProperty.receiver))
-
-    override var value: Boolean by observable(computeValue())
-
-    init {
-        observableInstanceProperty.run {
-            receiver.registerListener(property) { _, _ -> invoke() }
+) : BoundCondition {
+    override fun registerListener(callback: ConditionCallback) {
+        property.onPropertyChange {
+            callback(invoke())
         }
     }
 
-    override fun invoke(): Boolean {
-        value = computeValue()
-        return value
-    }
+    override fun invoke(): Boolean =
+        checker(property.get())
 }
 
 /**
  * Create compound condition which value is true iff both conditions are met.
  */
 infix fun Condition.and(other: Condition): Condition = CompoundCondition(this, other, Boolean::and)
+infix fun BoundCondition.and(other: BoundCondition): BoundCondition = BoundCompoundCondition(this, other, Boolean::and)
 
 /**
  * Create compound condition which value is true iff both at least one conditions is met.
  */
 infix fun Condition.or(other: Condition): Condition = CompoundCondition(this, other, Boolean::or)
+infix fun BoundCondition.or(other: BoundCondition): BoundCondition = BoundCompoundCondition(this, other, Boolean::or)
 
 /**
  * Inverts the given condition.
  */
 fun not(cond: Condition): Condition = CompoundCondition(cond, conditionOf(true)) { a, _ -> !a }
+fun not(cond: BoundCondition): BoundCondition = BoundCompoundCondition(cond, conditionOf(true)) { a, _ -> !a }
 
 /**
  * Create constant value condition.
  */
-fun conditionOf(bool: Boolean): Condition = ConstantCondition(bool)
+fun conditionOf(bool: Boolean): BoundCondition = ConstantCondition(bool)
 
 /**
  * Create condition form a Boolean provider..
  */
-fun conditionOf(cond: () -> Boolean): Condition = DefaultCondition(cond(), cond)
+fun conditionOf(cond: () -> Boolean): Condition = DefaultCondition(cond)
 
 /**
  * Create condition from a boolean property.
  */
-fun conditionOf(prop: KProperty0<Boolean>): Condition = DefaultCondition(prop.get()) { prop.get() }
+fun conditionOf(prop: KProperty0<Boolean>): Condition = DefaultCondition(prop::get)
 
-infix fun <T, R : Observable<R>> ObservableInstanceProperty<T, R>.isEqualTo(value: T): Condition =
-    ObservableCondition(this) { it == value }
+infix fun <T> BoundProperty<T>.isEqualTo(value: T): BoundCondition = BoundPropertyCondition(this) { it == value }
+infix fun <T> BoundProperty<T>.isEqualTo(valueSupplier: () -> T): BoundCondition =
+    BoundPropertyCondition(this) { it == valueSupplier() }
 
-infix fun <T, R : Observable<R>> ObservableInstanceProperty<T, R>.isEqualTo(valueSupplier: () -> T): Condition =
-    ObservableCondition(this) { it == valueSupplier() }
-
-fun <R : Observable<R>> ObservableInstanceProperty<Boolean, R>.isTrue(): Condition = this isEqualTo true
-fun <R : Observable<R>> ObservableInstanceProperty<Boolean, R>.isFalse(): Condition = this isEqualTo false
+fun BoundProperty<Boolean>.isTrue() = this isEqualTo true
+fun BoundProperty<Boolean>.isFalse() = this isEqualTo false

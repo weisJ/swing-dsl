@@ -24,12 +24,12 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.condition.Condition
+import com.github.weisj.swingdsl.condition.BoundCondition
 
 interface BuilderWithEnabledProperty<out T> {
     fun visible(isVisible: Boolean)
-    fun visibleIf(predicate: Condition): T
+    fun visibleIf(predicate: BoundCondition): T
 
     fun enabled(isEnabled: Boolean)
-    fun enableIf(predicate: Condition): T
+    fun enableIf(predicate: BoundCondition): T
 }

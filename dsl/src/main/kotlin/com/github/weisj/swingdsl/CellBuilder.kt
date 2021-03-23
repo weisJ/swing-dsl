@@ -26,15 +26,14 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.BoundProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import javax.swing.AbstractButton
 import javax.swing.JComponent
 import javax.swing.JSpinner
-import javax.swing.JTextField
-import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
+import javax.swing.text.JTextComponent
 
 @DslMarker
 annotation class CellMarker
@@ -109,11 +108,9 @@ fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: PropertyBinding<I
     }
 }
 
-fun <T : JTextField> CellBuilder<T>.withTextBinding(modelBinding: PropertyBinding<String>): CellBuilder<T> {
-    return withBinding(JTextField::getText, JTextField::setText, modelBinding) {
-        component.document.addDocumentListener(DocumentChangeListener {
-            modelBinding.set(component.text)
-        })
+fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: PropertyBinding<String>): CellBuilder<T> {
+    return withBinding(JTextComponent::getText, JTextComponent::setText, modelBinding) {
+        component.addDocumentChangeListener { modelBinding.set(component.text) }
     }
 }
 
@@ -125,11 +122,26 @@ fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: Proper
     }
 }
 
-private class DocumentChangeListener(val onChange: () -> Unit) : DocumentListener {
+fun <T : JSpinner> CellBuilder<T>.intValue(): BoundProperty<Int> = object : BoundProperty<Int> {
+    override fun get(): Int = component.value as Int
 
-    override fun insertUpdate(e: DocumentEvent?) = onChange()
+    override fun onPropertyChange(callback: (Int) -> Unit) {
+        component.addChangeListener { callback(get()) }
+    }
+}
 
-    override fun removeUpdate(e: DocumentEvent?) = onChange()
+fun <T : JTextComponent> CellBuilder<T>.textValue(): BoundProperty<String> = object : BoundProperty<String> {
+    override fun get(): String = component.text
 
-    override fun changedUpdate(e: DocumentEvent?) = onChange()
+    override fun onPropertyChange(callback: (String) -> Unit) {
+        component.addDocumentChangeListener { callback(get()) }
+    }
+}
+
+fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): BoundProperty<Boolean> = object : BoundProperty<Boolean> {
+    override fun get(): Boolean = component.isSelected
+
+    override fun onPropertyChange(callback: (Boolean) -> Unit) {
+        component.addChangeListener { callback(get()) }
+    }
 }

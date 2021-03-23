@@ -31,10 +31,11 @@ import com.github.weisj.swingdsl.Row
 import com.github.weisj.swingdsl.SpacingConfiguration
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
-import com.github.weisj.swingdsl.condition.Condition
+import com.github.weisj.swingdsl.condition.BoundCondition
 import com.github.weisj.swingdsl.condition.registerListener
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.DynamicUI
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import javax.swing.*
@@ -562,15 +563,15 @@ internal class MigLayoutRow(
         this.visible = isVisible
     }
 
-    override fun enableIf(predicate: Condition): MigLayoutRow {
+    override fun enableIf(predicate: BoundCondition): MigLayoutRow {
         this.enabled = predicate()
-        predicate.registerListener(Condition::value) { _, it -> this.enabled = it }
+        predicate.registerListener { this.enabled = it }
         return this
     }
 
-    override fun visibleIf(predicate: Condition): MigLayoutRow {
+    override fun visibleIf(predicate: BoundCondition): MigLayoutRow {
         this.visible = predicate()
-        predicate.registerListener(Condition::value) { _, it -> this.visible = it }
+        predicate.registerListener { this.visible = it }
         return this
     }
 

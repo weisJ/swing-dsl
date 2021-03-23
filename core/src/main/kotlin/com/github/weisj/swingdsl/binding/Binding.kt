@@ -30,6 +30,11 @@ import kotlin.reflect.KMutableProperty0
 
 data class PropertyBinding<V>(val get: () -> V, val set: (V) -> Unit)
 
+interface BoundProperty<T> {
+    fun get(): T
+    fun onPropertyChange(callback: (T) -> Unit)
+}
+
 @PublishedApi
 internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): PropertyBinding<T> {
     return PropertyBinding({ prop.get() }, { prop.set(it) })

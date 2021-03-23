@@ -30,8 +30,7 @@ import com.github.weisj.swingdsl.*
 import com.github.weisj.swingdsl.CheckboxCellBuilder
 import com.github.weisj.swingdsl.ScrollPaneCellBuilder
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.condition.Condition
-import com.github.weisj.swingdsl.condition.registerListener
+import com.github.weisj.swingdsl.condition.BoundCondition
 import com.github.weisj.swingdsl.text.Text
 import javax.swing.JComponent
 
@@ -81,15 +80,15 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         component.isVisible = isVisible
     }
 
-    override fun enableIf(predicate: Condition): CellBuilder<T> {
+    override fun enableIf(predicate: BoundCondition): CellBuilder<T> {
         component.isEnabled = predicate()
-        predicate.registerListener(Condition::value) { _, it -> component.isEnabled = it }
+        predicate.registerListener { component.isEnabled = it }
         return this
     }
 
-    override fun visibleIf(predicate: Condition): CellBuilder<T> {
+    override fun visibleIf(predicate: BoundCondition): CellBuilder<T> {
         component.isVisible = predicate()
-        predicate.registerListener(Condition::value) { _, it -> component.isVisible = it }
+        predicate.registerListener { component.isVisible = it }
         return this
     }
 
