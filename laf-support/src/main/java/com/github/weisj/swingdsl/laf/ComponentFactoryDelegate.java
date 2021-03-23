@@ -28,7 +28,6 @@ import javax.swing.JComponent;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.border.Border;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +72,13 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
-    public @NotNull Border createDividerBorder(@Nullable String title) {
-        return getDelegate().createDividerBorder(title);
+    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label) {
+        return getDelegate().createSeparatorComponent(label);
+    }
+
+    @Override
+    public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
+            @Nullable Text label) {
+        return getDelegate().createCollapsibleSeparatorComponent(label);
     }
 }

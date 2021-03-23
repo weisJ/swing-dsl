@@ -21,16 +21,16 @@
  */
 package com.github.weisj.swingdsl.laf;
 
-import javax.swing.BorderFactory;
+import java.awt.Color;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.border.Border;
+import javax.swing.UIManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +41,7 @@ import com.github.weisj.swingdsl.text.TextCheckBox;
 import com.github.weisj.swingdsl.text.TextRadioButton;
 
 public class DefaultComponentFactory implements ComponentFactory {
+
     @Override
     public @NotNull WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon) {
         return new SelfWrappedComponent<>(new TextButton(text, icon));
@@ -67,9 +68,18 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
-    public @NotNull Border createDividerBorder(@Nullable String title) {
-        return BorderFactory.createTitledBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, new JLabel().getForeground()),
-                title);
+    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label) {
+        return new SeparatorSpec<>(null, new SeparatorSpec.Default(this::getSeparatorColor));
+    }
+
+    @Override
+    public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
+            @Nullable Text label) {
+        return new SeparatorSpec<>(null, new SeparatorSpec.DefaultCollapsible(this::getSeparatorColor, null, null));
+    }
+
+    protected Color getSeparatorColor(boolean enabled) {
+        Color c = UIManager.getColor(enabled ? "Label.foreground" : "Label.disabledForeground");
+        return c != null ? c : enabled ? Color.BLACK : Color.GRAY;
     }
 }

@@ -29,7 +29,7 @@ package com.github.weisj.swingdsl.miglayout
 import com.github.weisj.swingdsl.CellBuilder
 import com.github.weisj.swingdsl.Row
 import com.github.weisj.swingdsl.SpacingConfiguration
-import com.github.weisj.swingdsl.component.HideableTitledSeparator
+import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.Condition
 import com.github.weisj.swingdsl.condition.registerListener
@@ -87,7 +87,17 @@ internal class MigLayoutRow(
 
         // as static method to ensure that members of current row are not used
         private fun configureSeparatorRow(row: MigLayoutRow, title: Text?) {
-            row.addTitleComponent(TitledSeparator(title), isEmpty = title == null)
+            val separatorSpec = UIFactory.createSeparatorComponent(title)
+            val comp = if (separatorSpec.providesCustomComponent()) {
+                separatorSpec.provided!!
+            } else {
+                val spec = separatorSpec.defaultImplSpec!!
+                DynamicUI.withDynamic(TitledSeparator(title)) {
+                    it.color = spec.color
+                    it.disabledColor = spec.disabledColor
+                }
+            }
+            row.addTitleComponent(comp, isEmpty = title == null)
         }
     }
 
@@ -292,18 +302,40 @@ internal class MigLayoutRow(
     }
 
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
-        val titledSeparator = HideableTitledSeparator(title)
+        val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title)
+
+        val separator = if (separatorSpec.providesCustomComponent()) {
+            separatorSpec.provided!!
+        } else {
+            val spec = separatorSpec.defaultImplSpec!!
+            DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
+                it.color = spec.color
+                it.disabledColor = spec.disabledColor
+                it.expandedIcon = spec.expandedIcon
+                it.collapsedIcon = spec.collapsedIcon
+                it.disabledExpandedIcon = spec.disabledExpandedIcon
+                it.disabledCollapsedIcon = spec.disabledCollapsedIcon
+            }
+        }
+
         val separatorRow = createChildRow()
-        separatorRow.addTitleComponent(titledSeparator, isEmpty = false)
+        separatorRow.addTitleComponent(separator.component, isEmpty = false)
         builder.hideableRowNestingLevel++
         try {
             val panelRow = createChildRow(indentationLevel + spacing.indentLevel)
             panelRow.init()
-            titledSeparator.row = panelRow
+            separator.setCollapseCallback {
+                panelRow.visible = false
+                panelRow.subRowsVisible = false
+            }
+            separator.setExpandCallback {
+                panelRow.visible = true
+                panelRow.subRowsVisible = true
+            }
             if (startHidden) {
-                titledSeparator.collapse()
+                separator.collapse()
             } else {
-                titledSeparator.expand()
+                separator.expand()
             }
             return panelRow
         } finally {

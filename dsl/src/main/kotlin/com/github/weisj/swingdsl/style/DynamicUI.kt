@@ -54,7 +54,7 @@ class DynamicUI private constructor() {
          * @param onUpdateUi action to run (immediately and when look and feel changes)
          * @param <T> type of the component
          * @return input component
-        </T> */
+         */
         @JvmStatic
         fun <T : Component> withDynamic(
             component: T,
@@ -110,18 +110,6 @@ class DynamicUI private constructor() {
                 for (action in list) {
                     action(component)
                 }
-            }
-        }
-
-        fun <T : JComponent> withTitledDivider(
-            comp: T,
-            title: Text?
-        ): T {
-            return withDynamic(comp) { c: T ->
-                c.border = UIFactory.createDividerBorder(title?.let {
-                    val text = title.text
-                    if (!text.isEmpty()) text else null
-                })
             }
         }
 

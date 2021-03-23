@@ -29,7 +29,6 @@ import com.github.weisj.swingdsl.laf.ComponentFactoryDelegate
 import com.github.weisj.swingdsl.laf.DefaultComponentFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
-import java.beans.PropertyChangeEvent
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JRadioButton
@@ -46,10 +45,9 @@ internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) 
     }
 
     init {
-        UIManager.addPropertyChangeListener { e: PropertyChangeEvent? ->
-            e ?: return@addPropertyChangeListener
-            val key: String = e.propertyName
-            if ("lookAndFeel" == key) {
+        UIManager.addPropertyChangeListener {
+            println(it?.propertyName)
+            if ("lookAndFeel" == it?.propertyName) {
                 updateDelegate()
             }
         }
@@ -58,6 +56,10 @@ internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) 
 
     override fun getDelegate(): ComponentFactory {
         return effectiveDelegate
+    }
+
+    fun setFactory(factory: ComponentFactory) {
+        effectiveDelegate = factory
     }
 
     fun createButton(text: Text): WrappedComponent<JButton> = createButton(text, null)

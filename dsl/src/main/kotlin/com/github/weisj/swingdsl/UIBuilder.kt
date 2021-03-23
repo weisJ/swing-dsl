@@ -29,7 +29,6 @@ import java.awt.GridBagLayout
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
-import javax.swing.SwingUtilities
 
 interface UIBuilder<T : JComponent> {
     val component: T
@@ -49,8 +48,6 @@ fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     frame.isVisible = config.visible
     return frame
 }
-
-fun invokeLater(action: () -> Unit) = SwingUtilities.invokeLater(action)
 
 fun borderPanel(init: BorderLayoutBuilder.() -> Unit): JPanel {
     return BorderLayoutBuilder().apply(init).component

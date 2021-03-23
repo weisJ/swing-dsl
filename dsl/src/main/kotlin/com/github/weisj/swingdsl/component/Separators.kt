@@ -25,49 +25,106 @@
 package com.github.weisj.swingdsl.component
 
 import com.github.weisj.swingdsl.Row
-import com.github.weisj.swingdsl.style.DynamicUI
+import com.github.weisj.swingdsl.bindEvent
+import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.text.TextLabel
+import com.github.weisj.swingdsl.text.emptyText
+import com.github.weisj.swingdsl.toKeyStroke
 import java.awt.Color
 import java.awt.Component
 import java.awt.Cursor
-import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Insets
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
+import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.BorderFactory
 import javax.swing.Icon
 import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JSeparator
+import javax.swing.SwingConstants
 
 open class TitledSeparator(title: Text?) : JComponent() {
 
+    val label: JLabel = TextLabel(title ?: emptyText())
+    private val separator = JSeparator(SwingConstants.HORIZONTAL)
+    var color: Color = label.foreground ?: Color.BLACK
+    var disabledColor: Color = color
+
     init {
-        DynamicUI.withTitledDivider(this, title = title)
+        isOpaque = false
+        layout = GridBagLayout()
+        border = BorderFactory.createEmptyBorder(7, 0, 5, 0)
+        add(
+            label,
+            GridBagConstraints(
+                0, 0, 1, 1, 0.0, 1.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                Insets(0, 0, 0, 0), 0, 0
+            )
+        )
+        add(
+            separator,
+            GridBagConstraints(
+                1, 0, GridBagConstraints.REMAINDER, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                Insets(2, 6, 0, 0), 0, 0
+            )
+        )
+        isEnabled = isEnabled
     }
 
-    override fun getMinimumSize(): Dimension {
-        return insets.run {
-            Dimension(left + right, bottom + top)
-        }
+    final override fun add(comp: Component, constraints: Any?) {
+        super.add(comp, constraints)
     }
 
-    override fun getMaximumSize(): Dimension {
-        return Dimension(Int.MAX_VALUE, preferredSize.height)
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        label.isEnabled = enabled
+        separator.isEnabled = enabled
+        separator.foreground = if (enabled) color else disabledColor
     }
-
-    override fun getPreferredSize(): Dimension = minimumSize
 }
 
-class HideableTitledSeparator(title: Text) : TitledSeparator(title) {
+class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), CollapsibleComponent {
 
     private var isExpanded: Boolean = true
-    private lateinit var icon: Icon
-    private lateinit var disabledIcon: Icon
     lateinit var row: Row
 
-    fun expand() = update(true)
+    var expandedIcon: Icon = EmptyIcon
+    var collapsedIcon: Icon = EmptyIcon
+    var disabledExpandedIcon: Icon = EmptyIcon
+    var disabledCollapsedIcon: Icon = EmptyIcon
 
-    fun collapse() = update(false)
+    private lateinit var collapseCallback: Runnable
+    private lateinit var expandCallback: Runnable
+
+    override fun setCollapseCallback(callback: Runnable) {
+        collapseCallback = callback
+    }
+
+    override fun setExpandCallback(callback: Runnable) {
+        expandCallback = callback
+    }
+
+    override fun getComponent(): JComponent = this
+
+    override fun expand() = update(true)
+
+    override fun collapse() = update(false)
 
     init {
+        isFocusable = true
+        addFocusListener(object : FocusListener {
+            override fun focusGained(e: FocusEvent?) = repaint()
+            override fun focusLost(e: FocusEvent?) = repaint()
+        })
         cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         updateIcon(isExpanded)
         addMouseListener(object : MouseAdapter() {
@@ -75,37 +132,41 @@ class HideableTitledSeparator(title: Text) : TitledSeparator(title) {
                 update(!isExpanded)
             }
         })
+        bindEvent("toggle", KeyEvent.VK_ENTER.toKeyStroke()) {
+            if (isExpanded) collapse() else expand()
+        }
+        bindEvent("collapse", KeyEvent.VK_LEFT.toKeyStroke(), KeyEvent.VK_UP.toKeyStroke()) {
+            collapse()
+        }
+        bindEvent("expand", KeyEvent.VK_RIGHT.toKeyStroke(), KeyEvent.VK_DOWN.toKeyStroke()) {
+            expand()
+        }
     }
 
     private fun update(expand: Boolean) {
-        if (isExpanded == expand) return
         isExpanded = expand
-        row.visible = expand
-        row.subRowsVisible = expand
+        if (expand) {
+            expandCallback.run()
+        } else {
+            collapseCallback.run()
+        }
         updateIcon(expand)
+        doLayout()
         repaint()
     }
 
     private fun updateIcon(expand: Boolean) {
-        icon = if (expand) ColorIcon(Color.RED) else ColorIcon((Color.BLUE))
-        disabledIcon = ColorIcon(Color.GRAY)
-    }
-
-    override fun paintComponent(g: Graphics?) {
-        super.paintComponent(g)
-        icon.paintIcon(this, g, 0, 0)
+        label.icon = if (expand) expandedIcon else collapsedIcon
+        label.disabledIcon = if (expand) disabledExpandedIcon else disabledCollapsedIcon
     }
 }
 
-private class ColorIcon(private val col: Color) : Icon {
+object EmptyIcon : Icon {
     override fun paintIcon(c: Component?, g: Graphics?, x: Int, y: Int) {
-        g?.run {
-            color = col
-            fillRect(0, 0, iconWidth, iconHeight)
-        }
+        /* do nothing*/
     }
 
-    override fun getIconWidth(): Int = 16
+    override fun getIconWidth(): Int = 0
 
-    override fun getIconHeight(): Int = 16
+    override fun getIconHeight(): Int = 0
 }

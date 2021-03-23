@@ -21,43 +21,20 @@
  */
 package com.github.weisj.swingdsl.laf;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import com.github.weisj.swingdsl.text.Text;
-
-public interface ComponentFactory {
-
-    String COMPONENT_FACTORY_KEY = "swingdsl.componentFactory";
+public interface CollapsibleComponent {
 
     @NotNull
-    WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon);
+    JComponent getComponent();
 
-    @NotNull
-    WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon);
+    void expand();
 
-    @NotNull
-    WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon);
+    void collapse();
 
-    @NotNull
-    WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content);
+    void setCollapseCallback(@NotNull Runnable callback);
 
-    @NotNull
-    WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right);
-
-    @NotNull
-    SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label);
-
-    @NotNull
-    SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable Text label);
-
+    void setExpandCallback(@NotNull Runnable callback);
 }
