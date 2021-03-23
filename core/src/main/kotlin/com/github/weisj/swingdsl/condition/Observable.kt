@@ -157,10 +157,14 @@ inline fun <T, reified V> Observable<T>.removeListeners(
     property: KProperty1<T, V>
 ) = manager.removeListeners(property)
 
-data class ObservableInstanceProperty<T, R : Observable<R>>(val receiver: R, val property: KProperty1<R, T>) : BoundProperty<T> {
+data class ObservableInstanceProperty<T, R : Observable<R>>(val receiver: R, val property: KProperty1<R, T>) :
+    BoundProperty<T> {
     override fun get(): T = property.get(receiver)
 
     override fun onPropertyChange(callback: (T) -> Unit) {
+        receiver.registerListener(property) { _, _ ->
+            callback(get())
+        }
     }
 }
 

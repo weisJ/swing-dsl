@@ -26,12 +26,24 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ConditionCallback
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOfNullable
+import java.awt.AWTEvent
 import java.awt.BorderLayout
+import java.awt.Component
+import java.awt.Dialog
 import java.awt.LayoutManager
+import java.awt.Toolkit
+import java.awt.event.AWTEventListener
+import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
 import javax.swing.JComponent
+import javax.swing.JDialog
 import javax.swing.JPanel
+import javax.swing.JWindow
+import javax.swing.SwingUtilities
 
 class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) : JPanel(layout),
     ModifiableComponent<JPanel> {
@@ -48,6 +60,8 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
 
     override fun getComponent(): JPanel = this
     override fun getContainer(): JComponent = this
+
+    val modifiedCondition: BoundCondition = ModifiedCondition(this)
 
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
@@ -76,5 +90,72 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
 
     override fun isModified(): Boolean {
         return isModifiedCallbacks.values.any { list -> list.any { it() } }
+    }
+
+    private class ModifiedCondition(private val panel: ModifiablePanel) : BoundCondition, AWTEventListener {
+
+        private var modified = false
+        private val listeners: MutableList<ConditionCallback> by lazy {
+            Toolkit.getDefaultToolkit().addAWTEventListener(
+                this, AWTEvent.KEY_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK
+            )
+            modified = panel.isModified()
+            mutableListOf<ConditionCallback>()
+        }
+
+        override fun registerListener(callback: ConditionCallback) {
+            listeners.add(callback)
+        }
+
+        override fun invoke(): Boolean {
+            return modified
+        }
+
+        override fun eventDispatched(event: AWTEvent?) {
+            event ?: return
+            if (!panel.isVisible) return
+            when (event.id) {
+                MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_RELEASED, MouseEvent.MOUSE_DRAGGED -> {
+                    val me = event as MouseEvent
+                    if (SwingUtilities.isDescendingFrom(me.component, panel) ||
+                        isPopupOverEditor(me.component)
+                    ) {
+                        maybeModified()
+                    }
+                }
+                KeyEvent.KEY_PRESSED, KeyEvent.KEY_RELEASED -> {
+                    val ke = event as KeyEvent
+                    if (SwingUtilities.isDescendingFrom(ke.component, panel)) {
+                        maybeModified()
+                    }
+                }
+            }
+        }
+
+        private fun maybeModified() {
+            invokeLater {
+                val newModified = panel.isModified()
+                if (newModified == modified) return@invokeLater
+                modified = newModified
+                listeners.forEach { it(newModified) }
+            }
+        }
+
+        private fun isPopupOverEditor(component: Component): Boolean {
+            val editorWindow = panel.getWindow() ?: return false
+            val popup = component.getWindow()
+            // light-weight popup is located on the layered pane of the same window
+            if (popup === editorWindow) {
+                return true
+            }
+            // heavy-weight popup opens new window with the corresponding parent
+            if (popup != null && editorWindow === popup.parent) {
+                if (popup is JDialog) {
+                    return Dialog.ModalityType.MODELESS == popup.modalityType
+                }
+                return popup is JWindow
+            }
+            return false
+        }
     }
 }
