@@ -198,7 +198,7 @@ internal class MigLayoutRow(
         get() = labeled || (subRows?.any { it.isLabeledIncludingSubRows } ?: false)
 
     internal val columnIndexIncludingSubRows: Int
-        get() = max(columnIndex, subRows?.asSequence()?.map { it.columnIndexIncludingSubRows }?.max() ?: -1)
+        get() = max(columnIndex, subRows?.asSequence()?.maxOfOrNull { it.columnIndexIncludingSubRows } ?: -1)
 
     internal var commitImmediately: Boolean = parent?.commitImmediately ?: false
 

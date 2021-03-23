@@ -77,7 +77,7 @@ open class TitledSeparator(title: Text?) : JComponent() {
                 Insets(2, 6, 0, 0), 0, 0
             )
         )
-        isEnabled = isEnabled
+        isEnabled = true
     }
 
     final override fun add(comp: Component, constraints: Any?) {

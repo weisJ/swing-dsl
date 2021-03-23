@@ -2,17 +2,15 @@ import com.github.vlsi.gradle.crlf.CrLfSpec
 import com.github.vlsi.gradle.crlf.LineEndings
 
 plugins {
-    `java-library`
     kotlin("jvm")
+    `java-library`
 }
 
 dependencies {
     api(project(":swing-dsl-core"))
     implementation(project(":swing-dsl-laf-support"))
     implementation("com.miglayout:miglayout-swing")
-    compileOnly(kotlin("stdlib-jdk8"))
 
-    testImplementation(kotlin("stdlib-jdk8"))
     testImplementation("com.github.weisj:darklaf-core") {
         isChanging = true
     }

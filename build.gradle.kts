@@ -8,7 +8,7 @@ import com.github.vlsi.gradle.properties.dsl.toBool
 import com.github.vlsi.gradle.publishing.dsl.simplifyXml
 import com.github.vlsi.gradle.publishing.dsl.versionFromResolution
 import name.remal.gradle_plugins.plugins.code_quality.sonar.SonarLintExtension
-import org.jetbrains.kotlin.gradle.plugin.KaptExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -18,7 +18,6 @@ plugins {
     id("com.github.vlsi.gradle-extensions")
     id("com.github.vlsi.stage-vote-release")
     kotlin("jvm") apply false
-    kotlin("kapt") apply false
 }
 
 val skipJavadoc by props()
@@ -176,11 +175,8 @@ allprojects {
         }
     }
 
-    extensions.findByType(KaptExtension::class)?.run {
-        dependencies {
-            "kapt"(platform(project(":dependencies-bom")))
-        }
-        includeCompileClasspath = false
+    extensions.findByType(KotlinProjectExtension::class)?.run {
+        explicitApi()
     }
 
     tasks.withType<KotlinCompile>().configureEach {
