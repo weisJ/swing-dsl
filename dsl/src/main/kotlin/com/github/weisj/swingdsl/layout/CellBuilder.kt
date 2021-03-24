@@ -28,7 +28,7 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.addDocumentChangeListener
-import com.github.weisj.swingdsl.binding.BoundProperty
+import com.github.weisj.swingdsl.binding.MutableBoundProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.text.Text
@@ -131,26 +131,40 @@ fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: Proper
     }
 }
 
-fun <T : JSpinner> CellBuilder<T>.intValue(): BoundProperty<Int> = object : BoundProperty<Int> {
+fun <T : JSpinner> CellBuilder<T>.intValue(): MutableBoundProperty<Int> = object : MutableBoundProperty<Int> {
     override fun get(): Int = component.value as Int
+
+    override fun set(value: Int) {
+        component.value = value
+    }
 
     override fun onPropertyChange(callback: (Int) -> Unit) {
         component.addChangeListener { callback(get()) }
     }
 }
 
-fun <T : JTextComponent> CellBuilder<T>.textValue(): BoundProperty<String> = object : BoundProperty<String> {
-    override fun get(): String = component.text
+fun <T : JTextComponent> CellBuilder<T>.textValue(): MutableBoundProperty<String> =
+    object : MutableBoundProperty<String> {
+        override fun get(): String = component.text
 
-    override fun onPropertyChange(callback: (String) -> Unit) {
-        component.addDocumentChangeListener { callback(get()) }
+        override fun set(value: String) {
+            component.text = value
+        }
+
+        override fun onPropertyChange(callback: (String) -> Unit) {
+            component.addDocumentChangeListener { callback(get()) }
+        }
     }
-}
 
-fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): BoundProperty<Boolean> = object : BoundProperty<Boolean> {
-    override fun get(): Boolean = component.isSelected
+fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): MutableBoundProperty<Boolean> =
+    object : MutableBoundProperty<Boolean> {
+        override fun get(): Boolean = component.isSelected
 
-    override fun onPropertyChange(callback: (Boolean) -> Unit) {
-        component.addChangeListener { callback(get()) }
+        override fun set(value: Boolean) {
+            component.isSelected = value
+        }
+
+        override fun onPropertyChange(callback: (Boolean) -> Unit) {
+            component.addChangeListener { callback(get()) }
+        }
     }
-}

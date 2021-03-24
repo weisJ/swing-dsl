@@ -26,14 +26,56 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.binding
 
+import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.not
 import kotlin.reflect.KMutableProperty0
 
 data class PropertyBinding<V>(val get: () -> V, val set: (V) -> Unit)
 
-interface BoundProperty<T> {
+interface BoundProperty<out T> {
     fun get(): T
     fun onPropertyChange(callback: (T) -> Unit)
 }
+
+interface MutableBoundProperty<T> : BoundProperty<T> {
+    fun set(value: T)
+}
+
+private class DerivedProperty<T, K>(private val prop: BoundProperty<K>, private val transform: (K) -> T) :
+    BoundProperty<T> {
+    override fun get(): T = transform(prop.get())
+
+    override fun onPropertyChange(callback: (T) -> Unit) {
+        prop.onPropertyChange { callback(get()) }
+    }
+}
+
+private open class CombinedProperty<T, K1, K2>(
+    private val first: BoundProperty<K1>,
+    private val second: BoundProperty<K2>,
+    private val combiner: (K1, K2) -> T
+) : BoundProperty<T> {
+    override fun get(): T = combiner(first.get(), second.get())
+
+    override fun onPropertyChange(callback: (T) -> Unit) {
+        first.onPropertyChange { callback(get()) }
+        second.onPropertyChange { callback(get()) }
+    }
+}
+
+fun <T, K> BoundProperty<K>.derive(transform: (K) -> T): BoundProperty<T> = DerivedProperty(this, transform)
+
+fun <T, K1, K2> combinedProperty(
+    first: BoundProperty<K1>,
+    second: BoundProperty<K2>,
+    combiner: (K1, K2) -> T
+): BoundProperty<T> =
+    CombinedProperty(first, second, combiner)
+
+fun <K1, K2, T> BoundProperty<K1>.combine(
+    other: BoundProperty<K2>,
+    combiner: (K1, K2) -> T
+): BoundProperty<T> = combinedProperty(this, other, combiner)
 
 @PublishedApi
 internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): PropertyBinding<T> {
@@ -51,3 +93,6 @@ fun <T> PropertyBinding<T?>.withFallback(fallback: T): PropertyBinding<T> {
 fun <T> PropertyBinding<T>.toNullable(): PropertyBinding<T?> {
     return PropertyBinding<T?>({ get() }, { if (it != null) set(it) })
 }
+
+fun <T> BoundProperty<T?>.isNull(): BoundCondition = derive { it == null }
+fun <T> BoundProperty<T?>.isNotNull(): BoundCondition = !isNull()

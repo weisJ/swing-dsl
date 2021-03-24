@@ -28,15 +28,14 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.condition.BoundCondition
-import com.github.weisj.swingdsl.condition.ConditionCallback
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.AWTEvent
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dialog
+import java.awt.Dimension
 import java.awt.LayoutManager
 import java.awt.Toolkit
 import java.awt.event.AWTEventListener
@@ -48,10 +47,9 @@ import javax.swing.JPanel
 import javax.swing.JWindow
 import javax.swing.SwingUtilities
 
-class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) : JPanel(layout),
+class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) :
+    JPanel(layout),
     ModifiableComponent<JPanel> {
-
-    constructor(title: String?, layout: LayoutManager? = BorderLayout()) : this(textOfNullable(title), layout)
 
     companion object {
         internal const val DIALOG_CONTENT_PANEL_PROPERTY = "dialogContentPanel"
@@ -69,6 +67,10 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var isModifiedCallbacks: Map<JComponent?, List<() -> Boolean>> = emptyMap()
+
+    override fun getMaximumSize(): Dimension {
+        return super.getMaximumSize().also { it.height = Int.MAX_VALUE - 100 }
+    }
 
     override fun apply() {
         for ((component, callbacks) in applyCallbacks.entries) {
@@ -98,21 +100,19 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     private class ModifiedCondition(private val panel: ModifiablePanel) : BoundCondition, AWTEventListener {
 
         private var modified = false
-        private val listeners: MutableList<ConditionCallback> by lazy {
+        private val listeners: MutableList<(Boolean) -> Unit> by lazy {
             Toolkit.getDefaultToolkit().addAWTEventListener(
                 this, AWTEvent.KEY_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK
             )
             modified = panel.isModified()
-            mutableListOf<ConditionCallback>()
+            mutableListOf()
         }
 
-        override fun registerListener(callback: ConditionCallback) {
+        override fun onPropertyChange(callback: (Boolean) -> Unit) {
             listeners.add(callback)
         }
 
-        override fun invoke(): Boolean {
-            return modified
-        }
+        override fun get(): Boolean = modified
 
         override fun eventDispatched(event: AWTEvent?) {
             event ?: return

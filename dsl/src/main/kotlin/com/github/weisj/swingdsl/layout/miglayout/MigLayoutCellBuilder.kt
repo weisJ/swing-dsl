@@ -83,14 +83,14 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     }
 
     override fun enableIf(predicate: BoundCondition): CellBuilder<T> {
-        component.isEnabled = predicate()
-        predicate.registerListener { component.isEnabled = it }
+        component.isEnabled = predicate.get()
+        predicate.onPropertyChange { component.isEnabled = it }
         return this
     }
 
     override fun visibleIf(predicate: BoundCondition): CellBuilder<T> {
-        component.isVisible = predicate()
-        predicate.registerListener { component.isVisible = it }
+        component.isVisible = predicate.get()
+        predicate.onPropertyChange { component.isVisible = it }
         return this
     }
 
@@ -150,9 +150,11 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         modelBinding: PropertyBinding<V>,
         immediateModeUpdater: (() -> Unit)?
     ): CellBuilder<T> {
-        bindingUpdaters.add(immediateModeUpdater ?: {
-            error("Warning!: Immediate mode committing is not supported for $component")
-        })
+        bindingUpdaters.add(
+            immediateModeUpdater ?: {
+                error("Warning!: Immediate mode committing is not supported for $component")
+            }
+        )
         immediateModeUpdater?.let { updater ->
             if (commitImmediately) {
                 updater()

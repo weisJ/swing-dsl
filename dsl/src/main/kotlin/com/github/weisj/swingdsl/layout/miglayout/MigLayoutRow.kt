@@ -37,14 +37,14 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
+import net.miginfocom.layout.BoundSize
+import net.miginfocom.layout.CC
+import net.miginfocom.layout.LayoutUtil
 import javax.swing.*
 import javax.swing.border.LineBorder
 import javax.swing.text.JTextComponent
 import kotlin.math.max
 import kotlin.reflect.KMutableProperty0
-import net.miginfocom.layout.BoundSize
-import net.miginfocom.layout.CC
-import net.miginfocom.layout.LayoutUtil
 
 internal class MigLayoutRow(
     private val parent: MigLayoutRow?,
@@ -384,7 +384,8 @@ internal class MigLayoutRow(
             }
             if (isVerticalFlow) {
                 cc.flowY()
-                // because when vertical buttons placed near scroll pane, it wil be centered by baseline (and baseline not applicable for grow elements, so, will be centered)
+                // because when vertical buttons placed near scroll pane, it wil be centered by baseline
+                // (and baseline not applicable for grow elements, so, will be centered)
                 cc.alignY("top")
             }
         }
@@ -563,14 +564,14 @@ internal class MigLayoutRow(
     }
 
     override fun enableIf(predicate: BoundCondition): MigLayoutRow {
-        this.enabled = predicate()
-        predicate.registerListener { this.enabled = it }
+        this.enabled = predicate.get()
+        predicate.onPropertyChange { this.enabled = it }
         return this
     }
 
     override fun visibleIf(predicate: BoundCondition): MigLayoutRow {
-        this.visible = predicate()
-        predicate.registerListener { this.visible = it }
+        this.visible = predicate.get()
+        predicate.onPropertyChange { this.visible = it }
         return this
     }
 
