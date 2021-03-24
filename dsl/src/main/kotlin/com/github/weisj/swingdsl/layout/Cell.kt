@@ -211,9 +211,10 @@ abstract class Cell : ButtonGroupBuilder {
         textField(PropertyBinding(getter, setter), columns)
 
     @JvmOverloads
-    fun textField(binding: PropertyBinding<String>, columns: Int? = null): CellBuilder<JTextField> {
-        return component(JTextField(binding.get(), columns ?: 0))
-            .withTextBinding(binding)
+    fun textField(binding: PropertyBinding<String>? = null, columns: Int? = null): CellBuilder<JTextField> {
+        return component(JTextField(binding?.let { it.get() } ?: "", columns ?: 0))() {
+            if (binding != null) withTextBinding(binding)
+        }
     }
 
     fun spinner(prop: KMutableProperty0<Int>, minValue: Int, maxValue: Int, step: Int = 1): CellBuilder<JSpinner> {
