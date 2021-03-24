@@ -26,6 +26,8 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout
 
+import com.github.weisj.swingdsl.laf.SelfWrappedComponent
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.miglayout.MigLayoutBuilder
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOfNullable
@@ -80,14 +82,14 @@ fun panel(
     vararg constraints: LCFlags = emptyArray(),
     title: Text? = null,
     init: PanelBuilder.() -> Unit
-): ModifiablePanel {
+): WrappedComponent<ModifiablePanel> {
     val builder = createLayoutBuilder()
     builder.init()
 
     val panel = ModifiablePanel(title, layout = null)
     builder.builder.build(panel, constraints)
     initPanel(builder, panel)
-    return panel
+    return SelfWrappedComponent(panel)
 }
 
 @JvmOverloads
@@ -95,7 +97,7 @@ fun panel(
     vararg constraints: LCFlags = emptyArray(),
     title: String,
     init: PanelBuilder.() -> Unit
-): ModifiablePanel {
+): WrappedComponent<ModifiablePanel> {
     return panel(*constraints, title = textOfNullable(title), init = init)
 }
 

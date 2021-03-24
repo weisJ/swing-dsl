@@ -24,11 +24,13 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.BorderLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.reflect.KProperty
 
+@BuilderMarker
 class BorderLayoutBuilder private constructor(override val component: JPanel) :
     UIBuilder<JPanel>, ContainerConfiguration<JPanel> by ContainerConfigurationImpl(component) {
     val layout: BorderLayout = component.layout as BorderLayout
@@ -62,39 +64,57 @@ class BorderLayoutBuilder private constructor(override val component: JPanel) :
     var lineStart: JComponent by layout(BorderLayout.LINE_START)
     var lineEnd: JComponent by layout(BorderLayout.LINE_END)
 
-    fun north(componentProvider: () -> JComponent) {
-        north = componentProvider()
+    inline fun <T : JComponent> north(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        north = comp.container
+        return comp.component
     }
 
-    fun south(componentProvider: () -> JComponent) {
-        south = componentProvider()
+    inline fun <T : JComponent> south(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        south = comp.container
+        return comp.component
     }
 
-    fun east(componentProvider: () -> JComponent) {
-        east = componentProvider()
+    inline fun <T : JComponent> east(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        east = comp.container
+        return comp.component
     }
 
-    fun west(componentProvider: () -> JComponent) {
-        west = componentProvider()
+    inline fun <T : JComponent> west(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        west = comp.container
+        return comp.component
     }
 
-    fun center(componentProvider: () -> JComponent) {
-        center = componentProvider()
+    inline fun <T : JComponent> center(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        center = comp.container
+        return comp.component
     }
 
-    fun pageStart(componentProvider: () -> JComponent) {
-        pageStart = componentProvider()
+    inline fun <T : JComponent> pageStart(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        pageStart = comp.container
+        return comp.component
     }
 
-    fun pageEnd(componentProvider: () -> JComponent) {
-        pageEnd = componentProvider()
+    inline fun <T : JComponent> pageEnd(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        pageEnd = comp.container
+        return comp.component
     }
 
-    fun lineStart(componentProvider: () -> JComponent) {
-        lineStart = componentProvider()
+    inline fun <T : JComponent> lineStart(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        lineStart = comp.container
+        return comp.component
     }
 
-    fun lineEnd(componentProvider: () -> JComponent) {
-        lineStart = componentProvider()
+    inline fun <T : JComponent> lineEnd(componentProvider: () -> WrappedComponent<T>): T {
+        val comp = componentProvider()
+        lineEnd = comp.container
+        return comp.component
     }
 }

@@ -24,6 +24,10 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
+import com.github.weisj.swingdsl.laf.SelfWrappedComponent
+import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.style.UIFactory
 import java.awt.Component
 import java.awt.GridBagLayout
 import javax.swing.JComponent
@@ -33,6 +37,9 @@ import javax.swing.JPanel
 interface UIBuilder<T : JComponent> {
     val component: T
 }
+
+@DslMarker
+annotation class BuilderMarker
 
 fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     val frame = JFrame()
@@ -53,10 +60,26 @@ fun borderPanel(init: BorderLayoutBuilder.() -> Unit): JPanel {
     return BorderLayoutBuilder().apply(init).component
 }
 
-fun centered(compProvider: () -> JComponent): JPanel = centered(compProvider())
-
-fun centered(comp: JComponent): JPanel {
-    return JPanel(GridBagLayout()).apply {
-        add(comp)
-    }
+fun <T : JComponent> scrollPane(componentProvider: () -> WrappedComponent<T>): WrappedComponent<T> {
+    val comp = componentProvider()
+    return DefaultWrappedComponent(
+        comp.component,
+        UIFactory.createScrollPane(comp.container).container
+    )
 }
+
+inline fun <T : JComponent> centered(compProvider: () -> T): WrappedComponent<T> {
+    val comp = compProvider()
+    return DefaultWrappedComponent(
+        comp,
+        JPanel(GridBagLayout()).apply {
+            add(comp)
+        }
+    )
+}
+
+inline fun <T : JComponent> component(compProvider: () -> T): WrappedComponent<T> {
+    return SelfWrappedComponent(compProvider())
+}
+
+operator fun <T : JComponent> T.unaryPlus(): WrappedComponent<T> = SelfWrappedComponent(this)

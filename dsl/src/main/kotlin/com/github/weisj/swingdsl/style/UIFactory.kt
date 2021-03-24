@@ -46,7 +46,6 @@ internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) 
 
     init {
         UIManager.addPropertyChangeListener {
-            println(it?.propertyName)
             if ("lookAndFeel" == it?.propertyName) {
                 updateDelegate()
             }
