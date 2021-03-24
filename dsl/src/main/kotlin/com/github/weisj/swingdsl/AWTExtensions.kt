@@ -31,9 +31,11 @@ import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
 import javax.swing.Action
 import javax.swing.ActionMap
+import javax.swing.DefaultListModel
 import javax.swing.InputMap
 import javax.swing.JComponent
 import javax.swing.KeyStroke
+import javax.swing.ListModel
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -41,7 +43,11 @@ import javax.swing.text.JTextComponent
 
 fun Int.toKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(this, 0)
 
-fun JComponent.bindEvent(actionKey: String, vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
+fun JComponent.on(vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
+    bindEvent(Any(), *keyCode, action = action)
+}
+
+fun JComponent.bindEvent(actionKey: Any, vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
     keyCode.forEach { inputMap[it] = actionKey }
     actionMap[actionKey] = createAction(actionKey, action)
 }
@@ -49,9 +55,10 @@ fun JComponent.bindEvent(actionKey: String, vararg keyCode: KeyStroke, action: (
 operator fun InputMap.set(keyStroke: KeyStroke, actionObj: Any) = put(keyStroke, actionObj)
 operator fun ActionMap.set(actionObj: Any, action: Action) = put(actionObj, action)
 
-fun createAction(name: String? = null, action: (ActionEvent?) -> Unit): Action = object : AbstractAction(name) {
-    override fun actionPerformed(e: ActionEvent?) = action(e)
-}
+fun createAction(name: Any? = null, action: (ActionEvent?) -> Unit): Action =
+    object : AbstractAction(name?.toString()) {
+        override fun actionPerformed(e: ActionEvent?) = action(e)
+    }
 
 val Insets.width
     get() = left + right
@@ -81,6 +88,16 @@ fun onSwingThread(action: () -> Unit) {
 
 fun JTextComponent.addDocumentChangeListener(listener: (DocumentEvent?) -> Unit) =
     document.addDocumentListener(DocumentChangeListener(listener))
+
+operator fun <T> ListModel<T>.get(index: Int): T = getElementAt(index)
+fun <T> DefaultListModel<T>.add(value: T) {
+    add(size(), value)
+}
+
+inline fun <reified T> Component.getProperty(key: Any): T? {
+    if (this !is JComponent) return null
+    return getClientProperty(key) as? T
+}
 
 private class DocumentChangeListener(val onChange: (DocumentEvent?) -> Unit) : DocumentListener {
 

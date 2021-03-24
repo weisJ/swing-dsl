@@ -30,11 +30,14 @@ import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.addDocumentChangeListener
 import com.github.weisj.swingdsl.binding.BoundProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
+import java.awt.event.ActionEvent
 import javax.swing.AbstractButton
 import javax.swing.JComponent
 import javax.swing.JSpinner
+import javax.swing.KeyStroke
 import javax.swing.text.JTextComponent
 
 @DslMarker
@@ -89,6 +92,10 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
 
     fun applyToComponent(task: T.() -> Unit): CellBuilder<T> {
         return also { task(component) }
+    }
+
+    fun on(vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
+        component.on(*keyCode, action = action)
     }
 
     operator fun invoke(action: CellBuilder<T>.() -> Unit): CellBuilder<T> = apply(action)
