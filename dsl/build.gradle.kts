@@ -14,6 +14,7 @@ dependencies {
     testImplementation("com.github.weisj:darklaf-core") {
         isChanging = true
     }
+    testImplementation(kotlin("reflect"))
 }
 
 fun Jar.includeLicenses() {
