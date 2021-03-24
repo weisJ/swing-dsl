@@ -25,9 +25,11 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ListModel;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +66,11 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     @Override
     public @NotNull WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content) {
         return getDelegate().createScrollPane(content);
+    }
+
+    @Override
+    public @NotNull <T> WrappedComponent<JList<T>> createList(@NotNull ListModel<T> content) {
+        return getDelegate().createList(content);
     }
 
     @Override

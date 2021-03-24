@@ -25,9 +25,11 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ListModel;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +51,9 @@ public interface ComponentFactory {
 
     @NotNull
     WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content);
+
+    @NotNull
+    <T> WrappedComponent<JList<T>> createList(@NotNull ListModel<T> content);
 
     @NotNull
     WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right);

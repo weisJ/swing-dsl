@@ -26,17 +26,19 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.getProperty
 import com.github.weisj.swingdsl.layout.CCFlags
+import com.github.weisj.swingdsl.layout.ComponentPurpose
 import com.github.weisj.swingdsl.layout.GrowPolicy
 import com.github.weisj.swingdsl.layout.SpacingConfiguration
+import net.miginfocom.layout.BoundSize
+import net.miginfocom.layout.CC
+import net.miginfocom.layout.ConstraintParser
 import java.awt.Component
 import javax.swing.JScrollPane
 import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.text.JTextComponent
-import net.miginfocom.layout.BoundSize
-import net.miginfocom.layout.CC
-import net.miginfocom.layout.ConstraintParser
 
 internal fun overrideFlags(cc: CC, flags: Array<out CCFlags>) {
     for (flag in flags) {
@@ -72,14 +74,26 @@ internal class DefaultComponentConstraintCreator(spacing: SpacingConfiguration) 
         when {
             component is JTextField && component.columns != 0 -> return
             component is JTextComponent -> cc.growX()
-            component is JScrollPane -> {
+            component.isPurpose(ComponentPurpose.ScrollPane) -> {
                 cc.grow().pushY()
-                val view = component.viewport.view
+                val view = component.getView()
                 if (view is JTextArea && view.rows == 0) {
                     // set min size to 2 lines (yes, for some reasons it means that rows should be set to 3)
                     view.rows = 3
                 }
             }
+        }
+    }
+
+    private fun Component.getView(): Component? = if (this is JScrollPane) {
+        this.viewport
+    } else {
+        this.getProperty<JScrollPane>(ComponentPurpose.ScrollPane)?.viewport?.view
+    }
+
+    private fun Component.isPurpose(purpose: ComponentPurpose): Boolean {
+        return when (purpose) {
+            ComponentPurpose.ScrollPane -> this is JScrollPane || getProperty<JScrollPane>(purpose) != null
         }
     }
 

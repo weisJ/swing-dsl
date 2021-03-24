@@ -30,6 +30,10 @@ package com.github.weisj.swingdsl.layout
 
 // http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.pdf
 
+enum class ComponentPurpose {
+    ScrollPane
+}
+
 enum class LCFlags {
     /**
      * Puts the layout in a flow-only mode.

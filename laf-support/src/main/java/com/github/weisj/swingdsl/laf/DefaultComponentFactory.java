@@ -27,9 +27,11 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ListModel;
 import javax.swing.UIManager;
 
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +65,11 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
+    public @NotNull <T> WrappedComponent<JList<T>> createList(@NotNull ListModel<T> content) {
+        return new SelfWrappedComponent<>(new JList<>(content));
+    }
+
+    @Override
     public @NotNull WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right) {
         return new SelfWrappedComponent<>(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right));
     }
@@ -80,7 +87,9 @@ public class DefaultComponentFactory implements ComponentFactory {
 
     protected Color getSeparatorColor(boolean enabled) {
         Color c = UIManager.getColor(enabled ? "Label.foreground" : "Label.disabledForeground");
-        if (c != null) return c;
+        if (c != null) {
+            return c;
+        }
         return enabled ? Color.BLACK : Color.GRAY;
     }
 }
