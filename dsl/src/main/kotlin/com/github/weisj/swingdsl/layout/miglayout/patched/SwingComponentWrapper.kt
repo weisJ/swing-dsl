@@ -60,6 +60,10 @@
 package com.github.weisj.swingdsl.layout.miglayout.patched
 
 import com.github.weisj.swingdsl.laf.VisualPaddingProvider
+import net.miginfocom.layout.ComponentWrapper
+import net.miginfocom.layout.ContainerWrapper
+import net.miginfocom.layout.LayoutUtil
+import net.miginfocom.layout.PlatformDefaults
 import java.awt.*
 import java.awt.geom.Point2D
 import java.util.*
@@ -71,10 +75,6 @@ import javax.swing.border.Border
 import javax.swing.border.CompoundBorder
 import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
-import net.miginfocom.layout.ComponentWrapper
-import net.miginfocom.layout.ContainerWrapper
-import net.miginfocom.layout.LayoutUtil
-import net.miginfocom.layout.PlatformDefaults
 
 /** Debug color for component bounds outline.
  */

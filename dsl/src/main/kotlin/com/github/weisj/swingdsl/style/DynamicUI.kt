@@ -64,15 +64,18 @@ class DynamicUI private constructor() {
             // and we can't want to wait for the next LaF change
             onUpdateUi(component)
             synchronized(listeners) {
-                listeners.compute(component, BiFunction { _, v ->
-                    @Suppress("UNCHECKED_CAST")
-                    v ?: return@BiFunction mutableListOf(onUpdateUi as UIUpdate)
-                    val res: MutableList<UIUpdate> = if (v.size == 1) ArrayList(v) else v
-                    // noinspection unchecked
-                    @Suppress("UNCHECKED_CAST")
-                    res.add(onUpdateUi as UIUpdate)
-                    res
-                })
+                listeners.compute(
+                    component,
+                    BiFunction { _, v ->
+                        @Suppress("UNCHECKED_CAST")
+                        v ?: return@BiFunction mutableListOf(onUpdateUi as UIUpdate)
+                        val res: MutableList<UIUpdate> = if (v.size == 1) ArrayList(v) else v
+                        // noinspection unchecked
+                        @Suppress("UNCHECKED_CAST")
+                        res.add(onUpdateUi as UIUpdate)
+                        res
+                    }
+                )
             }
             return component
         }

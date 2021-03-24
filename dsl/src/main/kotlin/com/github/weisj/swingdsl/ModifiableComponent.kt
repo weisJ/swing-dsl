@@ -54,7 +54,9 @@ interface ModifiableComponent<T : JComponent> : WrappedComponent<T>, Modifiable 
 
     companion object {
         operator fun <T : JComponent> invoke(component: T): ModifiableComponent<T> {
-            return object : SelfWrappedComponent<T>(component), ModifiableComponent<T>,
+            return object :
+                SelfWrappedComponent<T>(component),
+                ModifiableComponent<T>,
                 Modifiable by Modifiable.NO_OP_IMPL {}
         }
 

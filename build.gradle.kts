@@ -107,7 +107,7 @@ allprojects {
         apply(plugin = "com.github.autostyle")
         autostyle {
             kotlinGradle {
-                ktlint()
+                ktlint(version = "ktlint".v)
             }
             format("properties") {
                 configFilter {
@@ -142,7 +142,7 @@ allprojects {
             plugins.withType<JavaBasePlugin> {
                 autostyle {
                     kotlin {
-                        ktlint {
+                        ktlint(version = "ktlint".v) {
                             userData(mapOf("disabled_rules" to "no-wildcard-imports"))
                         }
                         license()

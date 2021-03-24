@@ -32,14 +32,14 @@ import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.PanelBuilderImpl
 import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.layout.miglayout.patched.PatchedMigLayout
-import java.awt.Component
-import java.awt.Container
-import java.util.*
-import javax.swing.*
 import net.miginfocom.layout.AC
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
+import java.awt.Component
+import java.awt.Container
+import java.util.*
+import javax.swing.*
 
 internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilderImpl {
     companion object {
@@ -312,7 +312,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                 } -> return RowType.CHECKBOX
                 row.components.all {
                     it is JCheckBox || it is JLabel || it is JTextField ||
-                            it is JPasswordField || it is JComboBox<*>
+                        it is JPasswordField || it is JComboBox<*>
                 } -> return RowType.CHECKBOX_TALL
             }
         }

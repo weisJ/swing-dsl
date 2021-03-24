@@ -59,13 +59,13 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout.patched
 
+import net.miginfocom.layout.ComponentWrapper
+import net.miginfocom.layout.ContainerWrapper
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.LayoutManager
 import javax.swing.JComponent
-import net.miginfocom.layout.ComponentWrapper
-import net.miginfocom.layout.ContainerWrapper
 
 /**
  * Debug color for cell outline.

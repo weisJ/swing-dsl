@@ -94,7 +94,8 @@ internal class JComponentConfigurationImpl<T : JComponent>(private val comp: T) 
     override var autoScrolls by delegate(comp::getAutoscrolls, comp::setAutoscrolls)
 }
 
-internal open class WindowConfigurationImpl<T : Window>(private val window: T) : ContainerConfigurationImpl<T>(window),
+internal open class WindowConfigurationImpl<T : Window>(private val window: T) :
+    ContainerConfigurationImpl<T>(window),
     WindowConfiguration<T> {
 
     override var alwaysOnTop by delegate(window::isAlwaysOnTop, window::setAlwaysOnTop)
@@ -113,7 +114,8 @@ internal open class WindowConfigurationImpl<T : Window>(private val window: T) :
     override var opacity by delegate(window::getOpacity, window::setOpacity)
 }
 
-internal open class JFrameConfigurationImpl<T : JFrame>(private val frame: T) : WindowConfigurationImpl<T>(frame),
+internal open class JFrameConfigurationImpl<T : JFrame>(private val frame: T) :
+    WindowConfigurationImpl<T>(frame),
     JFrameConfiguration<T> {
 
     override var defaultCloseOperation: CloseOperation = CloseOperation(frame.defaultCloseOperation)
@@ -128,7 +130,8 @@ internal open class JFrameConfigurationImpl<T : JFrame>(private val frame: T) : 
     override var menuBar by delegate<JMenuBar?>(frame::getJMenuBar, frame::setJMenuBar)
 }
 
-internal open class JDialogConfigurationImpl<T : JDialog>(private val dialog: T) : WindowConfigurationImpl<T>(dialog),
+internal open class JDialogConfigurationImpl<T : JDialog>(private val dialog: T) :
+    WindowConfigurationImpl<T>(dialog),
     JDialogConfiguration<T> {
 
     override var defaultCloseOperation: CloseOperation = CloseOperation(dialog.defaultCloseOperation)
@@ -143,7 +146,8 @@ internal open class JDialogConfigurationImpl<T : JDialog>(private val dialog: T)
     override var menuBar by delegate<JMenuBar?>(dialog::getJMenuBar, dialog::setJMenuBar)
 }
 
-internal open class JWindowConfigurationImpl<T : JWindow>(private val window: T) : WindowConfigurationImpl<T>(window),
+internal open class JWindowConfigurationImpl<T : JWindow>(private val window: T) :
+    WindowConfigurationImpl<T>(window),
     JWindowConfiguration<T> {
 
     override var contentPane by delegate<Container>(window::getContentPane, window::setContentPane)
