@@ -25,7 +25,9 @@
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.swingdsl.CloseOperation
+import com.github.weisj.swingdsl.add
 import com.github.weisj.swingdsl.binding.BoundProperty
+import com.github.weisj.swingdsl.binding.isNotEmpty
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.centered
 import com.github.weisj.swingdsl.condition.isEqualTo
@@ -36,6 +38,11 @@ import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.layout.selectionStatus
 import com.github.weisj.swingdsl.layout.textValue
+import com.github.weisj.swingdsl.scrollPane
+import com.github.weisj.swingdsl.selection
+import com.github.weisj.swingdsl.toKeyStroke
+import java.awt.event.KeyEvent
+import javax.swing.DefaultListModel
 import javax.swing.JLabel
 
 data class Model(var boolValue: Boolean, var textValue: String)
@@ -46,6 +53,7 @@ fun main() {
         LafManager.installTheme(IntelliJTheme())
         frame {
             content {
+                lateinit var modifiablePanel: ModifiablePanel
                 borderPanel {
                     north {
                         centered {
@@ -54,21 +62,51 @@ fun main() {
                             }
                         }
                     }
-                    center {
-                        panel {
-                            hideableRow("Row 1", startHidden = false) {
-                                lateinit var boolProp: BoundProperty<Boolean>
-                                lateinit var stringProp: BoundProperty<String>
-                                row { label("Hello Row 1") }
-                                row { boolProp = checkBox("Check", model::boolValue).selectionStatus() }
-                                row { stringProp = textField(model::textValue).textValue() }
-                                row {
-                                    enableIf(boolProp.isTrue())
-                                    label("Enabled if checkbox is enabled")
+                    modifiablePanel = center {
+                        scrollPane {
+                            panel {
+                                hideableRow("Row 1", startHidden = false) {
+                                    lateinit var boolProp: BoundProperty<Boolean>
+                                    lateinit var stringProp: BoundProperty<String>
+                                    row { label("Hello Row 1") }
+                                    row { boolProp = checkBox("Check", model::boolValue).selectionStatus() }
+                                    row { stringProp = textField(model::textValue).textValue() }
+                                    row {
+                                        enableIf(boolProp.isTrue())
+                                        label("Enabled if checkbox is enabled")
+                                    }
+                                    row {
+                                        label("Enabled if text field has value 'Hello'")
+                                        enableIf(stringProp isEqualTo "Hello")
+                                    }
                                 }
-                                row {
-                                    label("Enabled if text field has value 'Hello'")
-                                    enableIf(stringProp isEqualTo "Hello")
+                                hideableRow("Grocery List") {
+                                    lateinit var listSelection: BoundProperty<IntArray>
+                                    val notes = DefaultListModel<String>()
+                                    row { listSelection = list(notes).component.selection() }
+                                    row {
+                                        cell {
+                                            val textField = textField()
+                                            val text = textField.textValue()
+                                            val addNote = {
+                                                val txt = text.get().trim()
+                                                if (txt.isNotEmpty()) notes.add(txt)
+                                                text.set("")
+                                            }
+                                            textField {
+                                                on(KeyEvent.VK_ENTER.toKeyStroke()) { addNote() }
+                                            }
+                                            button("Add") { addNote() }
+                                            button("Remove") {
+                                                listSelection.get()
+                                                    .asSequence()
+                                                    .sortedDescending()
+                                                    .forEach { notes.remove(it) }
+                                            }() {
+                                                enableIf(listSelection.isNotEmpty())
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -78,10 +116,9 @@ fun main() {
                             row {
                                 right {
                                     cell {
-                                        val centerPanel = center as ModifiablePanel
-                                        button("Apply") { centerPanel.apply() }
-                                        button("Reset") { centerPanel.reset() }() {
-                                            enableIf(centerPanel.modifiedCondition)
+                                        button("Apply") { modifiablePanel.apply() }
+                                        button("Reset") { modifiablePanel.reset() }() {
+                                            enableIf(modifiablePanel.modifiedCondition)
                                         }
                                     }
                                 }
