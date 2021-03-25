@@ -21,7 +21,7 @@ plugins {
 }
 
 val skipJavadoc by props()
-val skipSonarlint by props()
+val skipSonarlint by props(true)
 val enableMavenLocal by props()
 val enableGradleMetadata by props()
 val skipAutostyle by props()

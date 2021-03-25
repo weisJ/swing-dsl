@@ -11,4 +11,4 @@ jobs:
         with:
           fetch-depth: 10
       - name: Check
-        run: ./gradlew sonarlintMain
+        run: ./gradlew sonarlintMain -PskipSonarlint=false
