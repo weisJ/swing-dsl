@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.container.ObservableList
 import java.awt.Component
 import java.awt.Insets
 import java.awt.Window
@@ -39,6 +40,7 @@ import javax.swing.ListModel
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
+import javax.swing.event.ListDataListener
 import javax.swing.text.JTextComponent
 
 fun Int.toKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(this, 0)
@@ -88,6 +90,8 @@ fun onSwingThread(action: () -> Unit) {
 
 fun JTextComponent.addDocumentChangeListener(listener: (DocumentEvent?) -> Unit) =
     document.addDocumentListener(DocumentChangeListener(listener))
+
+fun <T> listModelOf(list: ObservableList<T>) = ObservableListModel(list)
 
 operator fun <T> ListModel<T>.get(index: Int): T = getElementAt(index)
 fun <T> DefaultListModel<T>.add(value: T) {

@@ -30,5 +30,6 @@ dependencies {
         apiv("com.miglayout:miglayout-swing", "miglayout")
         apiv("org.jetbrains:annotations", "jetbrains.annotations")
         apiv("com.github.weisj:darklaf-core", "darklaf")
+        apiv("net.pearx.okservable:okservable-jvm")
     }
 }
