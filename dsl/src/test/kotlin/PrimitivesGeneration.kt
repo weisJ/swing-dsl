@@ -219,10 +219,8 @@ fun main() {
         ) + conversions
     )
 
-    val functionImplementations = arrayListOf<String>()
-    functionImplementations.ensureCapacity(types.asSequence().map { it.value.size }.sum())
-
     types.forEach { (type, ops) ->
+        val functionImplementations = arrayListOf<String>()
         ops.forEach { op ->
             val jvmName =
                 "${type.simpleName?.toLowerCase()}${op.type.opName.capitalize()}${op.inType.let { if (it == Void::class) "" else it.simpleName }}"
@@ -230,17 +228,19 @@ fun main() {
             val inTypeName = op.inType.simpleName!!
             val outTypeName = op.outType.simpleName!!
             if (deprecatedOps[type]?.let { op.type in it } != true) {
-                functionImplementations.add(
+                functionImplementations.addAll(
                     when {
-                        (op.type == Operation.UNARY_PLUS || op.type.isConversion()) && (type == op.outType) -> createImpl(
-                            name = op.type.opName,
-                            jvmName = jvmName,
-                            isOperator = op.type.isOperator,
-                            receiver = makePropertyTypeStr(typeName),
-                            params = "",
-                            returnType = makePropertyTypeStr(outTypeName),
-                            implementation = "this",
-                            inlineImpl = true
+                        (op.type == Operation.UNARY_PLUS || op.type.isConversion()) && (type == op.outType) -> listOf(
+                            createMethodImpl(
+                                name = op.type.opName,
+                                jvmName = jvmName,
+                                isOperator = op.type.isOperator,
+                                receiver = makePropertyTypeStr(typeName),
+                                params = "",
+                                returnType = makePropertyTypeStr(outTypeName),
+                                implementation = "this",
+                                inlineImpl = true
+                            )
                         )
                         op.type.isUnary() -> {
                             val conversionOp = getConversionTo(op.outType)
@@ -249,7 +249,7 @@ fun main() {
                             } else {
                                 conversionOp.impl
                             }
-                            createImpl(
+                            createMethods(
                                 name = op.type.opName,
                                 jvmName = jvmName,
                                 receiverType = typeName,
@@ -260,7 +260,7 @@ fun main() {
                                 impl = impl
                             )
                         }
-                        else -> createImpl(
+                        else -> createMethods(
                             name = op.type.opName,
                             jvmName = jvmName,
                             receiverType = typeName,
@@ -276,24 +276,23 @@ fun main() {
                 System.err.println("Skipping $op for $type due to deprecation.")
             }
         }
-    }
+        val packageName = "package com.github.weisj.swingdsl.binding"
+        File("Primitives${type.simpleName}.kt").run {
+            if (exists()) delete()
+            fun append(text: String) = appendText(text, charset = Charsets.UTF_8)
 
-    val packageName = "package com.github.weisj.swingdsl.binding"
-    File("Primitives.kt").run {
-        if (exists()) delete()
-        fun append(text: String) = appendText(text, charset = Charsets.UTF_8)
-
-        append("// Auto-generated file. DO NOT EDIT!\n\n")
-        append(packageName)
-        append(("\n\n"))
-        functionImplementations.forEach {
-            append(it)
+            append("// Auto-generated file. DO NOT EDIT!\n@file:Suppress(\"unused\")\n\n")
+            append(packageName)
             append("\n\n")
+            functionImplementations.forEach {
+                append(it)
+                append("\n\n")
+            }
         }
     }
 }
 
-fun createImpl(
+fun createMethods(
     name: String,
     jvmName: String,
     receiverType: String,
@@ -302,7 +301,7 @@ fun createImpl(
     isOperator: Boolean,
     isUnary: Boolean,
     impl: (String, String) -> String,
-): String {
+): List<String> {
     val receiver = makePropertyTypeStr(receiverType)
     val params = if (isUnary) "" else "other : ${makePropertyTypeStr(inputType)}"
     val returnType = makePropertyTypeStr(outputType)
@@ -313,10 +312,20 @@ fun createImpl(
         append(implCombiner)
         append(" }")
     }
-    return createImpl(name, jvmName, isOperator, receiver, params, returnType, implStr)
+    val method = createMethodImpl(name, jvmName, isOperator, receiver, params, returnType, implStr)
+    if (isUnary) return listOf(method)
+    val primitiveParams = "other : $inputType"
+    val primitiveImpl = "derive { a -> ${impl("a", "other")} }"
+
+    val primitiveImpl2 = "other.derive { a -> ${impl("this", "a")} }"
+    return listOf(
+        method,
+        createMethodImpl(name, "${jvmName}P", isOperator, receiver, primitiveParams, returnType, primitiveImpl),
+        createMethodImpl(name, "P${jvmName.capitalize()}", isOperator, receiverType, params, returnType, primitiveImpl2),
+    )
 }
 
-fun createImpl(
+fun createMethodImpl(
     name: String,
     jvmName: String,
     isOperator: Boolean,
