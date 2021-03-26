@@ -22,8 +22,9 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl
+package com.github.weisj.swingdsl.config
 
+import com.github.weisj.swingdsl.delegate
 import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
@@ -124,6 +125,11 @@ internal open class JFrameConfigurationImpl<T : JFrame>(private val frame: T) :
             field = value
         }
 
+    init {
+        if (frame.title == null) frame.title = ""
+    }
+
+    override var title by delegate<String>(frame::getTitle, frame::setTitle)
     override var contentPane by delegate<Container>(frame::getContentPane, frame::setContentPane)
     override var layeredPane by delegate<JLayeredPane>(frame::getLayeredPane, frame::setLayeredPane)
     override var glassPane by delegate<Component>(frame::getGlassPane, frame::setGlassPane)
@@ -140,6 +146,11 @@ internal open class JDialogConfigurationImpl<T : JDialog>(private val dialog: T)
             field = value
         }
 
+    init {
+        if (dialog.title == null) dialog.title = ""
+    }
+
+    override var title by delegate<String>(dialog::getTitle, dialog::setTitle)
     override var contentPane by delegate<Container>(dialog::getContentPane, dialog::setContentPane)
     override var layeredPane by delegate<JLayeredPane>(dialog::getLayeredPane, dialog::setLayeredPane)
     override var glassPane by delegate<Component>(dialog::getGlassPane, dialog::setGlassPane)

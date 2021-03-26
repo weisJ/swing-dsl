@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.config.JFrameConfiguration
+import com.github.weisj.swingdsl.config.JFrameConfigurationImpl
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
@@ -56,8 +58,8 @@ fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     return frame
 }
 
-fun borderPanel(init: BorderLayoutBuilder.() -> Unit): JPanel {
-    return BorderLayoutBuilder().apply(init).component
+fun borderPanel(init: BorderLayoutBuilder.() -> Unit): WrappedComponent<JPanel> {
+    return +BorderLayoutBuilder().apply(init).component
 }
 
 fun <T : JComponent> scrollPane(componentProvider: () -> WrappedComponent<T>): WrappedComponent<T> {

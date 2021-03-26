@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.config.ContainerConfiguration
+import com.github.weisj.swingdsl.config.ContainerConfigurationImpl
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.BorderLayout
 import javax.swing.JComponent

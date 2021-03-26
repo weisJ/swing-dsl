@@ -22,8 +22,9 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl
+package com.github.weisj.swingdsl.config
 
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
@@ -133,14 +134,17 @@ enum class CloseOperation(val flag: Int) {
 }
 
 interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
+    var title: String
     var defaultCloseOperation: CloseOperation
     var contentPane: Container
     var layeredPane: JLayeredPane
     var glassPane: Component
     var menuBar: JMenuBar?
 
-    fun content(provider: () -> JComponent) {
-        contentPane = provider()
+    fun <T : JComponent> content(provider: () -> WrappedComponent<T>): T {
+        val wrapped = provider()
+        contentPane = wrapped.container
+        return wrapped.component
     }
 
     companion object {
@@ -149,6 +153,7 @@ interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
 }
 
 interface JDialogConfiguration<T : JDialog> : WindowConfiguration<T> {
+    var title: String
     var defaultCloseOperation: CloseOperation
     var contentPane: Container
     var layeredPane: JLayeredPane
