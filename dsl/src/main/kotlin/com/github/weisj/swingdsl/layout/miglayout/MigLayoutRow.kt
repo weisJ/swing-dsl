@@ -565,13 +565,13 @@ internal class MigLayoutRow(
 
     override fun enableIf(predicate: ObservableCondition): MigLayoutRow {
         this.enabled = predicate.get()
-        predicate.onPropertyChange { this.enabled = it }
+        predicate.onChange { this.enabled = it }
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): MigLayoutRow {
         this.visible = predicate.get()
-        predicate.onPropertyChange { this.visible = it }
+        predicate.onChange { this.visible = it }
         return this
     }
 

@@ -35,7 +35,7 @@ import javax.swing.text.JTextComponent
 fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
     override fun get(): IntArray = selectedIndices
 
-    override fun onPropertyChange(callback: (IntArray) -> Unit) {
+    override fun onChange(callback: (IntArray) -> Unit) {
         addListSelectionListener { callback(get()) }
     }
 }
@@ -49,7 +49,7 @@ fun JTextComponent.observableText(): ObservableMutableProperty<String> =
             text = value
         }
 
-        override fun onPropertyChange(callback: (String) -> Unit) {
+        override fun onChange(callback: (String) -> Unit) {
             addDocumentChangeListener { callback(get()) }
         }
     }
@@ -62,7 +62,7 @@ fun AbstractButton.observableSelected(): ObservableMutableProperty<Boolean> =
             isSelected = value
         }
 
-        override fun onPropertyChange(callback: (Boolean) -> Unit) {
+        override fun onChange(callback: (Boolean) -> Unit) {
             addChangeListener { callback(get()) }
         }
     }
@@ -76,7 +76,7 @@ fun <V> JSpinner.observableValue(): ObservableMutableProperty<V> =
             this@observableValue.value = value
         }
 
-        override fun onPropertyChange(callback: (V) -> Unit) {
+        override fun onChange(callback: (V) -> Unit) {
             addChangeListener { callback(get()) }
         }
     }

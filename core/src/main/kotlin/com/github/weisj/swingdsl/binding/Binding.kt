@@ -49,7 +49,7 @@ data class PropertyBinding<V>(private val getter: () -> V, private val setter: (
 }
 
 interface Observable<out T> {
-    fun onPropertyChange(callback: (T) -> Unit)
+    fun onChange(callback: (T) -> Unit)
 }
 
 interface ObservableProperty<out T> : Property<T>, Observable<T>
@@ -68,8 +68,8 @@ private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, pri
     ObservableProperty<T> {
     override fun get(): T = transform(prop.get())
 
-    override fun onPropertyChange(callback: (T) -> Unit) {
-        prop.onPropertyChange { callback(get()) }
+    override fun onChange(callback: (T) -> Unit) {
+        prop.onChange { callback(get()) }
     }
 }
 
@@ -80,9 +80,9 @@ private open class CombinedProperty<T, K1, K2>(
 ) : ObservableProperty<T> {
     override fun get(): T = combiner(first.get(), second.get())
 
-    override fun onPropertyChange(callback: (T) -> Unit) {
-        first.onPropertyChange { callback(get()) }
-        second.onPropertyChange { callback(get()) }
+    override fun onChange(callback: (T) -> Unit) {
+        first.onChange { callback(get()) }
+        second.onChange { callback(get()) }
     }
 }
 
@@ -114,8 +114,8 @@ internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): MutablePrope
                 prop.set(value)
             }
 
-            override fun onPropertyChange(callback: (T) -> Unit) {
-                (delegate as Observable<T>).onPropertyChange(callback)
+            override fun onChange(callback: (T) -> Unit) {
+                (delegate as Observable<T>).onChange(callback)
             }
         }
         else -> PropertyBinding({ prop.get() }, { prop.set(it) })
@@ -149,7 +149,7 @@ fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : 
         }
     }
 
-    override fun onPropertyChange(callback: (T) -> Unit) {
+    override fun onChange(callback: (T) -> Unit) {
         listeners.add(callback)
     }
 }

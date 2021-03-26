@@ -77,7 +77,7 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
         var lock: AtomicBoolean? = null
         if (modelBinding is Observable<*>) {
             if (componentListenerAdder != null) lock = AtomicBoolean(false)
-            modelBinding.onPropertyChange {
+            modelBinding.onChange {
                 onSwingThread { if (lock?.get() != true) componentSet(component, modelBinding.get()) }
             }
         }

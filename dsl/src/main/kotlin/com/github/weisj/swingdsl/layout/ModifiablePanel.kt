@@ -108,7 +108,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
             mutableListOf()
         }
 
-        override fun onPropertyChange(callback: (Boolean) -> Unit) {
+        override fun onChange(callback: (Boolean) -> Unit) {
             listeners.add(callback)
         }
 

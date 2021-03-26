@@ -83,13 +83,13 @@ internal class MigLayoutCellBuilder<T : JComponent>(
 
     override fun enableIf(predicate: ObservableCondition): CellBuilder<T> {
         component.isEnabled = predicate.get()
-        predicate.onPropertyChange { component.isEnabled = it }
+        predicate.onChange { component.isEnabled = it }
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): CellBuilder<T> {
         component.isVisible = predicate.get()
-        predicate.onPropertyChange { component.isVisible = it }
+        predicate.onChange { component.isVisible = it }
         return this
     }
 
