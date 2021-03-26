@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.layout
 
+import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
@@ -48,7 +49,7 @@ class InnerCell(val cell: Cell) : Cell() {
     }
 
     inline fun <reified T> buttonGroup(
-        binding: PropertyBinding<T>,
+        binding: MutableProperty<T>,
         crossinline init: CellBuilderWithButtonGroupProperty<T>.() -> Unit
     ) {
         withButtonGroup(ButtonGroup()) {

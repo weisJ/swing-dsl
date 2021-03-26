@@ -26,7 +26,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout
 
-import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOfNullable
@@ -56,7 +56,7 @@ interface ButtonGroupBuilder {
 }
 
 class CellBuilderWithButtonGroupProperty<T>
-@PublishedApi internal constructor(private val prop: PropertyBinding<T>) {
+@PublishedApi internal constructor(private val prop: MutableProperty<T>) {
 
     fun Cell.radioButton(text: Text, value: T, comment: Text? = null): CellBuilder<JRadioButton> {
         val component = UIFactory.createRadioButton(text)
@@ -68,7 +68,7 @@ class CellBuilderWithButtonGroupProperty<T>
 }
 
 class RowBuilderWithButtonGroupProperty<T>
-@PublishedApi internal constructor(private val builder: RowBuilder, private val prop: PropertyBinding<T>) :
+@PublishedApi internal constructor(private val builder: RowBuilder, private val prop: MutableProperty<T>) :
     RowBuilder by builder {
 
     fun Row.radioButton(
@@ -86,7 +86,7 @@ class RowBuilderWithButtonGroupProperty<T>
 }
 
 private fun <T> CellBuilder<JRadioButton>.bindValueToProperty(
-    prop: PropertyBinding<T>,
+    prop: MutableProperty<T>,
     value: T
 ): CellBuilder<JRadioButton> = apply {
     onApply { if (component.isSelected) prop.set(value) }

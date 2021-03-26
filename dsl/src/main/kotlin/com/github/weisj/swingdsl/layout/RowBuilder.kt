@@ -28,8 +28,9 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.ModifiableContainerBuilder
+import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.toBinding
+import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.textOf
@@ -93,7 +94,7 @@ inline fun <reified T : Any> RowBuilder.buttonGroup(
     prop: KMutableProperty0<T>,
     crossinline init: RowBuilderWithButtonGroupProperty<T>.() -> Unit
 ) {
-    buttonGroup(prop.toBinding(), init)
+    buttonGroup(prop.toProperty(), init)
 }
 
 inline fun <reified T : Any> RowBuilder.buttonGroup(
@@ -105,7 +106,7 @@ inline fun <reified T : Any> RowBuilder.buttonGroup(
 }
 
 inline fun <reified T : Any> RowBuilder.buttonGroup(
-    binding: PropertyBinding<T>,
+    binding: MutableProperty<T>,
     crossinline init: RowBuilderWithButtonGroupProperty<T>.() -> Unit
 ) {
     withButtonGroup(ButtonGroup()) {

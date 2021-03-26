@@ -28,9 +28,10 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.Modifiable
 import com.github.weisj.swingdsl.ModifiableComponent
+import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.toBinding
 import com.github.weisj.swingdsl.binding.toNullable
+import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
@@ -118,7 +119,7 @@ abstract class Cell : ButtonGroupBuilder {
         prop: KMutableProperty0<Boolean>,
         comment: Text? = null
     ): CellBuilder<JCheckBox> {
-        return checkBox(text, prop.toBinding(), comment)
+        return checkBox(text, prop.toProperty(), comment)
     }
 
     @JvmOverloads
@@ -133,7 +134,7 @@ abstract class Cell : ButtonGroupBuilder {
 
     private fun checkBox(
         text: Text,
-        modelBinding: PropertyBinding<Boolean>,
+        modelBinding: MutableProperty<Boolean>,
         comment: Text?
     ): CellBuilder<JCheckBox> {
         val component = UIFactory.createCheckBox(text)
@@ -166,7 +167,7 @@ abstract class Cell : ButtonGroupBuilder {
     ): CellBuilder<JRadioButton> {
         val component = UIFactory.createRadioButton(text)
         component.component.isSelected = prop.get()
-        return component(comment = comment).withSelectedBinding(prop.toBinding())
+        return component(comment = comment).withSelectedBinding(prop.toProperty())
     }
 
     fun <T> comboBox(
@@ -181,7 +182,7 @@ abstract class Cell : ButtonGroupBuilder {
     @Suppress("UNCHECKED_CAST")
     fun <T> comboBox(
         model: ComboBoxModel<T>,
-        modelBinding: PropertyBinding<T?>,
+        modelBinding: MutableProperty<T?>,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
         return component(JComboBox(model))
@@ -201,19 +202,19 @@ abstract class Cell : ButtonGroupBuilder {
         prop: KMutableProperty0<T>,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
-        return comboBox(model, prop.toBinding().toNullable(), renderer)
+        return comboBox(model, prop.toProperty().toNullable(), renderer)
     }
 
     fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JTextField> =
-        textField(prop.toBinding(), columns)
+        textField(prop.toProperty(), columns)
 
     @JvmOverloads
     fun textField(getter: () -> String, setter: (String) -> Unit, columns: Int? = null) =
         textField(PropertyBinding(getter, setter), columns)
 
     @JvmOverloads
-    fun textField(binding: PropertyBinding<String>? = null, columns: Int? = null): CellBuilder<JTextField> {
-        return component(JTextField(binding?.let { it.get() } ?: "", columns ?: 0))() {
+    fun textField(binding: MutableProperty<String>? = null, columns: Int? = null): CellBuilder<JTextField> {
+        return component(JTextField(binding?.get() ?: "", columns ?: 0))() {
             if (binding != null) withTextBinding(binding)
         }
     }
@@ -221,7 +222,7 @@ abstract class Cell : ButtonGroupBuilder {
     fun spinner(prop: KMutableProperty0<Int>, minValue: Int, maxValue: Int, step: Int = 1): CellBuilder<JSpinner> {
         val spinnerModel = SpinnerNumberModel(prop.get(), minValue, maxValue, step)
         val spinner = JSpinner(spinnerModel)
-        return component(spinner).withIntBinding(prop.toBinding())
+        return component(spinner).withIntBinding(prop.toProperty())
     }
 
     @JvmOverloads

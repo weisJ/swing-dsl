@@ -26,7 +26,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.condition.BoundCondition
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -147,7 +147,7 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     override fun <V> withBinding(
         componentGet: (T) -> V,
         componentSet: (T, V) -> Unit,
-        modelBinding: PropertyBinding<V>,
+        modelBinding: MutableProperty<V>,
         immediateModeUpdater: (() -> Unit)?
     ): CellBuilder<T> {
         bindingUpdaters.add(

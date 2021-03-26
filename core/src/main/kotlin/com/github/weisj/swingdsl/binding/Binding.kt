@@ -29,16 +29,38 @@ package com.github.weisj.swingdsl.binding
 import com.github.weisj.swingdsl.condition.BoundCondition
 import com.github.weisj.swingdsl.condition.not
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KProperty
 
-data class PropertyBinding<V>(val get: () -> V, val set: (V) -> Unit)
-
-interface BoundProperty<out T> {
+interface Property<out T> {
     fun get(): T
+}
+
+interface MutableProperty<T> : Property<T> {
+    fun set(value: T)
+}
+
+data class PropertyBinding<V>(private val getter: () -> V, private val setter: (V) -> Unit) : MutableProperty<V> {
+    override fun get(): V = getter()
+
+    override fun set(value: V) {
+        setter(value)
+    }
+}
+
+interface Observable<out T> {
     fun onPropertyChange(callback: (T) -> Unit)
 }
 
-interface MutableBoundProperty<T> : BoundProperty<T> {
-    fun set(value: T)
+interface BoundProperty<out T> : Property<T>, Observable<T>
+
+interface MutableBoundProperty<T> : MutableProperty<T>, Observable<T>
+
+operator fun <T> Property<T>.getValue(thisRef: Any?, property: KProperty<*>): T {
+    return get()
+}
+
+operator fun <T> MutableProperty<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    return set(value)
 }
 
 private class DerivedProperty<T, K>(private val prop: BoundProperty<K>, private val transform: (K) -> T) :
@@ -78,21 +100,54 @@ fun <K1, K2, T> BoundProperty<K1>.combine(
 ): BoundProperty<T> = combinedProperty(this, other, combiner)
 
 @PublishedApi
-internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): PropertyBinding<T> {
-    return PropertyBinding({ prop.get() }, { prop.set(it) })
+internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): MutableProperty<T> {
+    val delegate = prop.getDelegate()
+    @Suppress("UNCHECKED_CAST")
+    return when (delegate) {
+        is MutableBoundProperty<*> -> delegate as MutableProperty<T>
+        is Observable<*> -> object : MutableBoundProperty<T> {
+            override fun get(): T = prop.get()
+
+            override fun set(value: T) {
+                prop.set(value)
+            }
+
+            override fun onPropertyChange(callback: (T) -> Unit) {
+                (delegate as Observable<T>).onPropertyChange(callback)
+            }
+        }
+        else -> PropertyBinding({ prop.get() }, { prop.set(it) })
+    }
 }
 
-fun <T> KMutableProperty0<T>.toBinding(): PropertyBinding<T> {
+fun <T> KMutableProperty0<T>.toProperty(): MutableProperty<T> {
     return createPropertyBinding(this)
 }
 
-fun <T> PropertyBinding<T?>.withFallback(fallback: T): PropertyBinding<T> {
+fun <T> MutableProperty<T?>.withFallback(fallback: T): MutableProperty<T> {
     return PropertyBinding({ get() ?: fallback }, { set(it) })
 }
 
-fun <T> PropertyBinding<T>.toNullable(): PropertyBinding<T?> {
-    return PropertyBinding<T?>({ get() }, { if (it != null) set(it) })
+fun <T> MutableProperty<T>.toNullable(): MutableProperty<T?> {
+    return PropertyBinding({ get() }, { if (it != null) set(it) })
 }
 
 fun <T> BoundProperty<T?>.isNull(): BoundCondition = derive { it == null }
 fun <T> BoundProperty<T?>.isNotNull(): BoundCondition = !isNull()
+
+fun <T> boundProperty(initial: T): MutableBoundProperty<T> = object : MutableBoundProperty<T> {
+    private val listeners by lazy { mutableListOf<(T) -> Unit>() }
+    private var backingField: T = initial
+
+    override fun get(): T = backingField
+    override fun set(value: T) {
+        if (backingField != value) {
+            backingField = value
+            listeners.forEach { it(backingField) }
+        }
+    }
+
+    override fun onPropertyChange(callback: (T) -> Unit) {
+        listeners.add(callback)
+    }
+}

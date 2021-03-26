@@ -5,4 +5,5 @@ plugins {
 
 dependencies {
     implementation("net.pearx.okservable:okservable-jvm")
+    implementation(kotlin("reflect"))
 }

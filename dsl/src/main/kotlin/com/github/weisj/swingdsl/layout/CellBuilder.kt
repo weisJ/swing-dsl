@@ -29,8 +29,10 @@ package com.github.weisj.swingdsl.layout
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.addDocumentChangeListener
 import com.github.weisj.swingdsl.binding.MutableBoundProperty
-import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.binding.MutableProperty
+import com.github.weisj.swingdsl.binding.Observable
 import com.github.weisj.swingdsl.on
+import com.github.weisj.swingdsl.onSwingThread
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
@@ -39,7 +41,6 @@ import javax.swing.AbstractButton
 import javax.swing.JComponent
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
-import javax.swing.event.DocumentEvent
 import javax.swing.text.JTextComponent
 
 @DslMarker
@@ -58,7 +59,7 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     fun <V> withBinding(
         componentGet: (T) -> V,
         componentSet: (T, V) -> Unit,
-        modelBinding: PropertyBinding<V>,
+        modelBinding: MutableProperty<V>,
         immediateModeUpdater: (() -> Unit)? = null
     ): CellBuilder<T> {
         onApply { if (shouldSaveOnApply()) modelBinding.set(componentGet(component)) }
@@ -111,7 +112,7 @@ internal interface CheckboxCellBuilder {
     fun actsAsLabel()
 }
 
-fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: PropertyBinding<Int>): CellBuilder<T> {
+fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: MutableProperty<Int>): CellBuilder<T> {
     return withBinding({ it.value as Int }, JSpinner::setValue, modelBinding) {
         component.addChangeListener {
             modelBinding.set(component.value as Int)
@@ -119,26 +120,15 @@ fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: PropertyBinding<I
     }
 }
 
-fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: PropertyBinding<String>): CellBuilder<T> {
-    return withTextBinding(modelBinding)
-}
-
-internal fun <T : JTextComponent> CellBuilder<T>.withTextBinding(
-    modelBinding: PropertyBinding<String>,
-    lock: AtomicBoolean
-): CellBuilder<T> {
+fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: MutableProperty<String>): CellBuilder<T> {
     return withBinding(JTextComponent::getText, JTextComponent::setText, modelBinding) {
         component.addDocumentChangeListener {
-            if (!lock.get()) {
-                lock.set(true)
-                modelBinding.set(component.text)
-                lock.set(false)
-            }
+            modelBinding.set(component.text)
         }
     }
 }
 
-fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: PropertyBinding<Boolean>): CellBuilder<T> {
+fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: MutableProperty<Boolean>): CellBuilder<T> {
     return withBinding(AbstractButton::isSelected, AbstractButton::setSelected, modelBinding) {
         component.addChangeListener {
             modelBinding.set((it.source as AbstractButton).model.isSelected)
