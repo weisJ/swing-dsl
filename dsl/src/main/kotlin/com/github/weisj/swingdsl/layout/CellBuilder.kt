@@ -34,10 +34,12 @@ import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton
 import javax.swing.JComponent
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
+import javax.swing.event.DocumentEvent
 import javax.swing.text.JTextComponent
 
 @DslMarker
@@ -94,7 +96,7 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
         return also { task(component) }
     }
 
-    fun on(vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
+    fun on(vararg keyCode: KeyStroke, action: T.(ActionEvent?) -> Unit) {
         component.on(*keyCode, action = action)
     }
 
@@ -118,8 +120,21 @@ fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: PropertyBinding<I
 }
 
 fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: PropertyBinding<String>): CellBuilder<T> {
+    return withTextBinding(modelBinding)
+}
+
+internal fun <T : JTextComponent> CellBuilder<T>.withTextBinding(
+    modelBinding: PropertyBinding<String>,
+    lock: AtomicBoolean
+): CellBuilder<T> {
     return withBinding(JTextComponent::getText, JTextComponent::setText, modelBinding) {
-        component.addDocumentChangeListener { modelBinding.set(component.text) }
+        component.addDocumentChangeListener {
+            if (!lock.get()) {
+                lock.set(true)
+                modelBinding.set(component.text)
+                lock.set(false)
+            }
+        }
     }
 }
 

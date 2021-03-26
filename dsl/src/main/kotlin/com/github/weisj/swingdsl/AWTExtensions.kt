@@ -40,13 +40,12 @@ import javax.swing.ListModel
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
-import javax.swing.event.ListDataListener
 import javax.swing.text.JTextComponent
 
 fun Int.toKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(this, 0)
 
-fun JComponent.on(vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
-    bindEvent(Any(), *keyCode, action = action)
+fun <T : JComponent> T.on(vararg keyCode: KeyStroke, action: T.(ActionEvent?) -> Unit) {
+    bindEvent(Any(), *keyCode, action = { this.action((it)) })
 }
 
 fun JComponent.bindEvent(actionKey: Any, vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
