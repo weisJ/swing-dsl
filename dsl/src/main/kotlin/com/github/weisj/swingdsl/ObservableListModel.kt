@@ -36,6 +36,7 @@ class ObservableListModel<T>(private val list: ObservableList<T>) : ListModel<T>
         list.onAdd { index, _ -> onIntervalAdded(index, index) }
         list.onRemove { index, _ -> onIntervalRemoved(index, index) }
         list.onSet { index, _, _ -> onContentChanged(index, index) }
+        list.onClear { elements -> onClear(elements.size) }
     }
 
     override fun getSize(): Int = list.size
@@ -64,6 +65,11 @@ class ObservableListModel<T>(private val list: ObservableList<T>) : ListModel<T>
 
     private fun onContentChanged(start: Int, end: Int) {
         val event = ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, start, end)
+        listeners.forEach { it.contentsChanged(event) }
+    }
+
+    private fun onClear(size: Int) {
+        val event = ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, 0, size - 1)
         listeners.forEach { it.contentsChanged(event) }
     }
 }
