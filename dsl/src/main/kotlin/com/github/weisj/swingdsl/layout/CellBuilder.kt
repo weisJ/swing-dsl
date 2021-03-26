@@ -31,13 +31,20 @@ import com.github.weisj.swingdsl.addDocumentChangeListener
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.Observable
 import com.github.weisj.swingdsl.binding.ObservableMutableProperty
+import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.observableSelected
+import com.github.weisj.swingdsl.observableSelection
+import com.github.weisj.swingdsl.observableText
+import com.github.weisj.swingdsl.observableValue
 import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.onSwingThread
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton
 import javax.swing.JComponent
+import javax.swing.JList
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
 import javax.swing.text.JTextComponent
@@ -58,13 +65,28 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     fun <V> withBinding(
         componentGet: (T) -> V,
         componentSet: (T, V) -> Unit,
+        modelBinding: MutableProperty<V>
+    ): CellBuilder<T> = withBinding<V, Any>(componentGet, componentSet, modelBinding, null)
+
+    fun <V, L> withBinding(
+        componentGet: (T) -> V,
+        componentSet: (T, V) -> Unit,
         modelBinding: MutableProperty<V>,
-        immediateModeUpdater: (() -> Unit)? = null
+        componentListenerAdder: ((T, (L) -> Unit) -> Unit)? = null,
     ): CellBuilder<T> {
+        var lock: AtomicBoolean? = null
         if (modelBinding is Observable<*>) {
+            if (componentListenerAdder != null) lock = AtomicBoolean(false)
             modelBinding.onPropertyChange {
-                onSwingThread {
-                    componentSet(component, modelBinding.get())
+                onSwingThread { if (lock?.get() != true) componentSet(component, modelBinding.get()) }
+            }
+        }
+        onImmedeateModeActivated {
+            if (componentListenerAdder != null) {
+                componentListenerAdder(component) {
+                    lock?.set(true)
+                    modelBinding.set(componentGet(component))
+                    lock?.set(false)
                 }
             }
         }
@@ -73,6 +95,9 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
         onIsModified { shouldSaveOnApply() && componentGet(component) != modelBinding.get() }
         return this
     }
+
+    // Do not call directly
+    fun onImmedeateModeActivated(immediateModeUpdater: (() -> Unit)? = null)
 
     fun comment(
         text: Text,
@@ -119,63 +144,38 @@ internal interface CheckboxCellBuilder {
 }
 
 fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: MutableProperty<Int>): CellBuilder<T> {
-    return withBinding({ it.value as Int }, JSpinner::setValue, modelBinding) {
-        component.addChangeListener {
-            modelBinding.set(component.value as Int)
-        }
-    }
+    return withBinding({ it.value as Int }, JSpinner::setValue, modelBinding, JSpinner::addChangeListener)
 }
 
 fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: MutableProperty<String>): CellBuilder<T> {
-    return withBinding(JTextComponent::getText, JTextComponent::setText, modelBinding) {
-        component.addDocumentChangeListener {
-            modelBinding.set(component.text)
-        }
-    }
+    return withBinding(
+        JTextComponent::getText,
+        JTextComponent::setText,
+        modelBinding,
+        JTextComponent::addDocumentChangeListener
+    )
 }
 
 fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: MutableProperty<Boolean>): CellBuilder<T> {
-    return withBinding(AbstractButton::isSelected, AbstractButton::setSelected, modelBinding) {
-        component.addChangeListener {
-            modelBinding.set((it.source as AbstractButton).model.isSelected)
-        }
-    }
+    return withBinding(
+        AbstractButton::isSelected,
+        AbstractButton::setSelected,
+        modelBinding,
+        AbstractButton::addChangeListener
+    )
 }
 
-fun <T : JSpinner> CellBuilder<T>.intValue(): ObservableMutableProperty<Int> = object : ObservableMutableProperty<Int> {
-    override fun get(): Int = component.value as Int
+fun <V, T : JList<V>> CellBuilder<T>.observableSelection(): ObservableProperty<IntArray> =
+    component.observableSelection()
 
-    override fun set(value: Int) {
-        component.value = value
-    }
+fun <T : JSpinner> CellBuilder<T>.observableIntValue(): ObservableMutableProperty<Int> =
+    observableValue()
 
-    override fun onPropertyChange(callback: (Int) -> Unit) {
-        component.addChangeListener { callback(get()) }
-    }
-}
+fun <T : JSpinner, V> CellBuilder<T>.observableValue(): ObservableMutableProperty<V> =
+    component.observableValue()
 
-fun <T : JTextComponent> CellBuilder<T>.textValue(): ObservableMutableProperty<String> =
-    object : ObservableMutableProperty<String> {
-        override fun get(): String = component.text
+fun <T : JTextComponent> CellBuilder<T>.observableText(): ObservableMutableProperty<String> =
+    component.observableText()
 
-        override fun set(value: String) {
-            component.text = value
-        }
-
-        override fun onPropertyChange(callback: (String) -> Unit) {
-            component.addDocumentChangeListener { callback(get()) }
-        }
-    }
-
-fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): ObservableMutableProperty<Boolean> =
-    object : ObservableMutableProperty<Boolean> {
-        override fun get(): Boolean = component.isSelected
-
-        override fun set(value: Boolean) {
-            component.isSelected = value
-        }
-
-        override fun onPropertyChange(callback: (Boolean) -> Unit) {
-            component.addChangeListener { callback(get()) }
-        }
-    }
+fun <T : AbstractButton> CellBuilder<T>.observableSelected(): ObservableMutableProperty<Boolean> =
+    component.observableSelected()

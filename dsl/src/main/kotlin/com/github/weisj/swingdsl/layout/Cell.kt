@@ -242,6 +242,23 @@ abstract class Cell : ButtonGroupBuilder {
         )
     }
 
+    @JvmOverloads
+    fun spinner(
+        initial: Int,
+        minValue: Int,
+        maxValue: Int,
+        step: Int = 1,
+        binding: MutableProperty<Int>? = null
+    ): CellBuilder<JSpinner> {
+        val spinnerModel = SpinnerNumberModel(initial, minValue, maxValue, step)
+        val spinner = JSpinner(spinnerModel)
+        return component(spinner).apply {
+            if (binding != null) {
+                withBinding({ it.value as Int }, JSpinner::setValue, binding, JSpinner::addChangeListener)
+            }
+        }
+    }
+
     fun <T> list(model: ListModel<T>): CellBuilder<JList<T>> {
         return scrollPane(UIFactory.createList(model))
     }

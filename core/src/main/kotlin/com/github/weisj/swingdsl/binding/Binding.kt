@@ -30,6 +30,7 @@ import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.condition.not
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.isAccessible
 
 interface Property<out T> {
     fun get(): T
@@ -55,11 +56,11 @@ interface ObservableProperty<out T> : Property<T>, Observable<T>
 
 interface ObservableMutableProperty<T> : MutableProperty<T>, ObservableProperty<T>
 
-operator fun <T> Property<T>.getValue(thisRef: Any?, property: KProperty<*>): T {
+operator fun <R, T> Property<T>.getValue(thisRef: R, property: KProperty<*>): T {
     return get()
 }
 
-operator fun <T> MutableProperty<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+operator fun <R, T> MutableProperty<T>.setValue(thisRef: R, property: KProperty<*>, value: T) {
     return set(value)
 }
 
@@ -101,6 +102,7 @@ fun <K1, K2, T> ObservableProperty<K1>.combine(
 
 @PublishedApi
 internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): MutableProperty<T> {
+    prop.isAccessible = true
     val delegate = prop.getDelegate()
     @Suppress("UNCHECKED_CAST")
     return when (delegate) {
@@ -135,7 +137,7 @@ fun <T> MutableProperty<T>.toNullable(): MutableProperty<T?> {
 fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == null }
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 
-fun <T> boundProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
+fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
     private val listeners by lazy { mutableListOf<(T) -> Unit>() }
     private var backingField: T = initial
 
