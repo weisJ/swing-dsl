@@ -26,7 +26,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.binding
 
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.condition.not
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
@@ -51,9 +51,9 @@ interface Observable<out T> {
     fun onPropertyChange(callback: (T) -> Unit)
 }
 
-interface BoundProperty<out T> : Property<T>, Observable<T>
+interface ObservableProperty<out T> : Property<T>, Observable<T>
 
-interface MutableBoundProperty<T> : MutableProperty<T>, Observable<T>
+interface ObservableMutableProperty<T> : MutableProperty<T>, ObservableProperty<T>
 
 operator fun <T> Property<T>.getValue(thisRef: Any?, property: KProperty<*>): T {
     return get()
@@ -63,8 +63,8 @@ operator fun <T> MutableProperty<T>.setValue(thisRef: Any?, property: KProperty<
     return set(value)
 }
 
-private class DerivedProperty<T, K>(private val prop: BoundProperty<K>, private val transform: (K) -> T) :
-    BoundProperty<T> {
+private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, private val transform: (K) -> T) :
+    ObservableProperty<T> {
     override fun get(): T = transform(prop.get())
 
     override fun onPropertyChange(callback: (T) -> Unit) {
@@ -73,10 +73,10 @@ private class DerivedProperty<T, K>(private val prop: BoundProperty<K>, private 
 }
 
 private open class CombinedProperty<T, K1, K2>(
-    private val first: BoundProperty<K1>,
-    private val second: BoundProperty<K2>,
+    private val first: ObservableProperty<K1>,
+    private val second: ObservableProperty<K2>,
     private val combiner: (K1, K2) -> T
-) : BoundProperty<T> {
+) : ObservableProperty<T> {
     override fun get(): T = combiner(first.get(), second.get())
 
     override fun onPropertyChange(callback: (T) -> Unit) {
@@ -85,27 +85,27 @@ private open class CombinedProperty<T, K1, K2>(
     }
 }
 
-fun <T, K> BoundProperty<K>.derive(transform: (K) -> T): BoundProperty<T> = DerivedProperty(this, transform)
+fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> = DerivedProperty(this, transform)
 
 fun <T, K1, K2> combinedProperty(
-    first: BoundProperty<K1>,
-    second: BoundProperty<K2>,
+    first: ObservableProperty<K1>,
+    second: ObservableProperty<K2>,
     combiner: (K1, K2) -> T
-): BoundProperty<T> =
+): ObservableProperty<T> =
     CombinedProperty(first, second, combiner)
 
-fun <K1, K2, T> BoundProperty<K1>.combine(
-    other: BoundProperty<K2>,
+fun <K1, K2, T> ObservableProperty<K1>.combine(
+    other: ObservableProperty<K2>,
     combiner: (K1, K2) -> T
-): BoundProperty<T> = combinedProperty(this, other, combiner)
+): ObservableProperty<T> = combinedProperty(this, other, combiner)
 
 @PublishedApi
 internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): MutableProperty<T> {
     val delegate = prop.getDelegate()
     @Suppress("UNCHECKED_CAST")
     return when (delegate) {
-        is MutableBoundProperty<*> -> delegate as MutableProperty<T>
-        is Observable<*> -> object : MutableBoundProperty<T> {
+        is ObservableMutableProperty<*> -> delegate as MutableProperty<T>
+        is Observable<*> -> object : ObservableMutableProperty<T> {
             override fun get(): T = prop.get()
 
             override fun set(value: T) {
@@ -132,10 +132,10 @@ fun <T> MutableProperty<T>.toNullable(): MutableProperty<T?> {
     return PropertyBinding({ get() }, { if (it != null) set(it) })
 }
 
-fun <T> BoundProperty<T?>.isNull(): BoundCondition = derive { it == null }
-fun <T> BoundProperty<T?>.isNotNull(): BoundCondition = !isNull()
+fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == null }
+fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 
-fun <T> boundProperty(initial: T): MutableBoundProperty<T> = object : MutableBoundProperty<T> {
+fun <T> boundProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
     private val listeners by lazy { mutableListOf<(T) -> Unit>() }
     private var backingField: T = initial
 

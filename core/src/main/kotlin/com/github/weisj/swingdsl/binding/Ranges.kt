@@ -24,25 +24,25 @@
  */
 package com.github.weisj.swingdsl.binding
 
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.condition.not
 
 @JvmName("rangeToFloat")
-operator fun BoundProperty<Float>.rangeTo(other: BoundProperty<Float>): BoundProperty<ClosedFloatingPointRange<Float>> =
+operator fun ObservableProperty<Float>.rangeTo(other: ObservableProperty<Float>): ObservableProperty<ClosedFloatingPointRange<Float>> =
     combine(other) { a, b -> a..b }
 
 @JvmName("rangeToDouble")
-operator fun BoundProperty<Double>.rangeTo(other: BoundProperty<Double>): BoundProperty<ClosedFloatingPointRange<Double>> =
+operator fun ObservableProperty<Double>.rangeTo(other: ObservableProperty<Double>): ObservableProperty<ClosedFloatingPointRange<Double>> =
     combine(other) { a, b -> a..b }
 
 @JvmName("rangeToComparable")
-operator fun <T : Comparable<T>> BoundProperty<T>.rangeTo(other: BoundProperty<T>): BoundProperty<ClosedRange<T>> =
+operator fun <T : Comparable<T>> ObservableProperty<T>.rangeTo(other: ObservableProperty<T>): ObservableProperty<ClosedRange<T>> =
     combine(other) { a, b -> a..b }
 
-fun <T : Comparable<T>> BoundProperty<ClosedRange<T>>.contains(element: T): BoundCondition =
+fun <T : Comparable<T>> ObservableProperty<ClosedRange<T>>.contains(element: T): ObservableCondition =
     derive { it.contains(element) }
 
-val <T : Comparable<T>> BoundProperty<ClosedRange<T>>.start: BoundProperty<T> get() = derive { it.start }
-val <T : Comparable<T>> BoundProperty<ClosedRange<T>>.endInclusive: BoundProperty<T> get() = derive { it.endInclusive }
-fun <T : Comparable<T>> BoundProperty<ClosedRange<T>>.isEmpty(): BoundCondition = derive { it.isEmpty() }
-fun <T : Comparable<T>> BoundProperty<ClosedRange<T>>.isNotEmpty(): BoundCondition = !isEmpty()
+val <T : Comparable<T>> ObservableProperty<ClosedRange<T>>.start: ObservableProperty<T> get() = derive { it.start }
+val <T : Comparable<T>> ObservableProperty<ClosedRange<T>>.endInclusive: ObservableProperty<T> get() = derive { it.endInclusive }
+fun <T : Comparable<T>> ObservableProperty<ClosedRange<T>>.isEmpty(): ObservableCondition = derive { it.isEmpty() }
+fun <T : Comparable<T>> ObservableProperty<ClosedRange<T>>.isNotEmpty(): ObservableCondition = !isEmpty()

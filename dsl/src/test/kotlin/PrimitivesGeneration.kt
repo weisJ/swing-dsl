@@ -22,6 +22,7 @@
  * SOFTWARE.
  *
  */
+import com.github.weisj.swingdsl.binding.ObservableProperty
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -276,7 +277,7 @@ fun main() {
                 System.err.println("Skipping $op for $type due to deprecation.")
             }
         }
-        val packageName = "package com.github.weisj.swingdsl.binding"
+        val packageName = "package ${ObservableProperty::class.java.packageName}"
         File("Primitives${type.simpleName}.kt").run {
             if (exists()) delete()
             fun append(text: String) = appendText(text, charset = Charsets.UTF_8)
@@ -321,7 +322,15 @@ fun createMethods(
     return listOf(
         method,
         createMethodImpl(name, "${jvmName}P", isOperator, receiver, primitiveParams, returnType, primitiveImpl),
-        createMethodImpl(name, "P${jvmName.capitalize()}", isOperator, receiverType, params, returnType, primitiveImpl2),
+        createMethodImpl(
+            name,
+            "P${jvmName.capitalize()}",
+            isOperator,
+            receiverType,
+            params,
+            returnType,
+            primitiveImpl2
+        ),
     )
 }
 
@@ -347,4 +356,4 @@ fun createMethodImpl(
     """.trimIndent()
 }
 
-fun makePropertyTypeStr(typeName: String) = "BoundProperty<$typeName>"
+fun makePropertyTypeStr(typeName: String) = "${ObservableProperty::class.simpleName}<$typeName>"

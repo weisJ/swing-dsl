@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.condition
 
-import com.github.weisj.swingdsl.binding.BoundProperty
+import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.combine
 import com.github.weisj.swingdsl.binding.derive
 
@@ -32,12 +32,12 @@ import com.github.weisj.swingdsl.binding.derive
  * Bound conditions promise to update their value as soon as a new invocation would return a different
  * boolean value than the previous.
  */
-typealias BoundCondition = BoundProperty<Boolean>
+typealias ObservableCondition = ObservableProperty<Boolean>
 
 /**
  * Condition with a constant value.
  */
-class ConstantCondition(private val value: Boolean) : BoundCondition {
+class ConstantCondition(private val value: Boolean) : ObservableCondition {
     override fun onPropertyChange(callback: (Boolean) -> Unit) {
         /* Do nothing. Value never changes */
     }
@@ -45,10 +45,10 @@ class ConstantCondition(private val value: Boolean) : BoundCondition {
     override fun get(): Boolean = value
 }
 
-internal class BoundPropertyCondition<T>(
-    private val property: BoundProperty<T>,
+internal class ObservablePropertyCondition<T>(
+    private val property: ObservableProperty<T>,
     private val checker: (T) -> Boolean
-) : BoundCondition {
+) : ObservableCondition {
     override fun onPropertyChange(callback: (Boolean) -> Unit) {
         property.onPropertyChange { callback(get()) }
     }
@@ -59,31 +59,31 @@ internal class BoundPropertyCondition<T>(
 /**
  * Create compound condition which value is true iff both conditions are met.
  */
-infix fun BoundCondition.and(other: BoundCondition): BoundCondition = combine(other) { a, b -> a && b }
+infix fun ObservableCondition.and(other: ObservableCondition): ObservableCondition = combine(other) { a, b -> a && b }
 
 /**
  * Create compound condition which value is true iff both at least one conditions is met.
  */
-infix fun BoundCondition.or(other: BoundCondition): BoundCondition = combine(other) { a, b -> a || b }
+infix fun ObservableCondition.or(other: ObservableCondition): ObservableCondition = combine(other) { a, b -> a || b }
 
 /**
  * Inverts the given condition.
  */
-operator fun BoundCondition.not(): BoundCondition = derive { !it }
+operator fun ObservableCondition.not(): ObservableCondition = derive { !it }
 
 /**
  * Create constant value condition.
  */
-fun conditionOf(bool: Boolean): BoundCondition = ConstantCondition(bool)
+fun conditionOf(bool: Boolean): ObservableCondition = ConstantCondition(bool)
 
-infix fun <T> BoundProperty<T>.isEqualTo(value: T): BoundCondition =
-    BoundPropertyCondition(this) { it == value }
+infix fun <T> ObservableProperty<T>.isEqualTo(value: T): ObservableCondition =
+    ObservablePropertyCondition(this) { it == value }
 
-infix fun <T> BoundProperty<T>.isEqualTo(valueSupplier: () -> T): BoundCondition =
-    BoundPropertyCondition(this) { it == valueSupplier() }
+infix fun <T> ObservableProperty<T>.isEqualTo(valueSupplier: () -> T): ObservableCondition =
+    ObservablePropertyCondition(this) { it == valueSupplier() }
 
-infix fun <T> BoundProperty<T>.isEqualTo(other: BoundProperty<T>): BoundCondition =
+infix fun <T> ObservableProperty<T>.isEqualTo(other: ObservableProperty<T>): ObservableCondition =
     combine(other) { a, b -> a == b }
 
-fun BoundProperty<Boolean>.isTrue() = this isEqualTo true
-fun BoundProperty<Boolean>.isFalse() = this isEqualTo false
+fun ObservableProperty<Boolean>.isTrue() = this isEqualTo true
+fun ObservableProperty<Boolean>.isFalse() = this isEqualTo false

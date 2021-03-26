@@ -27,7 +27,7 @@
 package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.ModifiableComponent
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.text.Text
@@ -62,7 +62,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     override fun getComponent(): JPanel = this
     override fun getContainer(): JComponent = this
 
-    val modifiedCondition: BoundCondition = ModifiedCondition(this)
+    val modifiedCondition: ObservableCondition = ModifiedCondition(this)
 
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
@@ -97,7 +97,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
         return isModifiedCallbacks.values.any { list -> list.any { it() } }
     }
 
-    private class ModifiedCondition(private val panel: ModifiablePanel) : BoundCondition, AWTEventListener {
+    private class ModifiedCondition(private val panel: ModifiablePanel) : ObservableCondition, AWTEventListener {
 
         private var modified = false
         private val listeners: MutableList<(Boolean) -> Unit> by lazy {

@@ -29,88 +29,88 @@
 package com.github.weisj.swingdsl.binding
 
 @JvmName("charComparedToChar")
-infix fun BoundProperty<Char>.comparedTo(other: BoundProperty<Char>): BoundProperty<Int> =
+infix fun ObservableProperty<Char>.comparedTo(other: ObservableProperty<Char>): ObservableProperty<Int> =
     combine(other) { a, b -> a.compareTo(b) }
 
 @JvmName("charComparedToCharP")
-infix fun BoundProperty<Char>.comparedTo(other: Char): BoundProperty<Int> =
+infix fun ObservableProperty<Char>.comparedTo(other: Char): ObservableProperty<Int> =
     derive { a -> a.compareTo(other) }
 
 @JvmName("PCharComparedToChar")
-infix fun Char.comparedTo(other: BoundProperty<Char>): BoundProperty<Int> =
+infix fun Char.comparedTo(other: ObservableProperty<Char>): ObservableProperty<Int> =
     other.derive { a -> this.compareTo(a) }
 
 @JvmName("charPlusInt")
-operator fun BoundProperty<Char>.plus(other: BoundProperty<Int>): BoundProperty<Char> =
+operator fun ObservableProperty<Char>.plus(other: ObservableProperty<Int>): ObservableProperty<Char> =
     combine(other) { a, b -> a + b }
 
 @JvmName("charPlusIntP")
-operator fun BoundProperty<Char>.plus(other: Int): BoundProperty<Char> =
+operator fun ObservableProperty<Char>.plus(other: Int): ObservableProperty<Char> =
     derive { a -> a + other }
 
 @JvmName("PCharPlusInt")
-operator fun Char.plus(other: BoundProperty<Int>): BoundProperty<Char> =
+operator fun Char.plus(other: ObservableProperty<Int>): ObservableProperty<Char> =
     other.derive { a -> this + a }
 
 @JvmName("charMinusChar")
-operator fun BoundProperty<Char>.minus(other: BoundProperty<Char>): BoundProperty<Int> =
+operator fun ObservableProperty<Char>.minus(other: ObservableProperty<Char>): ObservableProperty<Int> =
     combine(other) { a, b -> a - b }
 
 @JvmName("charMinusCharP")
-operator fun BoundProperty<Char>.minus(other: Char): BoundProperty<Int> =
+operator fun ObservableProperty<Char>.minus(other: Char): ObservableProperty<Int> =
     derive { a -> a - other }
 
 @JvmName("PCharMinusChar")
-operator fun Char.minus(other: BoundProperty<Char>): BoundProperty<Int> =
+operator fun Char.minus(other: ObservableProperty<Char>): ObservableProperty<Int> =
     other.derive { a -> this - a }
 
 @JvmName("charMinusInt")
-operator fun BoundProperty<Char>.minus(other: BoundProperty<Int>): BoundProperty<Char> =
+operator fun ObservableProperty<Char>.minus(other: ObservableProperty<Int>): ObservableProperty<Char> =
     combine(other) { a, b -> a - b }
 
 @JvmName("charMinusIntP")
-operator fun BoundProperty<Char>.minus(other: Int): BoundProperty<Char> =
+operator fun ObservableProperty<Char>.minus(other: Int): ObservableProperty<Char> =
     derive { a -> a - other }
 
 @JvmName("PCharMinusInt")
-operator fun Char.minus(other: BoundProperty<Int>): BoundProperty<Char> =
+operator fun Char.minus(other: ObservableProperty<Int>): ObservableProperty<Char> =
     other.derive { a -> this - a }
 
 @JvmName("charRangeToChar")
-operator fun BoundProperty<Char>.rangeTo(other: BoundProperty<Char>): BoundProperty<CharRange> =
+operator fun ObservableProperty<Char>.rangeTo(other: ObservableProperty<Char>): ObservableProperty<CharRange> =
     combine(other) { a, b -> a..b }
 
 @JvmName("charRangeToCharP")
-operator fun BoundProperty<Char>.rangeTo(other: Char): BoundProperty<CharRange> =
+operator fun ObservableProperty<Char>.rangeTo(other: Char): ObservableProperty<CharRange> =
     derive { a -> a..other }
 
 @JvmName("PCharRangeToChar")
-operator fun Char.rangeTo(other: BoundProperty<Char>): BoundProperty<CharRange> =
+operator fun Char.rangeTo(other: ObservableProperty<Char>): ObservableProperty<CharRange> =
     other.derive { a -> this..a }
 
 @JvmName("charToByte")
-fun BoundProperty<Char>.toByte(): BoundProperty<Byte> =
+fun ObservableProperty<Char>.toByte(): ObservableProperty<Byte> =
     derive { a -> a.toByte() }
 
 @JvmName("charToChar")
-fun BoundProperty<Char>.toChar(): BoundProperty<Char> = this
+fun ObservableProperty<Char>.toChar(): ObservableProperty<Char> = this
 
 @JvmName("charToShort")
-fun BoundProperty<Char>.toShort(): BoundProperty<Short> =
+fun ObservableProperty<Char>.toShort(): ObservableProperty<Short> =
     derive { a -> a.toShort() }
 
 @JvmName("charToInt")
-fun BoundProperty<Char>.toInt(): BoundProperty<Int> =
+fun ObservableProperty<Char>.toInt(): ObservableProperty<Int> =
     derive { a -> a.toInt() }
 
 @JvmName("charToLong")
-fun BoundProperty<Char>.toLong(): BoundProperty<Long> =
+fun ObservableProperty<Char>.toLong(): ObservableProperty<Long> =
     derive { a -> a.toLong() }
 
 @JvmName("charToFloat")
-fun BoundProperty<Char>.toFloat(): BoundProperty<Float> =
+fun ObservableProperty<Char>.toFloat(): ObservableProperty<Float> =
     derive { a -> a.toFloat() }
 
 @JvmName("charToDouble")
-fun BoundProperty<Char>.toDouble(): BoundProperty<Double> =
+fun ObservableProperty<Char>.toDouble(): ObservableProperty<Double> =
     derive { a -> a.toDouble() }

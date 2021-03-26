@@ -28,7 +28,7 @@ package com.github.weisj.swingdsl.layout.miglayout
 
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.Row
@@ -563,13 +563,13 @@ internal class MigLayoutRow(
         this.visible = isVisible
     }
 
-    override fun enableIf(predicate: BoundCondition): MigLayoutRow {
+    override fun enableIf(predicate: ObservableCondition): MigLayoutRow {
         this.enabled = predicate.get()
         predicate.onPropertyChange { this.enabled = it }
         return this
     }
 
-    override fun visibleIf(predicate: BoundCondition): MigLayoutRow {
+    override fun visibleIf(predicate: ObservableCondition): MigLayoutRow {
         this.visible = predicate.get()
         predicate.onPropertyChange { this.visible = it }
         return this

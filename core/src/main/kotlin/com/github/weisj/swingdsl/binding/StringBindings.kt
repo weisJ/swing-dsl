@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.binding
 
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 
-fun BoundProperty<CharSequence>.length(): BoundProperty<Int> = derive { it.length }
-fun BoundProperty<CharSequence>.isEmpty(): BoundCondition = derive { it.isEmpty() }
-fun BoundProperty<CharSequence>.isNotEmpty(): BoundCondition = derive { it.isNotEmpty() }
-fun BoundProperty<CharSequence>.isBlank(): BoundCondition = derive { it.isBlank() }
-fun BoundProperty<CharSequence>.isNotBlank(): BoundCondition = derive { it.isNotBlank() }
+fun ObservableProperty<CharSequence>.length(): ObservableProperty<Int> = derive { it.length }
+fun ObservableProperty<CharSequence>.isEmpty(): ObservableCondition = derive { it.isEmpty() }
+fun ObservableProperty<CharSequence>.isNotEmpty(): ObservableCondition = derive { it.isNotEmpty() }
+fun ObservableProperty<CharSequence>.isBlank(): ObservableCondition = derive { it.isBlank() }
+fun ObservableProperty<CharSequence>.isNotBlank(): ObservableCondition = derive { it.isNotBlank() }

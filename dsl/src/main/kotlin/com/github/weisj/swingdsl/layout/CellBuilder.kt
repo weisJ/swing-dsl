@@ -28,15 +28,14 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.addDocumentChangeListener
-import com.github.weisj.swingdsl.binding.MutableBoundProperty
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.Observable
+import com.github.weisj.swingdsl.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.onSwingThread
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton
 import javax.swing.JComponent
 import javax.swing.JSpinner
@@ -62,6 +61,13 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
         modelBinding: MutableProperty<V>,
         immediateModeUpdater: (() -> Unit)? = null
     ): CellBuilder<T> {
+        if (modelBinding is Observable<*>) {
+            modelBinding.onPropertyChange {
+                onSwingThread {
+                    componentSet(component, modelBinding.get())
+                }
+            }
+        }
         onApply { if (shouldSaveOnApply()) modelBinding.set(componentGet(component)) }
         onReset { componentSet(component, modelBinding.get()) }
         onIsModified { shouldSaveOnApply() && componentGet(component) != modelBinding.get() }
@@ -136,7 +142,7 @@ fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: Mutabl
     }
 }
 
-fun <T : JSpinner> CellBuilder<T>.intValue(): MutableBoundProperty<Int> = object : MutableBoundProperty<Int> {
+fun <T : JSpinner> CellBuilder<T>.intValue(): ObservableMutableProperty<Int> = object : ObservableMutableProperty<Int> {
     override fun get(): Int = component.value as Int
 
     override fun set(value: Int) {
@@ -148,8 +154,8 @@ fun <T : JSpinner> CellBuilder<T>.intValue(): MutableBoundProperty<Int> = object
     }
 }
 
-fun <T : JTextComponent> CellBuilder<T>.textValue(): MutableBoundProperty<String> =
-    object : MutableBoundProperty<String> {
+fun <T : JTextComponent> CellBuilder<T>.textValue(): ObservableMutableProperty<String> =
+    object : ObservableMutableProperty<String> {
         override fun get(): String = component.text
 
         override fun set(value: String) {
@@ -161,8 +167,8 @@ fun <T : JTextComponent> CellBuilder<T>.textValue(): MutableBoundProperty<String
         }
     }
 
-fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): MutableBoundProperty<Boolean> =
-    object : MutableBoundProperty<Boolean> {
+fun <T : AbstractButton> CellBuilder<T>.selectionStatus(): ObservableMutableProperty<Boolean> =
+    object : ObservableMutableProperty<Boolean> {
         override fun get(): Boolean = component.isSelected
 
         override fun set(value: Boolean) {

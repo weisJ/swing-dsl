@@ -24,131 +24,131 @@
  */
 package com.github.weisj.swingdsl.binding
 
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.condition.isEqualTo
 import com.github.weisj.swingdsl.condition.not
 
-fun <T> BoundProperty<Array<T>>.size(): BoundProperty<Int> = derive(Array<T>::size)
-fun <T> BoundProperty<Array<T>>.elementAt(index: Int): BoundProperty<T> = derive { it[index] }
-fun <T> BoundProperty<Array<T>>.isEmpty(): BoundCondition = size() isEqualTo 0
-fun <T> BoundProperty<Array<T>>.isNotEmpty(): BoundCondition = !isEmpty()
+fun <T> ObservableProperty<Array<T>>.size(): ObservableProperty<Int> = derive(Array<T>::size)
+fun <T> ObservableProperty<Array<T>>.elementAt(index: Int): ObservableProperty<T> = derive { it[index] }
+fun <T> ObservableProperty<Array<T>>.isEmpty(): ObservableCondition = size() isEqualTo 0
+fun <T> ObservableProperty<Array<T>>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListIntArray")
-fun BoundProperty<IntArray>.toList(): BoundProperty<List<Int>> = derive { it.toList() }
+fun ObservableProperty<IntArray>.toList(): ObservableProperty<List<Int>> = derive { it.toList() }
 
 @JvmName("sizeIntArray")
-fun BoundProperty<IntArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<IntArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtIntArray")
-fun BoundProperty<IntArray>.elementAt(index: Int): BoundProperty<Int> = derive { it[index] }
+fun ObservableProperty<IntArray>.elementAt(index: Int): ObservableProperty<Int> = derive { it[index] }
 
 @JvmName("isEmptyIntArray")
-fun BoundProperty<IntArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<IntArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyIntArray")
-fun BoundProperty<IntArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<IntArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListBooleanArray")
-fun BoundProperty<BooleanArray>.toList(): BoundProperty<List<Boolean>> = derive { it.toList() }
+fun ObservableProperty<BooleanArray>.toList(): ObservableProperty<List<Boolean>> = derive { it.toList() }
 
 @JvmName("sizeBooleanArray")
-fun BoundProperty<BooleanArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<BooleanArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtBooleanArray")
-fun BoundProperty<BooleanArray>.elementAt(index: Int) = derive { it[index] }
+fun ObservableProperty<BooleanArray>.elementAt(index: Int) = derive { it[index] }
 
 @JvmName("isEmptyBooleanArray")
-fun BoundProperty<BooleanArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<BooleanArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyBooleanArray")
-fun BoundProperty<BooleanArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<BooleanArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListLongArray")
-fun BoundProperty<LongArray>.toList(): BoundProperty<List<Long>> = derive { it.toList() }
+fun ObservableProperty<LongArray>.toList(): ObservableProperty<List<Long>> = derive { it.toList() }
 
 @JvmName("sizeLongArray")
-fun BoundProperty<LongArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<LongArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtLongArray")
-fun BoundProperty<LongArray>.elementAt(index: Int): BoundProperty<Long> = derive { it[index] }
+fun ObservableProperty<LongArray>.elementAt(index: Int): ObservableProperty<Long> = derive { it[index] }
 
 @JvmName("isEmptyLongArray")
-fun BoundProperty<LongArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<LongArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyLongArray")
-fun BoundProperty<LongArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<LongArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListFloatArray")
-fun BoundProperty<FloatArray>.toList(): BoundProperty<List<Float>> = derive { it.toList() }
+fun ObservableProperty<FloatArray>.toList(): ObservableProperty<List<Float>> = derive { it.toList() }
 
 @JvmName("sizeFloatArray")
-fun BoundProperty<FloatArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<FloatArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtFloatArray")
-fun BoundProperty<FloatArray>.elementAt(index: Int): BoundProperty<Float> = derive { it[index] }
+fun ObservableProperty<FloatArray>.elementAt(index: Int): ObservableProperty<Float> = derive { it[index] }
 
 @JvmName("isEmptyFloatArray")
-fun BoundProperty<FloatArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<FloatArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyFloatArray")
-fun BoundProperty<FloatArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<FloatArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListDoubleArray")
-fun BoundProperty<DoubleArray>.toList(): BoundProperty<List<Double>> = derive { it.toList() }
+fun ObservableProperty<DoubleArray>.toList(): ObservableProperty<List<Double>> = derive { it.toList() }
 
 @JvmName("sizeDoubleArray")
-fun BoundProperty<DoubleArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<DoubleArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtDoubleArray")
-fun BoundProperty<DoubleArray>.elementAt(index: Int): BoundProperty<Double> = derive { it[index] }
+fun ObservableProperty<DoubleArray>.elementAt(index: Int): ObservableProperty<Double> = derive { it[index] }
 
 @JvmName("isEmptyDoubleArray")
-fun BoundProperty<DoubleArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<DoubleArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyDoubleArray")
-fun BoundProperty<DoubleArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<DoubleArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListByteArray")
-fun BoundProperty<ByteArray>.toList(): BoundProperty<List<Byte>> = derive { it.toList() }
+fun ObservableProperty<ByteArray>.toList(): ObservableProperty<List<Byte>> = derive { it.toList() }
 
 @JvmName("sizeByteArray")
-fun BoundProperty<ByteArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<ByteArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtByteArray")
-fun BoundProperty<ByteArray>.elementAt(index: Int): BoundProperty<Byte> = derive { it[index] }
+fun ObservableProperty<ByteArray>.elementAt(index: Int): ObservableProperty<Byte> = derive { it[index] }
 
 @JvmName("isEmptyByteArray")
-fun BoundProperty<ByteArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<ByteArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyByteArray")
-fun BoundProperty<ByteArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<ByteArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("toListCharArray")
-fun BoundProperty<CharArray>.toList(): BoundProperty<List<Char>> = derive { it.toList() }
+fun ObservableProperty<CharArray>.toList(): ObservableProperty<List<Char>> = derive { it.toList() }
 
 @JvmName("sizeCharArray")
-fun BoundProperty<CharArray>.size(): BoundProperty<Int> = derive { it.size }
+fun ObservableProperty<CharArray>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("elementAtCharArray")
-fun BoundProperty<CharArray>.elementAt(index: Int): BoundProperty<Char> = derive { it[index] }
+fun ObservableProperty<CharArray>.elementAt(index: Int): ObservableProperty<Char> = derive { it[index] }
 
 @JvmName("isEmptyCharArray")
-fun BoundProperty<CharArray>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun ObservableProperty<CharArray>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyCharArray")
-fun BoundProperty<CharArray>.isNotEmpty(): BoundCondition = !isEmpty()
+fun ObservableProperty<CharArray>.isNotEmpty(): ObservableCondition = !isEmpty()
 
 @JvmName("sizeofCollection")
-fun <T> BoundProperty<Collection<T>>.size(): BoundProperty<Int> = derive { it.size }
+fun <T> ObservableProperty<Collection<T>>.size(): ObservableProperty<Int> = derive { it.size }
 
 @JvmName("isEmptyCollection")
-fun <T> BoundProperty<Collection<T>>.isEmpty(): BoundCondition = size() isEqualTo 0
+fun <T> ObservableProperty<Collection<T>>.isEmpty(): ObservableCondition = size() isEqualTo 0
 
 @JvmName("isNotEmptyCollection")
-fun <T> BoundProperty<Collection<T>>.isNotEmpty(): BoundCondition = !isEmpty()
+fun <T> ObservableProperty<Collection<T>>.isNotEmpty(): ObservableCondition = !isEmpty()
 
-fun <T> BoundProperty<Iterable<T>>.contains(element: T): BoundCondition =
+fun <T> ObservableProperty<Iterable<T>>.contains(element: T): ObservableCondition =
     derive { it.contains(element) }
 
-fun <T> BoundProperty<Collection<T>>.containsAll(elements: Collection<T>): BoundCondition =
+fun <T> ObservableProperty<Collection<T>>.containsAll(elements: Collection<T>): ObservableCondition =
     derive { it.containsAll(elements) }

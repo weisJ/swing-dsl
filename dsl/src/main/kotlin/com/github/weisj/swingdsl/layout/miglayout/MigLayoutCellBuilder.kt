@@ -27,7 +27,7 @@
 package com.github.weisj.swingdsl.layout.miglayout
 
 import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.condition.BoundCondition
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
@@ -82,13 +82,13 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         component.isVisible = isVisible
     }
 
-    override fun enableIf(predicate: BoundCondition): CellBuilder<T> {
+    override fun enableIf(predicate: ObservableCondition): CellBuilder<T> {
         component.isEnabled = predicate.get()
         predicate.onPropertyChange { component.isEnabled = it }
         return this
     }
 
-    override fun visibleIf(predicate: BoundCondition): CellBuilder<T> {
+    override fun visibleIf(predicate: ObservableCondition): CellBuilder<T> {
         component.isVisible = predicate.get()
         predicate.onPropertyChange { component.isVisible = it }
         return this

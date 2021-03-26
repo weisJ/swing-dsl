@@ -24,11 +24,11 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.binding.BoundProperty
+import com.github.weisj.swingdsl.binding.ObservableProperty
 import javax.swing.JList
 import javax.swing.ListSelectionModel
 
-fun ListSelectionModel.selectionBinding(): BoundProperty<IntArray> = object : BoundProperty<IntArray> {
+fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
     override fun get(): IntArray = selectedIndices
 
     override fun onPropertyChange(callback: (IntArray) -> Unit) {
@@ -36,4 +36,4 @@ fun ListSelectionModel.selectionBinding(): BoundProperty<IntArray> = object : Bo
     }
 }
 
-fun <T> JList<T>.selection(): BoundProperty<IntArray> = selectionModel.selectionBinding()
+fun <T> JList<T>.selection(): ObservableProperty<IntArray> = selectionModel.selectionBinding()
