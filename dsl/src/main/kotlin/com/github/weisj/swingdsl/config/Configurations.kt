@@ -147,6 +147,10 @@ interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
         return wrapped.component
     }
 
+    fun centerOnScreen() {
+        locationRelativeTo = null
+    }
+
     companion object {
         operator fun <T : JFrame> invoke(comp: T): JFrameConfiguration<T> = JFrameConfigurationImpl(comp)
     }

@@ -49,6 +49,10 @@ fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
         // Override and do nothing to ensure pack() can be called first.
         override var visible: Boolean = false
         override var locationRelativeTo: Component? = null
+
+        init {
+            locationByPlatform = true
+        }
     }
     config.init()
     frame.pack()
