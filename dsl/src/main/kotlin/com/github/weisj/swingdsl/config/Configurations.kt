@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl.config
 
+import com.github.weisj.swingdsl.BuilderMarker
+import com.github.weisj.swingdsl.ComponentBuilderScope
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.Color
 import java.awt.Component
@@ -47,6 +49,7 @@ import javax.swing.JPopupMenu
 import javax.swing.JWindow
 import javax.swing.border.Border
 
+@BuilderMarker
 interface ComponentConfiguration<T : Component> {
     var name: String?
 
@@ -74,6 +77,7 @@ interface ComponentConfiguration<T : Component> {
     }
 }
 
+@BuilderMarker
 interface ContainerConfiguration<T : Container> : ComponentConfiguration<T> {
     val insets: Insets
 
@@ -82,6 +86,7 @@ interface ContainerConfiguration<T : Container> : ComponentConfiguration<T> {
     }
 }
 
+@BuilderMarker
 interface JComponentConfiguration<T : JComponent> : ContainerConfiguration<T> {
     var opaque: Boolean
     var border: Border?
@@ -99,6 +104,7 @@ interface JComponentConfiguration<T : JComponent> : ContainerConfiguration<T> {
     }
 }
 
+@BuilderMarker
 interface WindowConfiguration<T : Window> : ContainerConfiguration<T> {
 
     var alwaysOnTop: Boolean
@@ -133,6 +139,7 @@ enum class CloseOperation(val flag: Int) {
     }
 }
 
+@BuilderMarker
 interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
     var title: String
     var defaultCloseOperation: CloseOperation
@@ -141,8 +148,8 @@ interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
     var glassPane: Component
     var menuBar: JMenuBar?
 
-    fun <T : JComponent> content(provider: () -> WrappedComponent<T>): T {
-        val wrapped = provider()
+    fun <T : JComponent> content(provider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val wrapped = provider(ComponentBuilderScope)
         contentPane = wrapped.container
         return wrapped.component
     }
@@ -156,6 +163,7 @@ interface JFrameConfiguration<T : JFrame> : WindowConfiguration<T> {
     }
 }
 
+@BuilderMarker
 interface JDialogConfiguration<T : JDialog> : WindowConfiguration<T> {
     var title: String
     var defaultCloseOperation: CloseOperation
@@ -169,6 +177,7 @@ interface JDialogConfiguration<T : JDialog> : WindowConfiguration<T> {
     }
 }
 
+@BuilderMarker
 interface JWindowConfiguration<T : JWindow> : WindowConfiguration<T> {
     var contentPane: Container
     var layeredPane: JLayeredPane

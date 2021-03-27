@@ -26,6 +26,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout
 
+import com.github.weisj.swingdsl.BuilderMarker
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.miglayout.MigLayoutBuilder
@@ -36,6 +37,7 @@ import java.awt.event.ActionListener
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 
+@BuilderMarker
 open class PanelBuilder @PublishedApi internal constructor(@PublishedApi internal val builder: PanelBuilderImpl) :
     RowBuilder by builder.rootRow {
     override fun withButtonGroup(title: Text?, buttonGroup: ButtonGroup, body: () -> Unit) {

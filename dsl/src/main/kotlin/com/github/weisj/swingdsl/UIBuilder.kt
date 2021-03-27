@@ -43,6 +43,9 @@ interface UIBuilder<T : JComponent> {
 @DslMarker
 annotation class BuilderMarker
 
+@BuilderMarker
+object ComponentBuilderScope
+
 fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     val frame = JFrame()
     val config = object : JFrameConfigurationImpl<JFrame>(frame) {
@@ -66,16 +69,16 @@ fun borderPanel(init: BorderLayoutBuilder.() -> Unit): WrappedComponent<JPanel> 
     return +BorderLayoutBuilder().apply(init).component
 }
 
-fun <T : JComponent> scrollPane(componentProvider: () -> WrappedComponent<T>): WrappedComponent<T> {
-    val comp = componentProvider()
+fun <T : JComponent> scrollPane(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): WrappedComponent<T> {
+    val comp = componentProvider(ComponentBuilderScope)
     return DefaultWrappedComponent(
         comp.component,
         UIFactory.createScrollPane(comp.container).container
     )
 }
 
-inline fun <T : JComponent> centered(compProvider: () -> T): WrappedComponent<T> {
-    val comp = compProvider()
+inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> T): WrappedComponent<T> {
+    val comp = compProvider(ComponentBuilderScope)
     return DefaultWrappedComponent(
         comp,
         JPanel(GridBagLayout()).apply {

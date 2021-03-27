@@ -66,56 +66,56 @@ class BorderLayoutBuilder private constructor(override val component: JPanel) :
     var lineStart: JComponent by layout(BorderLayout.LINE_START)
     var lineEnd: JComponent by layout(BorderLayout.LINE_END)
 
-    inline fun <T : JComponent> north(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> north(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         north = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> south(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> south(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         south = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> east(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> east(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         east = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> west(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> west(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         west = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> center(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> center(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         center = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> pageStart(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> pageStart(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         pageStart = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> pageEnd(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> pageEnd(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         pageEnd = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> lineStart(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> lineStart(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         lineStart = comp.container
         return comp.component
     }
 
-    inline fun <T : JComponent> lineEnd(componentProvider: () -> WrappedComponent<T>): T {
-        val comp = componentProvider()
+    inline fun <T : JComponent> lineEnd(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
+        val comp = componentProvider(ComponentBuilderScope)
         lineEnd = comp.container
         return comp.component
     }
