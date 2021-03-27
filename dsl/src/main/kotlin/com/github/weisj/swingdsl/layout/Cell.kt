@@ -179,6 +179,14 @@ abstract class Cell : ButtonGroupBuilder {
         return comboBox(model, PropertyBinding(getter, setter), renderer)
     }
 
+    fun <T> comboBox(
+        model: ComboBoxModel<T>,
+        prop: KMutableProperty0<T>,
+        renderer: ListCellRenderer<T?>? = null
+    ): CellBuilder<JComboBox<T>> {
+        return comboBox(model, prop.toProperty().toNullable(), renderer)
+    }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> comboBox(
         model: ComboBoxModel<T>,
@@ -193,16 +201,9 @@ abstract class Cell : ButtonGroupBuilder {
             .withBinding(
                 { component -> component.selectedItem as T? },
                 { component, value -> component.setSelectedItem(value) },
-                modelBinding
+                modelBinding,
+                JComboBox<T>::addItemListener
             )
-    }
-
-    inline fun <reified T : Any> comboBox(
-        model: ComboBoxModel<T>,
-        prop: KMutableProperty0<T>,
-        renderer: ListCellRenderer<T?>? = null
-    ): CellBuilder<JComboBox<T>> {
-        return comboBox(model, prop.toProperty().toNullable(), renderer)
     }
 
     fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JTextField> =
