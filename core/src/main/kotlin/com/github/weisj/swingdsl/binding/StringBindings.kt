@@ -31,3 +31,9 @@ fun ObservableProperty<CharSequence>.isEmpty(): ObservableCondition = derive { i
 fun ObservableProperty<CharSequence>.isNotEmpty(): ObservableCondition = derive { it.isNotEmpty() }
 fun ObservableProperty<CharSequence>.isBlank(): ObservableCondition = derive { it.isBlank() }
 fun ObservableProperty<CharSequence>.isNotBlank(): ObservableCondition = derive { it.isNotBlank() }
+
+operator fun <T> ObservableProperty<String>.plus(other: ObservableProperty<T>): ObservableProperty<String> =
+    combine(other) { a, b -> a + b }
+
+operator fun <T> ObservableProperty<String>.plus(other: String): ObservableProperty<CharSequence> =
+    derive { it + other }
