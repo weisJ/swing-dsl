@@ -24,39 +24,32 @@
  */
 package com.github.weisj.swingdsl.text
 
+import com.github.weisj.swingdsl.binding.ObservableProperty
+
 /**
  * A portion of text.
  */
-interface Text {
-    /**
-     * Get the associated string version of the text.
-     *
-     * @return the text as string.
-     */
-    val text: String
+typealias Text = ObservableProperty<String>
 
-    companion object {
-        /**
-         * Return a constant Text object with the given constant string value.
-         *
-         * @param str the string value.
-         * @return the [Text] object.
-         */
-        fun of(str: String): Text {
-            return ConstantText(str)
-        }
+/**
+ * Create a new [ConstantText] with the given text value. [.getText] will always
+ * return this exact value.
+ *
+ * @param text the text value.
+ */
+data class ConstantText(private val text: String) : Text {
+    override fun toString(): String {
+        return text
+    }
 
-        /**
-         * Return a constant Text object with the given constant string value.
-         *
-         * @param str the string value.
-         * @return the [Text] object.
-         */
-        operator fun invoke(str: String): Text = of(str)
+    override fun get(): String = text
+
+    override fun onChange(callback: (String) -> Unit) {
+        /* Do nothing. Constant values never change */
     }
 }
 
-fun textOf(str: String = ""): Text = Text(str)
+fun textOf(str: String = ""): Text = ConstantText(str)
 fun textOfNullable(str: String? = null): Text? = str?.let { textOf(str) }
 
 fun emptyText() = textOf()

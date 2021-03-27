@@ -99,7 +99,7 @@ class DynamicUI private constructor() {
         }
 
         fun <T : JComponent> withTooltipText(component: T, text: Text): T {
-            return withDynamic(component) { c: T -> c.toolTipText = text.text }
+            return withDynamic(component) { c: T -> c.toolTipText = text.get() }
         }
 
         private fun makeUIResource(font: Font): Font {

@@ -34,7 +34,7 @@ import javax.swing.ListModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.weisj.swingdsl.text.Text;
+import com.github.weisj.swingdsl.binding.ObservableProperty;
 
 public class ComponentFactoryDelegate implements ComponentFactory {
 
@@ -49,17 +49,19 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
-    public @NotNull WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon) {
+    public @NotNull WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon) {
         return getDelegate().createButton(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull ObservableProperty<String> text,
+            @Nullable Icon icon) {
         return getDelegate().createCheckBox(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull ObservableProperty<String> text,
+            @Nullable Icon icon) {
         return getDelegate().createRadioButton(text, icon);
     }
 
@@ -79,13 +81,14 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
-    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label) {
+    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(
+            @Nullable ObservableProperty<String> label) {
         return getDelegate().createSeparatorComponent(label);
     }
 
     @Override
     public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable Text label) {
+            @Nullable ObservableProperty<String> label) {
         return getDelegate().createCollapsibleSeparatorComponent(label);
     }
 }

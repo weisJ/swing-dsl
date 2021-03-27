@@ -36,10 +36,11 @@ data class InternationalizedText(private val bundle: DynamicResourceBundle, priv
      */
     constructor(bundleName: String, resourceString: String) : this(DynamicResourceBundle(bundleName), resourceString)
 
-    override val text: String
-        get() = bundle.bundle.getString(resourceString)
+    override fun toString(): String = get()
 
-    override fun toString(): String {
-        return text
+    override fun get(): String = bundle.bundle.getString(resourceString)
+
+    override fun onChange(callback: (String) -> Unit) {
+        Locales.registerListener { callback(get()) }
     }
 }

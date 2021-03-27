@@ -34,20 +34,20 @@ import javax.swing.ListModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.weisj.swingdsl.text.Text;
+import com.github.weisj.swingdsl.binding.ObservableProperty;
 
 public interface ComponentFactory {
 
     String COMPONENT_FACTORY_KEY = "swingdsl.componentFactory";
 
     @NotNull
-    WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon);
+    WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon);
 
     @NotNull
-    WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon);
+    WrappedComponent<JCheckBox> createCheckBox(@NotNull ObservableProperty<String> text, @Nullable Icon icon);
 
     @NotNull
-    WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon);
+    WrappedComponent<JRadioButton> createRadioButton(@NotNull ObservableProperty<String> text, @Nullable Icon icon);
 
     @NotNull
     WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content);
@@ -59,10 +59,11 @@ public interface ComponentFactory {
     WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right);
 
     @NotNull
-    SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label);
+    SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(
+            @Nullable ObservableProperty<String> label);
 
     @NotNull
     SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable Text label);
+            @Nullable ObservableProperty<String> label);
 
 }

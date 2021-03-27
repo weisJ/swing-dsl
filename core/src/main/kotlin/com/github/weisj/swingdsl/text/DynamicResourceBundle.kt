@@ -63,6 +63,6 @@ class DynamicResourceBundle(private val bundleName: String) {
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(bundleName)
+        return Objects.hashCode(bundleName)
     }
 }

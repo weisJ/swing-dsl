@@ -36,11 +36,11 @@ import javax.swing.JRadioButton
 class TextButton @JvmOverloads constructor(
     text: Text = emptyText(),
     icon: Icon? = null
-) : JButton(text.text, icon) {
-    var textValue: Text? = text
-
-    override fun getText(): String {
-        return textValue?.text.orEmpty()
+) : JButton(text.get(), icon) {
+    init {
+        text.onChange {
+            this.text = it
+        }
     }
 }
 
@@ -50,15 +50,11 @@ class TextButton @JvmOverloads constructor(
 class TextCheckBox @JvmOverloads constructor(
     text: Text = emptyText(),
     icon: Icon? = null
-) : JCheckBox(text.text, icon) {
-    var textValue: Text? = text
-        set(value) {
-            field = value
-            text = value?.text.orEmpty()
+) : JCheckBox(text.get(), icon) {
+    init {
+        text.onChange {
+            this.text = it
         }
-
-    override fun getText(): String {
-        return textValue?.text.orEmpty()
     }
 }
 
@@ -68,29 +64,24 @@ class TextCheckBox @JvmOverloads constructor(
 class TextRadioButton @JvmOverloads constructor(
     text: Text = emptyText(),
     icon: Icon? = null
-) : JRadioButton(text.text, icon) {
-    var textValue: Text? = text
-        set(value) {
-            field = value
-            text = value?.text.orEmpty()
+) : JRadioButton(text.get(), icon) {
+    init {
+        text.onChange {
+            this.text = it
         }
-
-    override fun getText(): String {
-        return textValue?.text.orEmpty()
     }
 }
 
 /**
  * Label which takes [Text] instead of a [String].
  */
-class TextLabel @JvmOverloads constructor(text: Text, icon: Icon? = null) : JLabel(text.text, icon, LEFT) {
-    var textValue: Text? = text
-        set(value) {
-            field = value
-            text = value?.text.orEmpty()
+class TextLabel @JvmOverloads constructor(
+    text: Text,
+    icon: Icon? = null
+) : JLabel(text.get(), icon, LEFT) {
+    init {
+        text.onChange {
+            this.text = it
         }
-
-    override fun getText(): String {
-        return textValue?.text.orEmpty()
     }
 }

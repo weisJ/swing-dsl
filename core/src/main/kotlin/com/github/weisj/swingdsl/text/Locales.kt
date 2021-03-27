@@ -24,14 +24,26 @@
  */
 package com.github.weisj.swingdsl.text
 
-/**
- * Create a new [ConstantText] with the given text value. [.getText] will always
- * return this exact value.
- *
- * @param text the text value.
- */
-data class ConstantText(override val text: String) : Text {
-    override fun toString(): String {
-        return text
+import java.util.*
+
+object Locales {
+
+    private val listeners by lazy { mutableSetOf<(Locale) -> Unit>() }
+    private var currentLocale = Locale.getDefault()
+
+    fun registerListener(listener: (Locale) -> Unit) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: (Locale) -> Unit) {
+        listeners.remove(listener)
+    }
+
+    fun setLocale(locale: Locale) {
+        if (currentLocale != locale) {
+            currentLocale = locale
+            Locale.setDefault(locale)
+            listeners.forEach { it(locale) }
+        }
     }
 }

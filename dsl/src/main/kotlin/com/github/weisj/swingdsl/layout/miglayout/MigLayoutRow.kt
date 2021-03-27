@@ -586,7 +586,7 @@ internal class MigLayoutRow(
     private class ConstrainedTextArea(val boundText: Text, val maxLineLength: Int) : JTextArea() {
         init {
             DynamicUI.withDynamic(this) {
-                it.text = boundText.text
+                it.text = boundText.get()
                 it.columns = 0
                 val prefWidthWithColumns = it.insets.run { left + right } + columnWidth * maxLineLength
                 val preWidthWithText = it.preferredSize.width

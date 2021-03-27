@@ -37,7 +37,7 @@ import javax.swing.UIManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.weisj.swingdsl.text.Text;
+import com.github.weisj.swingdsl.binding.ObservableProperty;
 import com.github.weisj.swingdsl.text.TextButton;
 import com.github.weisj.swingdsl.text.TextCheckBox;
 import com.github.weisj.swingdsl.text.TextRadioButton;
@@ -45,17 +45,19 @@ import com.github.weisj.swingdsl.text.TextRadioButton;
 public class DefaultComponentFactory implements ComponentFactory {
 
     @Override
-    public @NotNull WrappedComponent<JButton> createButton(@NotNull Text text, Icon icon) {
+    public @NotNull WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon) {
         return new SelfWrappedComponent<>(new TextButton(text, icon));
     }
 
     @Override
-    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull Text text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull ObservableProperty<String> text,
+            @Nullable Icon icon) {
         return new SelfWrappedComponent<>(new TextCheckBox(text, icon));
     }
 
     @Override
-    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull Text text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull ObservableProperty<String> text,
+            @Nullable Icon icon) {
         return new SelfWrappedComponent<>(new TextRadioButton(text, icon));
     }
 
@@ -75,13 +77,14 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
-    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable Text label) {
+    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(
+            @Nullable ObservableProperty<String> label) {
         return new SeparatorSpec<>(null, new SeparatorSpec.Default(this::getSeparatorColor));
     }
 
     @Override
     public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable Text label) {
+            @Nullable ObservableProperty<String> label) {
         return new SeparatorSpec<>(null, new SeparatorSpec.DefaultCollapsible(this::getSeparatorColor, null, null));
     }
 
