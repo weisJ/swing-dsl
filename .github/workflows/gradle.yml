@@ -22,7 +22,7 @@ jobs:
       - name: Build & Test
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build test -PskipAutostyle -PskipSonarlint --info --no-daemon
+          arguments: build test -PskipAutostyle -PskipSonarlint
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           configuration-cache-enabled: true
@@ -40,7 +40,7 @@ jobs:
       - name: Build & Test
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build test -PskipAutostyle -PskipSonarlint --info --no-daemon
+          arguments: build test -PskipAutostyle -PskipSonarlint
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           configuration-cache-enabled: true
@@ -59,7 +59,7 @@ jobs:
       - name: Build & Test
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build test -PskipAutostyle -PskipSonarlint --info --no-daemon
+          arguments: build test -PskipAutostyle -PskipSonarlint
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           configuration-cache-enabled: true
