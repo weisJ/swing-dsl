@@ -24,25 +24,23 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
-import com.github.weisj.swingdsl.CloseOperation
-import com.github.weisj.swingdsl.add
-import com.github.weisj.swingdsl.binding.BoundProperty
-import com.github.weisj.swingdsl.binding.isNotEmpty
+import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.binding.inc
+import com.github.weisj.swingdsl.binding.observableProperty
+import com.github.weisj.swingdsl.binding.plus
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.centered
 import com.github.weisj.swingdsl.condition.isEqualTo
 import com.github.weisj.swingdsl.condition.isTrue
+import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.observableSelected
+import com.github.weisj.swingdsl.layout.observableText
 import com.github.weisj.swingdsl.layout.panel
-import com.github.weisj.swingdsl.layout.selectionStatus
-import com.github.weisj.swingdsl.layout.textValue
 import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.selection
-import com.github.weisj.swingdsl.toKeyStroke
-import java.awt.event.KeyEvent
-import javax.swing.DefaultListModel
+import com.github.weisj.swingdsl.text.textOf
 import javax.swing.JLabel
 
 data class Model(var boolValue: Boolean, var textValue: String)
@@ -66,11 +64,20 @@ fun main() {
                         scrollPane {
                             panel {
                                 hideableRow("Row 1", startHidden = false) {
-                                    lateinit var boolProp: BoundProperty<Boolean>
-                                    lateinit var stringProp: BoundProperty<String>
-                                    row { label("Hello Row 1") }
-                                    row { boolProp = checkBox("Check", model::boolValue).selectionStatus() }
-                                    row { stringProp = textField(model::textValue).textValue() }
+                                    lateinit var boolProp: ObservableProperty<Boolean>
+                                    lateinit var stringProp: ObservableProperty<String>
+                                    row {
+                                        val initial = 0
+                                        val counter = observableProperty(initial)
+                                        onGlobalIsModified { counter.get() != initial }
+                                        onGlobalReset { counter.set(initial) }
+                                        button("Say Hello!") {
+                                            counter.inc()
+                                        }
+                                        label(textOf("Hello Counter ") + counter)
+                                    }
+                                    row { boolProp = checkBox("Check", model::boolValue).observableSelected() }
+                                    row { stringProp = textField(model::textValue).observableText() }
                                     row {
                                         enableIf(boolProp.isTrue())
                                         label("Enabled if checkbox is enabled")
@@ -78,34 +85,6 @@ fun main() {
                                     row {
                                         label("Enabled if text field has value 'Hello'")
                                         enableIf(stringProp isEqualTo "Hello")
-                                    }
-                                }
-                                hideableRow("Grocery List") {
-                                    lateinit var listSelection: BoundProperty<IntArray>
-                                    val notes = DefaultListModel<String>()
-                                    row { listSelection = list(notes).component.selection() }
-                                    row {
-                                        cell {
-                                            val textField = textField()
-                                            val text = textField.textValue()
-                                            val addNote = {
-                                                val txt = text.get().trim()
-                                                if (txt.isNotEmpty()) notes.add(txt)
-                                                text.set("")
-                                            }
-                                            textField {
-                                                on(KeyEvent.VK_ENTER.toKeyStroke()) { addNote() }
-                                            }
-                                            button("Add") { addNote() }
-                                            button("Remove") {
-                                                listSelection.get()
-                                                    .asSequence()
-                                                    .sortedDescending()
-                                                    .forEach { notes.remove(it) }
-                                            }() {
-                                                enableIf(listSelection.isNotEmpty())
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -127,9 +106,8 @@ fun main() {
                     }
                 }
             }
+            centerOnScreen()
             defaultCloseOperation = CloseOperation.EXIT
-            locationByPlatform = true
-            locationRelativeTo = null
             visible = true
         }
     }
