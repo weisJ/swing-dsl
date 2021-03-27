@@ -36,7 +36,11 @@ fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object
     override fun get(): IntArray = selectedIndices
 
     override fun onChange(callback: (IntArray) -> Unit) {
-        addListSelectionListener { callback(get()) }
+        addListSelectionListener {
+            if (!it.valueIsAdjusting) {
+                callback(get())
+            }
+        }
     }
 }
 

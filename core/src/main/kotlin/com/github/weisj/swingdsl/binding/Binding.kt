@@ -64,25 +64,39 @@ operator fun <R, T> MutableProperty<T>.setValue(thisRef: R, property: KProperty<
     return set(value)
 }
 
+class ChangeTracker<T>(private val prop: Property<T>) {
+    private var current: T = prop.get()
+
+    val hasChanged: Boolean
+        get() {
+            val updated = prop.get()
+            val changed = updated != current
+            current = updated
+            return changed
+        }
+}
+
 private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, private val transform: (K) -> T) :
     ObservableProperty<T> {
     override fun get(): T = transform(prop.get())
+    private val changeTracker = ChangeTracker(this)
 
     override fun onChange(callback: (T) -> Unit) {
-        prop.onChange { callback(get()) }
+        prop.onChange { if (changeTracker.hasChanged) callback(get()) }
     }
 }
 
-private open class CombinedProperty<T, K1, K2>(
+private class CombinedProperty<T, K1, K2>(
     private val first: ObservableProperty<K1>,
     private val second: ObservableProperty<K2>,
     private val combiner: (K1, K2) -> T
 ) : ObservableProperty<T> {
+    private val changeTracker = ChangeTracker(this)
     override fun get(): T = combiner(first.get(), second.get())
 
     override fun onChange(callback: (T) -> Unit) {
-        first.onChange { callback(get()) }
-        second.onChange { callback(get()) }
+        first.onChange { if (changeTracker.hasChanged) callback(get()) }
+        second.onChange { if (changeTracker.hasChanged) callback(get()) }
     }
 }
 
@@ -92,8 +106,7 @@ fun <T, K1, K2> combinedProperty(
     first: ObservableProperty<K1>,
     second: ObservableProperty<K2>,
     combiner: (K1, K2) -> T
-): ObservableProperty<T> =
-    CombinedProperty(first, second, combiner)
+): ObservableProperty<T> = CombinedProperty(first, second, combiner)
 
 fun <K1, K2, T> ObservableProperty<K1>.combine(
     other: ObservableProperty<K2>,
@@ -133,6 +146,9 @@ fun <T> MutableProperty<T?>.withFallback(fallback: T): MutableProperty<T> {
 fun <T> MutableProperty<T>.toNullable(): MutableProperty<T?> {
     return PropertyBinding({ get() }, { if (it != null) set(it) })
 }
+
+fun <T> ObservableProperty<T?>.withFallback(fallback: T): ObservableProperty<T> =
+    derive { it ?: fallback }
 
 fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == null }
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()

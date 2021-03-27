@@ -24,13 +24,22 @@
  */
 package com.github.weisj.swingdsl.binding.container
 
+import com.github.weisj.swingdsl.binding.ChangeTracker
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import net.pearx.okservable.collection.ObservableListHandler
 import net.pearx.okservable.collection.observableList
 
+interface CollectionObservables<T> {
+    val size: ObservableProperty<Int>
+}
+
+interface ListObservables<T> : CollectionObservables<T> {
+    operator fun get(index: Int): ObservableProperty<T?>
+}
+
 interface ObservableList<T> : MutableList<T> {
 
-    val observableSize: ObservableProperty<Int>
+    val observables: ListObservables<T>
 
     fun onClear(block: (Collection<T>) -> Unit)
     fun onAdd(block: (Int, T) -> Unit)
@@ -80,13 +89,35 @@ internal class ObservableListImpl<T> internal constructor(
     private val handler: ObservableListHandlerImpl<T> = ObservableListHandlerImpl()
 ) : ObservableList<T>, MutableList<T> by list.observableList(handler) {
 
-    override val observableSize: ObservableProperty<Int> = object : ObservableProperty<Int> {
-        override fun get(): Int = size
+    override val observables by lazy {
+        object : ListObservables<T> {
+            override val size: ObservableProperty<Int> = object : ObservableProperty<Int> {
+                private val changeTracker = ChangeTracker(this)
+                override fun get(): Int = this@ObservableListImpl.size
 
-        override fun onChange(callback: (Int) -> Unit) {
-            onClear { callback(get()) }
-            onAdd { _, _ -> callback(get()) }
-            onRemove { _, _ -> callback(get()) }
+                override fun onChange(callback: (Int) -> Unit) {
+                    onClear { if (changeTracker.hasChanged) callback(get()) }
+                    onAdd { _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                    onRemove { _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                }
+            }
+
+            override fun get(index: Int): ObservableProperty<T?> {
+                check(index >= 0)
+                return object : ObservableProperty<T?> {
+                    override fun get(): T? =
+                        if (index < this@ObservableListImpl.size) this@ObservableListImpl[index] else null
+
+                    private val changeTracker = ChangeTracker(this)
+
+                    override fun onChange(callback: (T?) -> Unit) {
+                        onClear { if (changeTracker.hasChanged) callback(get()) }
+                        onAdd { _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                        onRemove { _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                        onSet { _, _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                    }
+                }
+            }
         }
     }
 
