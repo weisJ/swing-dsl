@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl.text
 
 import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.binding.derive
 
 /**
  * A portion of text.
@@ -50,6 +51,10 @@ data class ConstantText(private val text: String) : Text {
 }
 
 fun textOf(str: String = ""): Text = ConstantText(str)
+fun <T> textOf(prop: ObservableProperty<T>): Text = prop.derive { it.toString() }
+
+@JvmName("textOfText")
+fun textOf(prop: Text): Text = prop
 fun textOfNullable(str: String? = null): Text? = str?.let { textOf(str) }
 
 fun emptyText() = textOf()
