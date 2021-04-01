@@ -25,6 +25,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -46,6 +47,11 @@ public class ComponentFactoryDelegate implements ComponentFactory {
 
     public ComponentFactory getDelegate() {
         return delegate;
+    }
+
+    @Override
+    public @NotNull WrappedComponent<JLabel> createLabel(@NotNull ObservableProperty<String> text, Icon icon) {
+        return getDelegate().createLabel(text, icon);
     }
 
     @Override

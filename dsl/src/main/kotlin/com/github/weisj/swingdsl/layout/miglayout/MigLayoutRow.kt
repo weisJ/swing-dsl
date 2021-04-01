@@ -36,7 +36,6 @@ import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextLabel
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LayoutUtil
@@ -49,7 +48,7 @@ import kotlin.reflect.KMutableProperty0
 internal class MigLayoutRow(
     private val parent: MigLayoutRow?,
     override val builder: MigLayoutBuilder,
-    val labeled: Boolean = false,
+    private val labeled: Boolean = false,
     val noGrid: Boolean = false,
     private val indentationLevel: Int,
     private val incrementsIndentationLevel: Boolean = parent != null
@@ -215,19 +214,26 @@ internal class MigLayoutRow(
 
     internal var cellModeSpans = mutableListOf(CellModeSpan(start = -1, end = -1))
 
-    override fun createChildRow(label: JLabel?, isSeparated: Boolean, noGrid: Boolean, title: Text?): MigLayoutRow {
-        return createChildRow(indentationLevel, label, isSeparated, noGrid, title)
+    override fun createChildRow(
+        label: WrappedComponent<JLabel>?,
+        isSeparated: Boolean,
+        isIndented: Boolean,
+        noGrid: Boolean,
+        title: Text?
+    ): MigLayoutRow {
+        return createChildRow(indentationLevel, label, isSeparated, noGrid, title, isIndented)
     }
 
     private fun createChildRow(
         indent: Int,
-        label: JLabel? = null,
+        label: WrappedComponent<JLabel>? = null,
         isSeparated: Boolean = false,
         noGrid: Boolean = false,
         title: Text? = null,
+        isIndented: Boolean = true,
         incrementsIndent: Boolean = true
     ): MigLayoutRow {
-        val newIndent = if (!this.incrementsIndentationLevel) indent else indent + spacing.indentLevel
+        val newIndent = if (!this.incrementsIndentationLevel || !isIndented) indent else indent + spacing.indentLevel
         val subRows = getOrCreateSubRowsList()
         val row = MigLayoutRow(
             this, builder,
@@ -262,7 +268,7 @@ internal class MigLayoutRow(
         row.subRowsVisible = subRowsVisible
 
         if (label != null) {
-            row.addComponent(label)
+            row.addComponent(label.container)
         }
 
         return row
@@ -507,7 +513,7 @@ internal class MigLayoutRow(
     }
 
     override fun createRow(label: Text?): Row {
-        return createChildRow(label = label?.let { TextLabel(it) })
+        return createChildRow(label = label?.let { UIFactory.createLabel(it, null) })
     }
 
     override fun radioButton(text: Text, comment: Text?): CellBuilder<JRadioButton> {
@@ -539,8 +545,8 @@ internal class MigLayoutRow(
         return this
     }
 
-    override fun row(label: Text?, separated: Boolean, init: Row.() -> Unit): Row {
-        val newRow = super.row(label, separated, init)
+    override fun row(label: Text?, separated: Boolean, isIndented: Boolean, init: Row.() -> Unit): Row {
+        val newRow = super.row(label, separated, isIndented, init)
         if (newRow is MigLayoutRow && newRow.labeled && (newRow.components.size == 2)) {
             var rowLabel = newRow.components[0]
             if (rowLabel is JLabel) {

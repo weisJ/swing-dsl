@@ -38,7 +38,6 @@ import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.Dimension
@@ -80,8 +79,8 @@ abstract class Cell : ButtonGroupBuilder {
 
     @JvmOverloads
     fun label(text: Text, bold: Boolean = false): CellBuilder<JLabel> {
-        val label = TextLabel(text)
-        if (bold) DynamicUI.withBoldFont(label)
+        val label = UIFactory.createLabel(text, null)
+        if (bold) DynamicUI.withBoldFont(label.component)
         return component(label)
     }
 

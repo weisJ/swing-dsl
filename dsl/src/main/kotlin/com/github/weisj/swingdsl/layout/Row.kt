@@ -42,7 +42,36 @@ abstract class Row : Cell(), RowBuilder {
      */
     abstract var subRowIndentationLevel: Int
 
+    private var indentSubRows: Boolean = true
+    override val doIndentSubRows: Boolean
+        get() = indentSubRows
+
     internal abstract val builder: PanelBuilderImpl
+
+    private fun alignLeft() {
+        subRowIndentationLevel = 0
+    }
+
+    /**
+     * Aligns components completely to the left ignoring all previous row in which this row is nested inside.
+     */
+    fun left(init: Row.() -> Unit) {
+        val oldIndentationLevel = subRowIndentationLevel
+        alignLeft()
+        init()
+        subRowIndentationLevel = oldIndentationLevel
+    }
+
+    fun indent(enabled: Boolean) {
+        indentSubRows = enabled
+    }
+
+    fun noIndent(init: Row.() -> Unit) {
+        val oldDoIndent = doIndentSubRows
+        indent(false)
+        init()
+        indent(oldDoIndent)
+    }
 
     /**
      * Specifies the right alignment for the component if the cell is larger than the component plus its gaps.

@@ -25,6 +25,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -39,6 +40,9 @@ import com.github.weisj.swingdsl.binding.ObservableProperty;
 public interface ComponentFactory {
 
     String COMPONENT_FACTORY_KEY = "swingdsl.componentFactory";
+
+    @NotNull
+    WrappedComponent<JLabel> createLabel(@NotNull ObservableProperty<String> text, Icon icon);
 
     @NotNull
     WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon);

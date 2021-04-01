@@ -27,6 +27,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -40,9 +41,15 @@ import org.jetbrains.annotations.Nullable;
 import com.github.weisj.swingdsl.binding.ObservableProperty;
 import com.github.weisj.swingdsl.text.TextButton;
 import com.github.weisj.swingdsl.text.TextCheckBox;
+import com.github.weisj.swingdsl.text.TextLabel;
 import com.github.weisj.swingdsl.text.TextRadioButton;
 
 public class DefaultComponentFactory implements ComponentFactory {
+
+    @Override
+    public @NotNull WrappedComponent<JLabel> createLabel(@NotNull ObservableProperty<String> text, Icon icon) {
+        return new SelfWrappedComponent<>(new TextLabel(text, icon));
+    }
 
     @Override
     public @NotNull WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon) {

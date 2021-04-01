@@ -31,39 +31,45 @@ import com.github.weisj.swingdsl.ModifiableContainerBuilder
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.text.textOfNullable
+import com.github.weisj.swingdsl.unaryPlus
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
 interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, BuilderWithEnabledProperty<Row> {
+
+    val doIndentSubRows: Boolean
+
     fun commitImmediately()
 
     // manual JvmOverloads
-    fun row(init: Row.() -> Unit): Row = row(null as JLabel?, false, init)
+    fun row(init: Row.() -> Unit): Row = row(null as Text?, init)
 
     // manual JvmOverloads
-    fun row(label: Text?, init: Row.() -> Unit): Row = row(label, false, init)
+    fun row(label: Text?, init: Row.() -> Unit): Row = row(label, separated = false, isIndented = doIndentSubRows, init = init)
 
-    fun row(label: JLabel? = null, separated: Boolean = false, init: Row.() -> Unit): Row {
-        return createChildRow(label = label, isSeparated = separated).apply(init)
+    fun row(label: String?, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+        return row(textOfNullable(label), separated, isIndented, init)
     }
 
-    fun row(label: Text?, separated: Boolean = false, init: Row.() -> Unit): Row {
-        return createChildRow(label?.let { TextLabel(it) }, isSeparated = separated).apply(init)
+    fun row(label: JLabel? = null, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+        return createChildRow(label = label?.let { +it }, separated, isIndented).apply(init)
     }
 
-    fun row(label: String?, separated: Boolean = false, init: Row.() -> Unit): Row {
-        return row(textOfNullable(label), separated, init)
+    fun row(label: Text?, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+        return createChildRow(label?.let { UIFactory.createLabel(it, null) }, separated, isIndented).apply(init)
     }
 
     fun createChildRow(
-        label: JLabel? = null,
+        label: WrappedComponent<JLabel>? = null,
         isSeparated: Boolean = false,
+        isIndented: Boolean = doIndentSubRows,
         noGrid: Boolean = false,
         title: Text? = null
     ): Row
