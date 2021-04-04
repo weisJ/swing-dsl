@@ -73,7 +73,12 @@ internal class DefaultComponentConstraintCreator(spacing: SpacingConfiguration) 
     fun addGrowIfNeeded(cc: CC, component: Component) {
         when {
             component is JTextField && component.columns != 0 -> return
-            component is JTextComponent -> cc.growX()
+            component is JTextComponent -> {
+                cc.growX()
+                if (component is JTextArea && component.lineWrap) {
+                    cc.growY()
+                }
+            }
             component.isPurpose(ComponentPurpose.ScrollPane) -> {
                 cc.grow().pushY()
                 val view = component.getView()

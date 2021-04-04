@@ -52,19 +52,37 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     fun row(init: Row.() -> Unit): Row = row(null as Text?, init)
 
     // manual JvmOverloads
-    fun row(label: Text?, init: Row.() -> Unit): Row = row(label, separated = false, isIndented = doIndentSubRows, init = init)
+    fun row(label: Text?, init: Row.() -> Unit): Row =
+        row(label, separated = false, isIndented = doIndentSubRows, init = init)
 
-    fun row(label: String?, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+    fun row(
+        label: String?,
+        separated: Boolean = false,
+        isIndented: Boolean = doIndentSubRows,
+        init: Row.() -> Unit
+    ): Row {
         return row(textOfNullable(label), separated, isIndented, init)
     }
 
-    fun row(label: JLabel? = null, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+    fun row(
+        label: JLabel? = null,
+        separated: Boolean = false,
+        isIndented: Boolean = doIndentSubRows,
+        init: Row.() -> Unit
+    ): Row {
         return createChildRow(label = label?.let { +it }, separated, isIndented).apply(init)
     }
 
-    fun row(label: Text?, separated: Boolean = false, isIndented: Boolean = doIndentSubRows, init: Row.() -> Unit): Row {
+    fun row(
+        label: Text?,
+        separated: Boolean = false,
+        isIndented: Boolean = doIndentSubRows,
+        init: Row.() -> Unit
+    ): Row {
         return createChildRow(label?.let { UIFactory.createLabel(it, null) }, separated, isIndented).apply(init)
     }
+
+    fun fullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }
 
     fun createChildRow(
         label: WrappedComponent<JLabel>? = null,
@@ -92,8 +110,17 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     fun blockRow(init: Row.() -> Unit): Row
 
     fun createCommentRow(component: JComponent): Row
-    fun commentRow(text: Text)
-    fun commentRow(text: String) = commentRow(textOf(text))
+    fun commentRow(
+        text: Text,
+        maxLineLength: Int = 70,
+        withLeftGap: Boolean = true
+    )
+
+    fun commentRow(
+        text: String,
+        maxLineLength: Int = 70,
+        withLeftGap: Boolean = true
+    ) = commentRow(textOf(text), maxLineLength, withLeftGap)
 }
 
 inline fun <reified T : Any> RowBuilder.buttonGroup(

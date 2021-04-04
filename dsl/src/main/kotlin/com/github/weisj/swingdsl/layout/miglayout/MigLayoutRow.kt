@@ -26,9 +26,11 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.Row
@@ -36,9 +38,12 @@ import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LayoutUtil
+import java.awt.Color
+import java.awt.Dimension
 import javax.swing.*
 import javax.swing.border.LineBorder
 import javax.swing.text.JTextComponent
@@ -63,6 +68,7 @@ internal class MigLayoutRow(
             indent: Int,
             isParentRowLabeled: Boolean,
             forComponent: Boolean,
+            withLeftGap: Boolean,
             columnIndex: Int
         ) {
             val cc = CC()
@@ -79,7 +85,8 @@ internal class MigLayoutRow(
                     cc.skip()
                 }
                 else -> {
-                    cc.horizontal.gapBefore = gapToBoundSize(indent + parent.spacing.indentLevel, true)
+                    val extraSpace = if (withLeftGap) parent.spacing.indentLevel else 0
+                    cc.horizontal.gapBefore = gapToBoundSize(indent + extraSpace, true)
                 }
             }
         }
@@ -351,15 +358,15 @@ internal class MigLayoutRow(
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
         addComponent(component)
-        return addCell(component)
+        return createAndAddCell(component)
     }
 
     override fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T> {
         addComponent(wrappedComponent.container)
-        return addCell(wrappedComponent.component)
+        return createAndAddCell(wrappedComponent.component)
     }
 
-    private fun <T : JComponent> addCell(comp: T): CellBuilder<T> {
+    private fun <T : JComponent> createAndAddCell(comp: T): CellBuilder<T> {
         return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
     }
 
@@ -463,12 +470,26 @@ internal class MigLayoutRow(
     private val JComponent.constraints: CC
         get() = builder.componentConstraints.getOrPut(this) { CC() }
 
-    fun addCommentRow(comment: Text, maxLineLength: Int = 70, forComponent: Boolean) {
-        addCommentRow(createCommentComponent(comment, maxLineLength), forComponent)
+    fun addCommentRow(
+        comment: Text,
+        maxLineLength: Int,
+        forComponent: Boolean,
+        withLeftGap: Boolean = true
+    ) {
+        addCommentRow(createCommentComponent(comment, maxLineLength), forComponent, withLeftGap)
     }
 
-    override fun commentRow(text: Text) {
-        addCommentRow(text, forComponent = false)
+    override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean) {
+        addCommentRow(
+            comment = text,
+            maxLineLength,
+            forComponent = false,
+            withLeftGap = withLeftGap
+        )
+    }
+
+    override fun commentNoWrap(text: Text): CellBuilder<JLabel> {
+        return component(createNoWrapCommentComponent(text)).withLeftGap()
     }
 
     override fun createCommentRow(component: JComponent): Row {
@@ -488,17 +509,26 @@ internal class MigLayoutRow(
         return row
     }
 
-    private fun createCommentComponent(text: Text, maxLineLength: Int): JTextComponent {
+    private fun createCommentComponent(text: Text, maxLineLength: Int): JComponent {
         val textArea = ConstrainedTextArea(text, maxLineLength)
         textArea.isEditable = false
+        textArea.selectable = false
         return textArea
     }
 
-    fun addCommentRow(component: JComponent, forComponent: Boolean) {
+    private fun createNoWrapCommentComponent(text: Text): WrappedComponent<JLabel> {
+        val wrapped = UIFactory.createLabel(text, null)
+        DynamicUI.withDynamic(wrapped.component) {
+            it.foreground = Color.RED
+        }
+        return wrapped
+    }
+
+    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true) {
         gapAfter = "${spacing.commentVerticalTopGap}px!"
 
         val isParentRowLabeled = labeled
-        createCommentRow(this, component, indentationLevel, isParentRowLabeled, forComponent, columnIndex)
+        createCommentRow(this, component, indentationLevel, isParentRowLabeled, forComponent, withLeftGap, columnIndex)
     }
 
     override fun alignRight() {
@@ -589,16 +619,40 @@ internal class MigLayoutRow(
         childCells.forEach { it.commitImmediately() }
     }
 
-    private class ConstrainedTextArea(val boundText: Text, val maxLineLength: Int) : JTextArea() {
+    private class ConstrainedTextArea(boundText: Text, private val maxLineLength: Int) : JTextArea() {
+        private var oldHighlighter = highlighter
+        var selectable: Boolean = true
+            set(value) {
+                isFocusable = value
+                highlighter = if (!value) null else oldHighlighter
+                field = value
+            }
+
+        override fun getPreferredSize(): Dimension {
+            return super.getPreferredSize().apply { width = 0 }
+        }
+
+        override fun addNotify() {
+            super.addNotify()
+            invokeLater {
+                lineWrap = true
+            }
+        }
+
         init {
-            DynamicUI.withDynamic(this) {
-                it.text = boundText.get()
-                it.columns = 0
-                val prefWidthWithColumns = it.insets.run { left + right } + columnWidth * maxLineLength
-                val preWidthWithText = it.preferredSize.width
+            minimumSize = Dimension(10, 10)
+            boundText.onChange(invokeOnce = true) {
+                text = it
+                columns = 0
+                val maxLength = maxLineLength
+                val prefWidthWithColumns = insets.width + columnWidth * maxLength
+                val preWidthWithText = super.getPreferredSize().width
                 if (preWidthWithText > prefWidthWithColumns) {
-                    it.columns = maxLineLength
+                    columns = max(0, maxLength)
                 }
+                maximumSize = if (columns > 0) {
+                    Dimension(insets.width + columnWidth * columns, Int.MAX_VALUE)
+                } else null
             }
         }
     }
