@@ -38,6 +38,7 @@ import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.util.mix
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
@@ -47,6 +48,7 @@ import java.awt.Dimension
 import java.lang.Integer.min
 import javax.swing.*
 import javax.swing.border.LineBorder
+import javax.swing.plaf.ColorUIResource
 import javax.swing.text.JTextComponent
 import kotlin.math.max
 import kotlin.reflect.KMutableProperty0
@@ -514,13 +516,16 @@ internal class MigLayoutRow(
         val textArea = ConstrainedTextArea(text, maxLineLength)
         textArea.isEditable = false
         textArea.selectable = false
+        DynamicUI.withDynamic(textArea) {
+            it.foreground = getCommentForeground()
+        }
         return textArea
     }
 
     private fun createNoWrapCommentComponent(text: Text): WrappedComponent<JLabel> {
         val wrapped = UIFactory.createLabel(text, null)
         DynamicUI.withDynamic(wrapped.component) {
-            it.foreground = Color.RED
+            it.foreground = getCommentForeground()
         }
         return wrapped
     }
@@ -618,6 +623,13 @@ internal class MigLayoutRow(
         // Update child rows
         getOrCreateSubRowsList().forEach { it.commitImmediately() }
         childCells.forEach { it.commitImmediately() }
+    }
+
+    private fun getCommentForeground(): Color {
+        return ColorUIResource(
+            UIManager.getColor("textForegroundSecondary")
+                ?: (UIManager.getColor("Label.foreground") ?: Color.BLACK).mix(Color.WHITE, 0.80f)
+        )
     }
 
     private class ConstrainedTextArea(boundText: Text, private val maxLineLength: Int) : JTextArea() {
