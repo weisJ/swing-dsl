@@ -47,6 +47,8 @@ import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
+import javax.swing.event.ChangeEvent
+import javax.swing.event.DocumentEvent
 import javax.swing.text.JTextComponent
 
 @DslMarker
@@ -109,7 +111,8 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
         text: String,
         maxLineLength: Int = 70,
         forComponent: Boolean = false
-    ): CellBuilder<T> = comment(textOf(text), maxLineLength, forComponent)
+    ): CellBuilder<T> =
+        comment(textOf(text), maxLineLength, forComponent)
 
     fun commentComponent(component: JComponent, forComponent: Boolean = false): CellBuilder<T>
 
@@ -144,25 +147,33 @@ internal interface CheckboxCellBuilder {
 }
 
 fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: MutableProperty<Int>): CellBuilder<T> {
-    return withBinding({ it.value as Int }, JSpinner::setValue, modelBinding, JSpinner::addChangeListener)
+    return withBinding(
+        { it.value as Int },
+        JSpinner::setValue,
+        modelBinding
+    ) { comp: JSpinner, listener: (ChangeEvent) -> Unit ->
+        comp.addChangeListener(listener)
+    }
 }
 
 fun <T : JTextComponent> CellBuilder<T>.withTextBinding(modelBinding: MutableProperty<String>): CellBuilder<T> {
     return withBinding(
         JTextComponent::getText,
         JTextComponent::setText,
-        modelBinding,
-        JTextComponent::addDocumentChangeListener
-    )
+        modelBinding
+    ) { comp: JTextComponent, listener: (DocumentEvent?) -> Unit ->
+        comp.addDocumentChangeListener(listener)
+    }
 }
 
 fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: MutableProperty<Boolean>): CellBuilder<T> {
     return withBinding(
         AbstractButton::isSelected,
         AbstractButton::setSelected,
-        modelBinding,
-        AbstractButton::addChangeListener
-    )
+        modelBinding
+    ) { comp: AbstractButton, listener: (ChangeEvent) -> Unit ->
+        comp.addChangeListener(listener)
+    }
 }
 
 fun <V, T : JList<V>> CellBuilder<T>.observableSelection(): ObservableProperty<IntArray> =

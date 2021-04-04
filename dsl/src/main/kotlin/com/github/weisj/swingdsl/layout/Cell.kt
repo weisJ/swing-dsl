@@ -30,7 +30,6 @@ import com.github.weisj.swingdsl.Modifiable
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.toNullable
 import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
@@ -42,6 +41,7 @@ import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.Dimension
 import java.awt.event.ActionEvent
+import java.awt.event.ItemEvent
 import javax.swing.*
 import kotlin.reflect.KMutableProperty0
 
@@ -131,7 +131,7 @@ abstract class Cell : ButtonGroupBuilder {
         return checkBox(text, PropertyBinding(getter, setter), comment)
     }
 
-    private fun checkBox(
+    fun checkBox(
         text: Text,
         modelBinding: MutableProperty<Boolean>,
         comment: Text?
@@ -171,8 +171,8 @@ abstract class Cell : ButtonGroupBuilder {
 
     fun <T> comboBox(
         model: ComboBoxModel<T>,
-        getter: () -> T?,
-        setter: (T?) -> Unit,
+        getter: () -> T,
+        setter: (T) -> Unit,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
         return comboBox(model, PropertyBinding(getter, setter), renderer)
@@ -183,13 +183,13 @@ abstract class Cell : ButtonGroupBuilder {
         prop: KMutableProperty0<T>,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
-        return comboBox(model, prop.toProperty().toNullable(), renderer)
+        return comboBox(model, prop.toProperty(), renderer)
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> comboBox(
         model: ComboBoxModel<T>,
-        modelBinding: MutableProperty<T?>,
+        modelBinding: MutableProperty<T>,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
         return component(JComboBox(model))
@@ -198,11 +198,12 @@ abstract class Cell : ButtonGroupBuilder {
                 selectedItem = modelBinding.get()
             }
             .withBinding(
-                { component -> component.selectedItem as T? },
+                { component -> component.selectedItem as T },
                 { component, value -> component.setSelectedItem(value) },
-                modelBinding,
-                JComboBox<T>::addItemListener
-            )
+                modelBinding
+            ) { comp: JComboBox<T>, listener: (ItemEvent) -> Unit ->
+                comp.addItemListener(listener)
+            }
     }
 
     fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JTextField> =
@@ -220,9 +221,7 @@ abstract class Cell : ButtonGroupBuilder {
     }
 
     fun spinner(prop: KMutableProperty0<Int>, minValue: Int, maxValue: Int, step: Int = 1): CellBuilder<JSpinner> {
-        val spinnerModel = SpinnerNumberModel(prop.get(), minValue, maxValue, step)
-        val spinner = JSpinner(spinnerModel)
-        return component(spinner).withIntBinding(prop.toProperty())
+        return spinner(prop.toProperty(), prop.get(), minValue, maxValue, step)
     }
 
     @JvmOverloads
@@ -233,28 +232,21 @@ abstract class Cell : ButtonGroupBuilder {
         maxValue: Int,
         step: Int = 1
     ): CellBuilder<JSpinner> {
-        val spinnerModel = SpinnerNumberModel(getter(), minValue, maxValue, step)
-        val spinner = JSpinner(spinnerModel)
-        return component(spinner).withBinding(
-            { it.value as Int },
-            JSpinner::setValue,
-            PropertyBinding(getter, setter)
-        )
+        return spinner(PropertyBinding(getter, setter), getter(), minValue, maxValue, step)
     }
 
-    @JvmOverloads
     fun spinner(
+        binding: MutableProperty<Int>? = null,
         initial: Int,
         minValue: Int,
         maxValue: Int,
-        step: Int = 1,
-        binding: MutableProperty<Int>? = null
+        step: Int = 1
     ): CellBuilder<JSpinner> {
         val spinnerModel = SpinnerNumberModel(initial, minValue, maxValue, step)
         val spinner = JSpinner(spinnerModel)
         return component(spinner).apply {
             if (binding != null) {
-                withBinding({ it.value as Int }, JSpinner::setValue, binding, JSpinner::addChangeListener)
+                withIntBinding(binding)
             }
         }
     }
