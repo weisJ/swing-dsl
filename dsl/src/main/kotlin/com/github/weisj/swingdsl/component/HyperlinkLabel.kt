@@ -1,0 +1,132 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 Jannis Weis
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+package com.github.weisj.swingdsl.component
+
+import com.github.weisj.swingdsl.listeners.ClickListener
+import com.github.weisj.swingdsl.on
+import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.text.TextLabel
+import com.github.weisj.swingdsl.toKeyStroke
+import com.github.weisj.swingdsl.util.toHtml
+import java.awt.Color
+import java.awt.Cursor
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
+import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import javax.swing.UIManager
+import javax.swing.event.HyperlinkEvent
+import javax.swing.event.HyperlinkListener
+
+class HyperlinkLabel(observableText: Text) : TextLabel(observableText) {
+
+    private val listeners: MutableList<HyperlinkListener> = mutableListOf()
+
+    private var isHovered = false
+    private var isFocused = false
+    private var originalText: String? = observableText.get()
+
+    var showHoverEffect: Boolean = true
+
+    private fun setTrueText(value: String?) = super.setText(value)
+
+    override fun setText(text: String?) {
+        originalText = text
+        updateText()
+    }
+
+    init {
+        setupListener()
+        isFocusable = true
+    }
+
+    override fun updateUI() {
+        super.updateUI()
+        foreground = UIManager.getColor("hyperlink") ?: Color.BLUE.brighter()
+    }
+
+    private fun updateText() {
+        if (isFocused || (isHovered && showHoverEffect)) {
+            setTrueText(underlineTextInHtml(originalText))
+        } else {
+            setTrueText(originalText)
+        }
+    }
+
+    private fun setupListener() {
+        addMouseListener(object : MouseAdapter() {
+            override fun mouseEntered(e: MouseEvent?) {
+                if (!showHoverEffect) return
+                isHovered = true
+                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                updateText()
+            }
+
+            override fun mouseExited(e: MouseEvent?) {
+                if (!showHoverEffect) return
+                isHovered = false
+                cursor = Cursor.getDefaultCursor()
+                updateText()
+            }
+        })
+        addFocusListener(object : FocusListener {
+            override fun focusGained(e: FocusEvent?) {
+                isFocused = true
+                updateText()
+            }
+
+            override fun focusLost(e: FocusEvent?) {
+                isFocused = false
+                updateText()
+            }
+        })
+
+        object : ClickListener() {
+            override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
+                notifyClick()
+                return true
+            }
+        }.installOn(this)
+        on(KeyEvent.VK_SPACE.toKeyStroke()) { notifyClick() }
+    }
+
+    private fun notifyClick() {
+        val e = HyperlinkEvent(this@HyperlinkLabel, HyperlinkEvent.EventType.ACTIVATED, null)
+        listeners.forEach { it.hyperlinkUpdate(e) }
+    }
+
+    fun addHyperlinkListener(listener: HyperlinkListener) {
+        listeners.add(listener)
+    }
+
+    fun removeHyperlinkListener(listener: HyperlinkListener) {
+        listeners.remove(listener)
+    }
+
+    private fun underlineTextInHtml(text: String?): String? {
+        return text?.toHtml("u")
+    }
+}
