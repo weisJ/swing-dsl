@@ -30,7 +30,6 @@ import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.condition.not
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.isAccessible
 
 interface Property<out T> {
     fun get(): T
@@ -40,7 +39,10 @@ interface MutableProperty<T> : Property<T> {
     fun set(value: T)
 }
 
-data class PropertyBinding<V>(private val getter: () -> V, private val setter: (V) -> Unit) : MutableProperty<V> {
+data class PropertyBinding<V>(
+    private val getter: () -> V,
+    private val setter: (V) -> Unit
+) : MutableProperty<V> {
     override fun get(): V = getter()
 
     override fun set(value: V) {
@@ -52,7 +54,20 @@ interface Observable<out T> {
     fun onChange(callback: (T) -> Unit)
 }
 
+class PseudoObservableProperty<T>(val getter: () -> T) : ObservableProperty<T> {
+    override fun get(): T = getter()
+
+    override fun onChange(callback: (T) -> Unit) {
+        /* Can't know whether something changed */
+    }
+}
+
 interface ObservableProperty<out T> : Property<T>, Observable<T>
+
+fun <T> ObservableProperty<T>.onChange(invokeOnce: Boolean, callback: (T) -> Unit) {
+    onChange(callback)
+    if (invokeOnce) callback(get())
+}
 
 interface ObservableMutableProperty<T> : MutableProperty<T>, ObservableProperty<T>
 
@@ -113,26 +128,14 @@ fun <K1, K2, T> ObservableProperty<K1>.combine(
     combiner: (K1, K2) -> T
 ): ObservableProperty<T> = combinedProperty(this, other, combiner)
 
-@PublishedApi
+class KPropertyBackedProperty<T>(val prop: KMutableProperty0<T>) : MutableProperty<T> {
+    override fun get(): T = prop.get()
+
+    override fun set(value: T) = prop.set(value)
+}
+
 internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>): MutableProperty<T> {
-    prop.isAccessible = true
-    val delegate = prop.getDelegate()
-    @Suppress("UNCHECKED_CAST")
-    return when (delegate) {
-        is ObservableMutableProperty<*> -> delegate as MutableProperty<T>
-        is Observable<*> -> object : ObservableMutableProperty<T> {
-            override fun get(): T = prop.get()
-
-            override fun set(value: T) {
-                prop.set(value)
-            }
-
-            override fun onChange(callback: (T) -> Unit) {
-                (delegate as Observable<T>).onChange(callback)
-            }
-        }
-        else -> PropertyBinding({ prop.get() }, { prop.set(it) })
-    }
+    return KPropertyBackedProperty(prop)
 }
 
 fun <T> KMutableProperty0<T>.toProperty(): MutableProperty<T> {

@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.text
 
+import com.github.weisj.swingdsl.binding.PseudoObservableProperty
 import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -33,55 +34,99 @@ import javax.swing.JRadioButton
 /**
  * Button which takes [Text] instead of a [String].
  */
-class TextButton @JvmOverloads constructor(
-    text: Text = emptyText(),
+open class TextButton @JvmOverloads constructor(
+    private val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JButton(text.get(), icon) {
+) : JButton(textProp.get(), icon) {
     init {
-        text.onChange {
+        textProp.onChange {
             this.text = it
         }
+    }
+
+    private fun String.invalidateIfNecessary(): String {
+        if (this != super.getText()) {
+            invalidate()
+        }
+        return this
+    }
+
+    override fun getText(): String {
+        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
     }
 }
 
 /**
  * Checkbox which takes [Text] instead of a [String].
  */
-class TextCheckBox @JvmOverloads constructor(
-    text: Text = emptyText(),
+open class TextCheckBox @JvmOverloads constructor(
+    private val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JCheckBox(text.get(), icon) {
+) : JCheckBox(textProp.get(), icon) {
     init {
-        text.onChange {
+        textProp.onChange {
             this.text = it
         }
+    }
+
+    private fun String.invalidateIfNecessary(): String {
+        if (this != super.getText()) {
+            invalidate()
+        }
+        return this
+    }
+
+    override fun getText(): String {
+        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
     }
 }
 
 /**
  * Radiobutton which takes [Text] instead of a [String].
  */
-class TextRadioButton @JvmOverloads constructor(
-    text: Text = emptyText(),
+open class TextRadioButton @JvmOverloads constructor(
+    private val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JRadioButton(text.get(), icon) {
+) : JRadioButton(textProp.get(), icon) {
     init {
-        text.onChange {
+        textProp.onChange {
             this.text = it
         }
+    }
+
+    private fun String.invalidateIfNecessary(): String {
+        if (this != super.getText()) {
+            invalidate()
+        }
+        return this
+    }
+
+    override fun getText(): String {
+        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
     }
 }
 
 /**
  * Label which takes [Text] instead of a [String].
  */
-class TextLabel @JvmOverloads constructor(
-    text: Text,
+open class TextLabel @JvmOverloads constructor(
+    private val textProp: Text,
     icon: Icon? = null
-) : JLabel(text.get(), icon, LEFT) {
+) : JLabel(textProp.get(), icon, LEFT) {
     init {
-        text.onChange {
+        textProp.onChange {
             this.text = it
         }
+    }
+
+    private fun String.invalidateIfNecessary(): String {
+        if (this != super.getText()) {
+            invalidate()
+        }
+        return this
+    }
+
+    override fun getText(): String {
+        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
     }
 }
