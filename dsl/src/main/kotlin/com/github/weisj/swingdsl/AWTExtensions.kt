@@ -25,6 +25,10 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.binding.container.ObservableList
+import com.github.weisj.swingdsl.model.CollectionComboBoxModel
+import com.github.weisj.swingdsl.model.CollectionListModel
+import com.github.weisj.swingdsl.model.ObservableComboBoxModel
+import com.github.weisj.swingdsl.model.ObservableListModel
 import java.awt.Component
 import java.awt.Insets
 import java.awt.Window
@@ -32,6 +36,7 @@ import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
 import javax.swing.Action
 import javax.swing.ActionMap
+import javax.swing.ComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.InputMap
 import javax.swing.JComponent
@@ -90,7 +95,11 @@ fun onSwingThread(action: () -> Unit) {
 fun JTextComponent.addDocumentChangeListener(listener: (DocumentEvent?) -> Unit) =
     document.addDocumentListener(DocumentChangeListener(listener))
 
-fun <T> listModelOf(list: ObservableList<T>) = ObservableListModel(list)
+fun <T> listModelOf(list: ObservableList<T>): ListModel<T> = ObservableListModel(list)
+fun <T> listModelOf(list: List<T>): ListModel<T> = CollectionListModel(list)
+
+fun <T : Any> comboBoxModelOf(list: ObservableList<T>): ComboBoxModel<T> = ObservableComboBoxModel(list)
+fun <T : Any> comboBoxModelOf(list: List<T>): ComboBoxModel<T> = CollectionComboBoxModel(list)
 
 operator fun <T> ListModel<T>.get(index: Int): T = getElementAt(index)
 fun <T> DefaultListModel<T>.add(value: T) {

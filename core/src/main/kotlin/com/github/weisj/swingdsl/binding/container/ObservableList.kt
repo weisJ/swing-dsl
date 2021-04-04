@@ -57,6 +57,14 @@ interface ObservableList<T> : MutableList<T> {
     }
 }
 
+fun <T> ObservableProperty<List<T>>.toObservableList(): ObservableList<T> = observableListOf<T>().apply {
+    addAll(this@toObservableList.get())
+    this@toObservableList.onChange {
+        clear()
+        addAll(it)
+    }
+}
+
 fun <T> observableListOf(list: MutableList<T>): ObservableList<T> = ObservableListImpl(list)
 fun <T> observableListOf(vararg elements: T): ObservableList<T> = ObservableListImpl(mutableListOf(*elements))
 fun <T> observableListOf(): ObservableList<T> = ObservableListImpl(mutableListOf())
