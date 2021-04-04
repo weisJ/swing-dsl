@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.config.JFrameConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfigurationImpl
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
@@ -54,6 +55,7 @@ fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
         override var locationRelativeTo: Component? = null
 
         init {
+            defaultCloseOperation = CloseOperation.EXIT
             locationByPlatform = true
         }
     }
