@@ -34,7 +34,7 @@ import javax.swing.JCheckBox
 import javax.swing.JRadioButton
 import javax.swing.UIManager
 
-internal object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) {
+object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) {
 
     private val superDelegate
         get() = super.getDelegate()
