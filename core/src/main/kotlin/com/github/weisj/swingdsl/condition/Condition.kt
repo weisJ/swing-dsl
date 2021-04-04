@@ -43,6 +43,10 @@ class ConstantCondition(private val value: Boolean) : ObservableCondition {
     }
 
     override fun get(): Boolean = value
+
+    override fun toString(): String {
+        return "Condition($value)"
+    }
 }
 
 internal class ObservablePropertyCondition<T>(
@@ -54,22 +58,52 @@ internal class ObservablePropertyCondition<T>(
     }
 
     override fun get(): Boolean = checker(property.get())
+
+    override fun toString(): String {
+        return "PropertyCondition($property)"
+    }
+}
+
+private fun ObservableCondition.isConstant(value: Boolean): Boolean {
+    return this is ConstantCondition && this.get() == value
 }
 
 /**
  * Create compound condition which value is true iff both conditions are met.
  */
-infix fun ObservableCondition.and(other: ObservableCondition): ObservableCondition = combine(other) { a, b -> a && b }
+infix fun ObservableCondition.and(other: ObservableCondition): ObservableCondition {
+    return when {
+        this.isConstant(true) -> other
+        this.isConstant(false) -> this
+        other.isConstant(false) -> other
+        other.isConstant(true) -> this
+        else -> combine(other) { a, b -> a && b }
+    }
+}
 
 /**
  * Create compound condition which value is true iff both at least one conditions is met.
  */
-infix fun ObservableCondition.or(other: ObservableCondition): ObservableCondition = combine(other) { a, b -> a || b }
+infix fun ObservableCondition.or(other: ObservableCondition): ObservableCondition {
+    return when {
+        this.isConstant(true) -> this
+        this.isConstant(false) -> other
+        other.isConstant(false) -> this
+        other.isConstant(true) -> other
+        else -> combine(other) { a, b -> a || b }
+    }
+}
 
 /**
  * Inverts the given condition.
  */
-operator fun ObservableCondition.not(): ObservableCondition = derive { !it }
+operator fun ObservableCondition.not(): ObservableCondition {
+    return when {
+        this.isConstant(true) -> conditionOf(false)
+        this.isConstant(false) -> conditionOf(true)
+        else -> derive { !it }
+    }
+}
 
 /**
  * Create constant value condition.

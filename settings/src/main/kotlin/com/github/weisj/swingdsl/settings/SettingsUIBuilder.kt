@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.settings
 
+import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
@@ -121,7 +122,7 @@ private fun Row.valueRow(value: DefaultValue<*>, init: Row.() -> Unit): Row {
     }
 }
 
-fun RowBuilder.bindDisplayStatus(element: Element) {
+fun BuilderWithEnabledProperty<*>.bindDisplayStatus(element: Element) {
     enableIf(element.displayState.enabled)
     visibleIf(element.displayState.visible)
 }

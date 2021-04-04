@@ -27,6 +27,7 @@ package com.github.weisj.swingdsl.settings
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.condition.and
 import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.condition.isFalse
 import com.github.weisj.swingdsl.condition.isTrue
@@ -66,6 +67,10 @@ abstract class ElementBuilder<Parent : ContainerElement?, Type : ContainedElemen
     }
 
     fun buildBaseElement(parent: Parent): ContainedElement<Parent> {
+        if (parent != null) {
+            displayState.visible = displayState.visible and parent.displayState.visible
+            displayState.enabled = displayState.enabled and parent.displayState.enabled
+        }
         return DefaultVisualElement(parent, identifier, displayName, description, displayState)
     }
 

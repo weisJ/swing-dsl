@@ -76,6 +76,7 @@ internal class MigLayoutRow(
         ) {
             val cc = CC()
             val commentRow = parent.createChildRow()
+            parent.getOrCreateCommentRowsList().add(commentRow)
             commentRow.isComment = true
             commentRow.addComponent(component, cc)
             when {
@@ -117,6 +118,18 @@ internal class MigLayoutRow(
     private var columnIndex = -1
     internal var subRows: MutableList<MigLayoutRow>? = null
         private set
+
+    private var commentRows: MutableList<MigLayoutRow>? = null
+
+    private fun getOrCreateCommentRowsList(): MutableList<MigLayoutRow> {
+        var commentRows = commentRows
+        if (commentRows == null) {
+            // commentRows in most cases == 1
+            commentRows = mutableListOf()
+            this.commentRows = commentRows
+        }
+        return commentRows
+    }
 
     private fun getOrCreateSubRowsList(): MutableList<MigLayoutRow> {
         var subRows = subRows
@@ -167,6 +180,11 @@ internal class MigLayoutRow(
                 }
                 c.isEnabled = value
             }
+            commentRows?.let {
+                for (row in it) {
+                    row.enabled = value
+                }
+            }
         }
 
     override var visible = true
@@ -176,6 +194,11 @@ internal class MigLayoutRow(
             field = value
             for (c in components) {
                 c.isVisible = value
+            }
+            commentRows?.let {
+                for (row in it) {
+                    row.visible = value
+                }
             }
         }
 
@@ -503,11 +526,12 @@ internal class MigLayoutRow(
             } else {
                 spacing.largeVerticalGap
             },
-            false
+            isHorizontal = false
         )
         cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap, false)
 
         val row = createChildRow(label = null, noGrid = true)
+        getOrCreateCommentRowsList().add(row)
         row.addComponent(component, cc)
         return row
     }
