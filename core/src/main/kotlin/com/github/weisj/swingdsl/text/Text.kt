@@ -26,6 +26,8 @@ package com.github.weisj.swingdsl.text
 
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.derive
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * A portion of text.
@@ -38,7 +40,7 @@ typealias Text = ObservableProperty<String>
  *
  * @param text the text value.
  */
-data class ConstantText(private val text: String) : Text {
+data class ConstantText(internal val text: String) : Text {
     override fun toString(): String {
         return text
     }
@@ -58,3 +60,15 @@ fun textOf(prop: Text): Text = prop
 fun textOfNullable(str: String? = null): Text? = str?.let { textOf(str) }
 
 fun emptyText() = textOf()
+
+fun Text.isConstantEmpty(): Boolean {
+    return this is ConstantText && this.text.isEmpty()
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Text?.isConstantNullOrEmpty(): Boolean {
+    contract {
+        returns(false) implies (this@isConstantNullOrEmpty != null)
+    }
+    return this?.isConstantEmpty() ?: true
+}
