@@ -44,6 +44,7 @@ import net.miginfocom.layout.CC
 import net.miginfocom.layout.LayoutUtil
 import java.awt.Color
 import java.awt.Dimension
+import java.lang.Integer.min
 import javax.swing.*
 import javax.swing.border.LineBorder
 import javax.swing.text.JTextComponent
@@ -627,9 +628,10 @@ internal class MigLayoutRow(
                 highlighter = if (!value) null else oldHighlighter
                 field = value
             }
+        private var prefWidth: Int = 0
 
         override fun getPreferredSize(): Dimension {
-            return super.getPreferredSize().apply { width = 0 }
+            return super.getPreferredSize().apply { width = if (isShowing) 0 else prefWidth }
         }
 
         override fun addNotify() {
@@ -643,7 +645,13 @@ internal class MigLayoutRow(
             minimumSize = Dimension(10, 10)
             boundText.onChange(invokeOnce = true) {
                 text = it
+
+                val oldWrap = lineWrap
+                lineWrap = false
                 columns = 0
+
+                prefWidth = super.getPreferredSize().width
+
                 val maxLength = maxLineLength
                 val prefWidthWithColumns = insets.width + columnWidth * maxLength
                 val preWidthWithText = super.getPreferredSize().width
@@ -651,8 +659,12 @@ internal class MigLayoutRow(
                     columns = max(0, maxLength)
                 }
                 maximumSize = if (columns > 0) {
-                    Dimension(insets.width + columnWidth * columns, Int.MAX_VALUE)
+                    val w = insets.width + columnWidth * columns
+                    prefWidth = min(prefWidth, w)
+                    Dimension(w, Int.MAX_VALUE)
                 } else null
+
+                lineWrap = oldWrap
             }
         }
     }
