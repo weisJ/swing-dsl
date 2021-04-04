@@ -19,7 +19,8 @@ include(
     "dependencies-bom",
     "core",
     "laf-support",
-    "dsl"
+    "dsl",
+    "settings"
 )
 
 for (p in rootProject.children) {

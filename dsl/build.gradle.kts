@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api(project(":swing-dsl-core"))
-    implementation(project(":swing-dsl-laf-support"))
+    api(project(":swing-dsl-laf-support"))
     implementation("com.miglayout:miglayout-swing")
 
     testImplementation("com.github.weisj:darklaf-core") {
