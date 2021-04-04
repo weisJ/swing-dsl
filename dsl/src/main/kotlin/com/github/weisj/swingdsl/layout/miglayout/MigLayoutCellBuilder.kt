@@ -49,12 +49,16 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     }
 
     override fun comment(text: Text, maxLineLength: Int, forComponent: Boolean): CellBuilder<T> {
-        row.addCommentRow(text, maxLineLength, forComponent)
+        row.addCommentRow(
+            comment = text,
+            maxLineLength = maxLineLength,
+            forComponent = forComponent
+        )
         return this
     }
 
     override fun commentComponent(component: JComponent, forComponent: Boolean): CellBuilder<T> {
-        row.addCommentRow(component, forComponent)
+        row.addCommentRow(component, forComponent, withLeftGap = true)
         return this
     }
 

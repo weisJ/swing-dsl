@@ -30,8 +30,13 @@ import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
+import javax.swing.JLabel
 
 class InnerCell(val cell: Cell) : Cell() {
+    override fun commentNoWrap(text: Text): CellBuilder<JLabel> {
+        return cell.commentNoWrap(text)
+    }
+
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
         return cell.component(component)
     }

@@ -77,6 +77,9 @@ abstract class Cell : ButtonGroupBuilder {
 
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 
+    abstract fun commentNoWrap(text: Text): CellBuilder<JLabel>
+    fun commentNoWrap(text: String): CellBuilder<JLabel> = commentNoWrap(textOf(text))
+
     @JvmOverloads
     fun label(text: Text, bold: Boolean = false): CellBuilder<JLabel> {
         val label = UIFactory.createLabel(text, null)
@@ -315,7 +318,13 @@ abstract class Cell : ButtonGroupBuilder {
         vararg constraints: CCFlags
     ) {
         constraints(*constraints)
-        if (comment != null) comment(comment)
+        if (comment != null) {
+            if (comment.get().length < 50) {
+                commentNoWrap(comment)
+            } else {
+                comment(comment)
+            }
+        }
         if (growPolicy != null) growPolicy(growPolicy)
     }
 
