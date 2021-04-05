@@ -26,7 +26,6 @@ package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
 
 abstract class GroupBuilder<C : ContainerElement, T> internal constructor(
     parentBuilder: ElementBuilder<*, *>?,
@@ -47,22 +46,22 @@ abstract class GroupBuilder<C : ContainerElement, T> internal constructor(
 
     fun group(
         identifier: String = IDGenerator.create(),
-        displayName: Text? = null,
+        name: Text? = null,
         description: Text? = null,
-        init: SubGroupBuilder.() -> Unit
+        init: SubGroupBuilder.() -> Unit = {}
     ) {
-        subGroups.add(SubGroupBuilder(this, identifier, displayName, description).also(init))
+        subGroups.add(SubGroupBuilder(this, identifier, name, description).also(init))
     }
 
     internal fun <T> valueImpl(
         value: MutableProperty<T>,
         identifier: String = IDGenerator.create(),
-        displayName: Text = textOf(identifier),
+        name: Text,
         description: Text? = null,
         init: ValueBuilder<T>.() -> Unit = {},
         valueConstructor: (ContainedElement<Group>, Text, MutableProperty<T>) -> Value<T>
     ) {
-        values.add(ValueBuilder(this, value, identifier, displayName, description, valueConstructor).also(init))
+        values.add(ValueBuilder(this, value, identifier, name, description, valueConstructor).also(init))
     }
 }
 

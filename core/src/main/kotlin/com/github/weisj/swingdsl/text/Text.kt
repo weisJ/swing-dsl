@@ -52,6 +52,8 @@ data class ConstantText(internal val text: String) : Text {
     }
 }
 
+operator fun String.unaryPlus(): Text = textOf(this)
+
 fun textOf(str: String = ""): Text = ConstantText(str)
 fun <T> textOf(prop: ObservableProperty<T>): Text = prop.derive { it.toString() }
 

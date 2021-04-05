@@ -137,11 +137,11 @@ abstract class ElementBuilder<Parent : ContainerElement?, Type : ContainedElemen
 
 fun category(
     identifier: String,
-    displayName: Text = textOf(identifier),
+    name: Text = textOf(identifier),
     description: Text? = null,
-    init: TopLevelCategoryBuilder.() -> Unit
+    init: TopLevelCategoryBuilder.() -> Unit = {}
 ): Category {
-    val builder = TopLevelCategoryBuilder(null, identifier, displayName, description)
+    val builder = TopLevelCategoryBuilder(null, identifier, name, description)
     builder.init()
     return builder.doBuild(null)
 }

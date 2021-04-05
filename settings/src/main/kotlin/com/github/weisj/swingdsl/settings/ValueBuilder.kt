@@ -54,95 +54,106 @@ class ValueBuilder<T>(
 fun <T> GroupBuilder<*, *>.value(
     value: MutableProperty<T>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    name: Text,
     description: Text? = null,
     init: ValueBuilder<T>.() -> Unit = {}
 ) {
-    valueImpl(value, identifier, displayName, description, init, ::DefaultValue)
+    valueImpl(value, identifier, name, description, init, ::DefaultValue)
 }
 
 fun <T> GroupBuilder<*, *>.value(
     value: KMutableProperty0<T>,
-    identifier: String = value.name,
-    displayName: Text = textOf(identifier),
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
     description: Text? = null,
     init: ValueBuilder<T>.() -> Unit = {}
 ) {
-    value(value.toProperty(), identifier, displayName, description, init)
+    value(value.toProperty(), identifier, name, description, init)
 }
 
 fun GroupBuilder<*, *>.string(
     value: MutableProperty<String>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    name: Text,
     description: Text? = null,
     init: ValueBuilder<String>.() -> Unit = {}
 ) {
-    valueImpl(value, identifier, displayName, description, init, ::StringValue)
+    valueImpl(value, identifier, name, description, init, ::StringValue)
 }
 
 fun GroupBuilder<*, *>.string(
     value: KMutableProperty0<String>,
-    identifier: String = value.name,
-    displayName: Text = textOf(identifier),
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
     description: Text? = null,
     init: ValueBuilder<String>.() -> Unit = {}
 ) {
-    string(value.toProperty(), identifier, displayName, description, init)
+    string(value.toProperty(), identifier, name, description, init)
 }
 
 fun GroupBuilder<*, *>.boolean(
     value: MutableProperty<Boolean>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    name: Text,
     description: Text? = null,
     init: ValueBuilder<Boolean>.() -> Unit = {}
 ) {
-    valueImpl(value, identifier, displayName, description, init, ::BoolValue)
+    valueImpl(value, identifier, name, description, init, ::BoolValue)
 }
 
 fun GroupBuilder<*, *>.boolean(
     value: KMutableProperty0<Boolean>,
-    identifier: String = value.name,
-    displayName: Text = textOf(identifier),
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
     description: Text? = null,
     init: ValueBuilder<Boolean>.() -> Unit = {}
 ) {
-    boolean(value.toProperty(), identifier, displayName, description, init)
+    boolean(value.toProperty(), identifier, name, description, init)
 }
 
 fun GroupBuilder<*, *>.int(
     value: MutableProperty<Int>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    name: Text,
     description: Text? = null,
     low: Int,
     high: Int,
     step: Int = 1,
     init: ValueBuilder<Int>.() -> Unit = {}
 ) {
-    valueImpl(value, identifier, displayName, description, init) { a, b, c ->
+    valueImpl(value, identifier, name, description, init) { a, b, c ->
         IntValue(a, b, c, low, high, step)
     }
 }
 
 fun GroupBuilder<*, *>.int(
     value: KMutableProperty0<Int>,
-    identifier: String = value.name,
-    displayName: Text = textOf(identifier),
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
     description: Text? = null,
     low: Int,
     high: Int,
     step: Int = 1,
     init: ValueBuilder<Int>.() -> Unit = {}
 ) {
-    int(value.toProperty(), identifier, displayName, description, low, high, step, init)
+    int(value.toProperty(), identifier, name, description, low, high, step, init)
+}
+
+fun GroupBuilder<*, *>.int(
+    value: KMutableProperty0<Int>,
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
+    description: Text? = null,
+    range: IntProgression,
+    init: ValueBuilder<Int>.() -> Unit = {}
+) {
+    int(value, identifier, name, description, range.first, range.last, range.step, init)
 }
 
 fun <T : Any> GroupBuilder<*, *>.choice(
     value: MutableProperty<T>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    displayName: Text,
     description: Text? = null,
     choices: ObservableList<T>,
     renderer: (T) -> String = { it.toString() },
@@ -156,7 +167,7 @@ fun <T : Any> GroupBuilder<*, *>.choice(
 fun <T : Any> GroupBuilder<*, *>.choice(
     value: KMutableProperty0<T>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    displayName: Text = textOf(value.name),
     description: Text? = null,
     choices: ObservableList<T>,
     renderer: (T) -> String = { it.toString() },
@@ -168,7 +179,7 @@ fun <T : Any> GroupBuilder<*, *>.choice(
 fun <T : Any> GroupBuilder<*, *>.choice(
     value: MutableProperty<T>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    displayName: Text,
     description: Text? = null,
     choices: List<T>,
     unwrapLimit: Int = 2,
@@ -183,22 +194,35 @@ fun <T : Any> GroupBuilder<*, *>.choice(
 fun <T : Any> GroupBuilder<*, *>.choice(
     value: KMutableProperty0<T>,
     identifier: String = IDGenerator.create(),
-    displayName: Text = textOf(identifier),
+    name: Text = textOf(value.name),
     description: Text? = null,
     choices: List<T>,
     unwrapLimit: Int = 2,
     renderer: (T) -> String = { it.toString() },
     init: ValueBuilder<T>.() -> Unit = {}
 ) {
-    choice(value.toProperty(), identifier, displayName, description, choices, unwrapLimit, renderer, init)
+    choice(value.toProperty(), identifier, name, description, choices, unwrapLimit, renderer, init)
+}
+
+inline fun <reified T : Enum<T>> GroupBuilder<*, *>.choice(
+    value: KMutableProperty0<T>,
+    identifier: String = IDGenerator.create(),
+    name: Text = textOf(value.name),
+    description: Text? = null,
+    unwrapLimit: Int = 2,
+    noinline renderer: (T) -> String = { it.toString() },
+    noinline init: ValueBuilder<T>.() -> Unit = {}
+) {
+    choice(value, identifier, name, description, enumValues<T>().asList(), unwrapLimit, renderer, init)
 }
 
 fun GroupBuilder<*, *>.custom(
     identifier: String = IDGenerator.create(),
+    name: Text,
     componentProvider: () -> JComponent,
     init: ValueBuilder<Any?>.() -> Unit
 ) {
-    valueImpl(PropertyBinding({ null }, {}), identifier, init = init) { a, b, c ->
+    valueImpl(PropertyBinding({ null }, {}), identifier, name, init = init) { a, b, c ->
         object : DefaultValue<Any?>(a, b, c) {
             private val thisRef: DefaultValue<Any?> = this
             override fun createUI(row: Row, context: UIContext) {

@@ -46,20 +46,20 @@ abstract class CategoryBuilder<C : Category?, T> internal constructor(
 
     fun category(
         identifier: String,
-        displayName: Text = textOf(identifier),
+        name: Text = textOf(identifier),
         description: Text? = null,
-        init: CategoryBuilder<Category, SubCategory>.() -> Unit
+        init: CategoryBuilder<Category, SubCategory>.() -> Unit = {}
     ) {
-        subContainers.add(SubCategoryBuilder(this, identifier, displayName, description).also(init))
+        subContainers.add(SubCategoryBuilder(this, identifier, name, description).also(init))
     }
 
     fun group(
         identifier: String = IDGenerator.create(),
-        displayName: Text? = null,
+        name: Text? = null,
         description: Text? = null,
-        init: TopLevelGroupBuilder.() -> Unit
+        init: TopLevelGroupBuilder.() -> Unit = {}
     ) {
-        groups.add(TopLevelGroupBuilder(this, identifier, displayName, description).also(init))
+        groups.add(TopLevelGroupBuilder(this, identifier, name, description).also(init))
     }
 }
 
