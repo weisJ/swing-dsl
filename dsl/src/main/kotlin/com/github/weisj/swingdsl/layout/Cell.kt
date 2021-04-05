@@ -82,7 +82,7 @@ abstract class Cell : ButtonGroupBuilder {
 
     @JvmOverloads
     fun label(text: Text, bold: Boolean = false): CellBuilder<JLabel> {
-        val label = UIFactory.createLabel(text, null)
+        val label = UIFactory.createLabel(text)
         if (bold) DynamicUI.withBoldFont(label.component)
         return component(label)
     }

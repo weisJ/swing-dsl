@@ -21,24 +21,14 @@
  */
 package com.github.weisj.swingdsl.laf;
 
-public final class DefaultComponentFactory {
+import java.util.function.Consumer;
 
-    private DefaultComponentFactory() {
-        throw new IllegalStateException("Utility class");
-    }
+import org.jetbrains.annotations.NotNull;
 
-    private static ComponentFactory defaultImpl;
+public interface TextProperty {
 
-    public static ComponentFactory setDefaultImpl(ComponentFactory defaultImpl) {
-        DefaultComponentFactory.defaultImpl = defaultImpl;
-        return defaultImpl;
-    }
+    @NotNull
+    String get();
 
-    public static ComponentFactory create() {
-        if (defaultImpl == null) {
-            throw new IllegalStateException("No default factory provider found. "
-                    + "Please make sure swing-dsl is on you class or module path");
-        }
-        return defaultImpl;
-    }
+    void onChange(@NotNull Consumer<String> callback);
 }

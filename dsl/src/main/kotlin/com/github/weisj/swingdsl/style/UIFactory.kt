@@ -29,19 +29,23 @@ import com.github.weisj.swingdsl.laf.ComponentFactoryDelegate
 import com.github.weisj.swingdsl.laf.DefaultComponentFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
+import java.util.function.Supplier
 import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JLabel
 import javax.swing.JRadioButton
 import javax.swing.UIManager
 
-object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) {
+object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory.setDefaultImpl(DefaultComponentFactoryImpl())) {
 
     private val superDelegate
         get() = super.getDelegate()
     private var effectiveDelegate = superDelegate
 
     private fun updateDelegate() {
-        effectiveDelegate = (UIManager.get(COMPONENT_FACTORY_KEY) as? ComponentFactory) ?: superDelegate
+        @Suppress("UNCHECKED_CAST")
+        effectiveDelegate =
+            (UIManager.get(COMPONENT_FACTORY_PROVIDER_KEY) as? Supplier<ComponentFactory>)?.get() ?: superDelegate
     }
 
     init {
@@ -61,7 +65,8 @@ object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory()) {
         effectiveDelegate = factory
     }
 
-    fun createButton(text: Text): WrappedComponent<JButton> = createButton(text, null)
-    fun createCheckBox(text: Text): WrappedComponent<JCheckBox> = createCheckBox(text, null)
-    fun createRadioButton(text: Text): WrappedComponent<JRadioButton> = createRadioButton(text, null)
+    fun createLabel(text: Text): WrappedComponent<JLabel> = createLabel(text.asTextProperty(), null)
+    fun createButton(text: Text): WrappedComponent<JButton> = createButton(text.asTextProperty(), null)
+    fun createCheckBox(text: Text): WrappedComponent<JCheckBox> = createCheckBox(text.asTextProperty(), null)
+    fun createRadioButton(text: Text): WrappedComponent<JRadioButton> = createRadioButton(text.asTextProperty(), null)
 }

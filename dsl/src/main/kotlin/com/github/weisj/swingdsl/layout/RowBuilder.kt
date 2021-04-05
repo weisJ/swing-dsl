@@ -79,7 +79,7 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
         isIndented: Boolean = doIndentSubRows,
         init: Row.() -> Unit
     ): Row {
-        return createChildRow(label?.let { UIFactory.createLabel(it, null) }, separated, isIndented).apply(init)
+        return createChildRow(label?.let { UIFactory.createLabel(it) }, separated, isIndented).apply(init)
     }
 
     fun fullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }

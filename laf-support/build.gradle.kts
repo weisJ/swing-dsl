@@ -3,6 +3,5 @@ plugins {
 }
 
 dependencies {
-    api(project(":swing-dsl-core"))
     implementation("org.jetbrains:annotations")
 }

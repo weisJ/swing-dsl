@@ -37,6 +37,7 @@ import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
+import com.github.weisj.swingdsl.style.asTextProperty
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.util.mix
 import com.github.weisj.swingdsl.width
@@ -97,7 +98,7 @@ internal class MigLayoutRow(
 
         // as static method to ensure that members of current row are not used
         private fun configureSeparatorRow(row: MigLayoutRow, title: Text?) {
-            val separatorSpec = UIFactory.createSeparatorComponent(title)
+            val separatorSpec = UIFactory.createSeparatorComponent(title?.asTextProperty())
             val comp = if (separatorSpec.providesCustomComponent()) {
                 separatorSpec.provided!!
             } else {
@@ -341,7 +342,7 @@ internal class MigLayoutRow(
     }
 
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
-        val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title)
+        val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
 
         val separator = if (separatorSpec.providesCustomComponent()) {
             separatorSpec.provided!!
@@ -547,7 +548,7 @@ internal class MigLayoutRow(
     }
 
     private fun createNoWrapCommentComponent(text: Text): WrappedComponent<JLabel> {
-        val wrapped = UIFactory.createLabel(text, null)
+        val wrapped = UIFactory.createLabel(text)
         DynamicUI.withDynamic(wrapped.component) {
             it.foreground = getCommentForeground()
         }
@@ -573,7 +574,7 @@ internal class MigLayoutRow(
     }
 
     override fun createRow(label: Text?): Row {
-        return createChildRow(label = label?.let { UIFactory.createLabel(it, null) })
+        return createChildRow(label = label?.let { UIFactory.createLabel(it) })
     }
 
     override fun radioButton(text: Text, comment: Text?): CellBuilder<JRadioButton> {

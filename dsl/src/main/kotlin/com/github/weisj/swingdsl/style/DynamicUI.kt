@@ -30,7 +30,6 @@ import java.awt.Font
 import java.beans.PropertyChangeEvent
 import java.util.*
 import java.util.function.BiFunction
-import java.util.function.UnaryOperator
 import javax.swing.JComponent
 import javax.swing.UIManager
 import javax.swing.plaf.FontUIResource
@@ -81,29 +80,21 @@ class DynamicUI private constructor() {
         }
 
         fun <T : Component> withBoldFont(component: T): T {
-            return withTransformedFont(component, UnaryOperator { f: Font -> f.deriveFont(Font.BOLD) })
+            return withTransformedFont(component, { f: Font -> f.deriveFont(Font.BOLD) })
         }
 
         fun <T : Component> withTransformedFont(
             component: T,
-            fontMapper: UnaryOperator<Font>
+            fontMapper: (Font) -> Font
         ): T {
             // Ensure the font is a UIResource to guarantee it gets replaced when changing the LaF.
             return withDynamic(component) { c: T ->
-                c.font = makeUIResource(
-                    fontMapper.apply(
-                        c.font
-                    )
-                )
+                c.font = fontMapper(c.font).asUIResource()
             }
         }
 
         fun <T : JComponent> withTooltipText(component: T, text: Text): T {
             return withDynamic(component) { c: T -> c.toolTipText = text.get() }
-        }
-
-        private fun makeUIResource(font: Font): Font {
-            return if (font is UIResource) font else FontUIResource(font)
         }
 
         private fun updateComponent(component: Component) {
@@ -127,3 +118,8 @@ class DynamicUI private constructor() {
         }
     }
 }
+
+fun Font.asUIResource(): Font = if (this is UIResource) this else FontUIResource(this)
+fun Font.stripUIResource(): Font = if (this !is UIResource) this else NonUIResourceFont(this)
+
+private class NonUIResourceFont(font: Font) : Font(font)

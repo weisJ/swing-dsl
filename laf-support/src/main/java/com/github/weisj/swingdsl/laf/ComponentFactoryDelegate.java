@@ -35,8 +35,6 @@ import javax.swing.ListModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.weisj.swingdsl.binding.ObservableProperty;
-
 public class ComponentFactoryDelegate implements ComponentFactory {
 
     private final ComponentFactory delegate;
@@ -50,24 +48,22 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
-    public @NotNull WrappedComponent<JLabel> createLabel(@NotNull ObservableProperty<String> text, Icon icon) {
+    public @NotNull WrappedComponent<JLabel> createLabel(@NotNull TextProperty text, Icon icon) {
         return getDelegate().createLabel(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JButton> createButton(@NotNull ObservableProperty<String> text, Icon icon) {
+    public @NotNull WrappedComponent<JButton> createButton(@NotNull TextProperty text, Icon icon) {
         return getDelegate().createButton(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull ObservableProperty<String> text,
-            @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull TextProperty text, @Nullable Icon icon) {
         return getDelegate().createCheckBox(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull ObservableProperty<String> text,
-            @Nullable Icon icon) {
+    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull TextProperty text, @Nullable Icon icon) {
         return getDelegate().createRadioButton(text, icon);
     }
 
@@ -88,13 +84,13 @@ public class ComponentFactoryDelegate implements ComponentFactory {
 
     @Override
     public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(
-            @Nullable ObservableProperty<String> label) {
+            @Nullable TextProperty label) {
         return getDelegate().createSeparatorComponent(label);
     }
 
     @Override
     public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable ObservableProperty<String> label) {
+            @Nullable TextProperty label) {
         return getDelegate().createCollapsibleSeparatorComponent(label);
     }
 }
