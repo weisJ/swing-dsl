@@ -67,6 +67,8 @@ abstract class ElementBuilder<Parent : ContainerElement?, Type : ContainedElemen
     }
 
     fun buildBaseElement(parent: Parent): ContainedElement<Parent> {
+        displayState.originalEnabled = displayState.enabled
+        displayState.originalVisible = displayState.visible
         if (parent != null) {
             displayState.visible = displayState.visible and parent.displayState.visible
             displayState.enabled = displayState.enabled and parent.displayState.enabled

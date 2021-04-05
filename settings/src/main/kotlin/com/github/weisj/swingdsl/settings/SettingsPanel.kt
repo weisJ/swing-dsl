@@ -24,26 +24,27 @@
  */
 package com.github.weisj.swingdsl.settings
 
+import com.github.weisj.swingdsl.component.HideableTree
+import com.github.weisj.swingdsl.component.HideableTreeModel
+import com.github.weisj.swingdsl.component.HideableTreeNode
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
+import com.github.weisj.swingdsl.style.stripUIResource
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Component
 import java.awt.Dimension
+import java.awt.Font
+import java.util.*
 import javax.swing.BorderFactory
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSplitPane
 import javax.swing.JTree
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
-import javax.swing.tree.DefaultMutableTreeNode
-import javax.swing.tree.DefaultTreeModel
-import javax.swing.tree.TreeCellRenderer
-import javax.swing.tree.TreeModel
+import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.TreePath
-import javax.swing.tree.TreeSelectionModel
 import kotlin.math.max
 
 class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContext {
@@ -122,11 +123,16 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
     }
 }
 
-class CategoryTree private constructor(private val nodeMap: Map<Category, DefaultMutableTreeNode>, model: TreeModel) :
-    JTree(model) {
+class CategoryTree private constructor(
+    private val nodeMap: Map<Category, HideableTreeNode<*>>,
+    model: HideableTreeModel
+) : HideableTree(model) {
 
     val currentCategory: Category?
-        get() = (selectionPath?.lastPathComponent as? DefaultMutableTreeNode)?.userObject as? Category
+        get() = selectionPath?.category
+
+    private val TreePath.category: Category?
+        get() = (lastPathComponent as? HideableTreeNode<*>)?.value as? Category
 
     fun addCategorySelectionListener(action: (Category?) -> Unit) {
         addTreeSelectionListener {
@@ -137,34 +143,42 @@ class CategoryTree private constructor(private val nodeMap: Map<Category, Defaul
     fun select(category: Category) {
         nodeMap[category]?.let {
             val path = TreePath(it.path)
-            expandPath(path)
+            scrollPathToVisible(path)
             selectionPath = path
         }
     }
 
     companion object {
-        private fun DefaultMutableTreeNode.addCategories(
+        private fun HideableTreeNode<*>.addCategories(
             categories: List<Category>,
-            nodeMap: MutableMap<Category, DefaultMutableTreeNode>
+            tree: HideableTree,
+            nodeMap: MutableMap<Category, HideableTreeNode<*>>
         ) {
             for (category in categories) {
-                add(
-                    DefaultMutableTreeNode(category).apply {
-                        nodeMap[category] = this
-                        addCategories(category.subCategories, nodeMap)
-                    }
-                )
+                val node = HideableTreeNode(category)
+                nodeMap[category] = node
+                val visibleProp = category.displayState.let {
+                    if (it is DefaultDisplayState) it.originalVisible
+                    else it.visible
+                }
+                val enabledProp = category.displayState.let {
+                    if (it is DefaultDisplayState) it.originalEnabled
+                    else it.enabled
+                }
+                addWithBinding(node, tree, visibleProp, enabledProp)
+                node.addCategories(category.subCategories, tree, nodeMap)
             }
         }
 
         operator fun invoke(categories: List<Category>): CategoryTree {
-            val root = DefaultMutableTreeNode()
-            val nodeMap = mutableMapOf<Category, DefaultMutableTreeNode>()
-            root.addCategories(categories, nodeMap)
-            return CategoryTree(nodeMap, DefaultTreeModel(root)).also {
+            val root = HideableTreeNode(null)
+            val model = HideableTreeModel(root)
+            val nodeMap = mutableMapOf<Category, HideableTreeNode<*>>()
+            val tree = CategoryTree(nodeMap, model)
+            root.addCategories(categories, tree, nodeMap)
+            model.reload()
+            return tree.also {
                 it.border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
-                it.isRootVisible = false
-                it.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
                 it.setSelectionRow(0)
                 it.setCellRenderer(CategoryTreeCellRenderer())
             }
@@ -172,10 +186,20 @@ class CategoryTree private constructor(private val nodeMap: Map<Category, Defaul
     }
 }
 
-private class CategoryTreeCellRenderer : JLabel(), TreeCellRenderer {
+private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
 
     init {
-        DynamicUI.withBoldFont(this)
+        invokeLater {
+            DynamicUI.withDynamic(this) {
+                it.font ?: return@withDynamic
+                it.font = it.font.deriveFont(Font.BOLD).stripUIResource()
+            }
+        }
+    }
+
+    override fun updateUI() {
+        font = font?.stripUIResource()
+        super.updateUI()
     }
 
     override fun getTreeCellRendererComponent(
@@ -187,9 +211,13 @@ private class CategoryTreeCellRenderer : JLabel(), TreeCellRenderer {
         row: Int,
         hasFocus: Boolean
     ): Component {
-        value as DefaultMutableTreeNode
-        val category = value.userObject as? Category
-        text = category?.displayName?.get()
+        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
+        if (value is HideableTreeNode<*>) {
+            val category = value.value as Category
+            icon = null
+            disabledIcon = null
+            text = category.displayName.get()
+        }
         return this
     }
 }

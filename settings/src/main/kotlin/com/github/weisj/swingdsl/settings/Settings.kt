@@ -111,7 +111,9 @@ interface Value<T> : ContainedElement<Group>, UIParticipant {
 
 data class DefaultDisplayState(
     override var enabled: ObservableCondition = conditionOf(true),
+    var originalEnabled: ObservableCondition = enabled,
     override var visible: ObservableCondition = conditionOf(true),
+    var originalVisible: ObservableCondition = visible,
 ) : DisplayState
 
 class DefaultVisualElement<T : ContainerElement?>(
@@ -132,7 +134,10 @@ class DefaultVisualElement<T : ContainerElement?>(
         return path
     }
 
-    override fun toString(): String {
+    override fun toString(): String = toString(true)
+
+    fun toString(short: Boolean): String {
+        if (short) return "$identifier $displayName"
         val descriptionString = description?.let { ", description = ${it.get()}" } ?: ""
         val displayNameString = displayName?.get() ?: ""
         val nameEqualsIdentifier = displayNameString == identifier
@@ -153,7 +158,10 @@ sealed class DefaultCategory<T : Category?>(
     override lateinit var subCategories: List<SubCategory>
     override lateinit var groups: List<TopLevelGroup>
 
-    override fun toString(): String {
+    override fun toString(): String = toString(true)
+
+    fun toString(short: Boolean): String {
+        if (short) return element.toString()
         val grpStr = groups.joinIndented("groups")
         val catStr = subCategories.joinIndented("subcategories")
         val end = if (grpStr.isEmpty() && catStr.isEmpty()) "" else "\n"
@@ -190,7 +198,10 @@ sealed class DefaultGroup<T : ContainerElement>(
     override lateinit var subGroups: List<SubGroup>
     override lateinit var values: List<Value<*>>
 
-    override fun toString(): String {
+    override fun toString(): String = toString(true)
+
+    fun toString(short: Boolean): String {
+        if (short) return element.toString()
         val valStr = values.joinIndented("values")
         val grpStr = subGroups.joinIndented("subgroups")
         val end = if (grpStr.isEmpty() && valStr.isEmpty()) "" else "\n"
