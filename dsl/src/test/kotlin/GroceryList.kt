@@ -24,6 +24,7 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
+import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.container.observableListOf
 import com.github.weisj.swingdsl.binding.ensureMaxCapacity
@@ -70,7 +71,9 @@ class GroceryList {
 fun main() {
     val groceryList = GroceryList()
     invokeLater {
-        LafManager.installTheme(IntelliJTheme())
+        LafManager.installTheme(LafManager.getPreferredThemeStyle().let {
+            PreferredThemeStyle(it.contrastRule, it.colorToneRule)
+        })
         frame {
             content {
                 panel {
@@ -79,7 +82,7 @@ fun main() {
                     row {
                         cell {
                             label("List capacity:")
-                            maxCount = spinner(3, 0, Int.MAX_VALUE).observableIntValue()
+                            maxCount = spinner(initial = 3, minValue = 0, maxValue = Int.MAX_VALUE).observableIntValue()
                             groceryList.notes.ensureMaxCapacity(maxCount)
                         }
                     }

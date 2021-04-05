@@ -23,7 +23,7 @@
  *
  */
 import com.github.weisj.darklaf.LafManager
-import com.github.weisj.darklaf.theme.IntelliJTheme
+import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.inc
 import com.github.weisj.swingdsl.binding.observableProperty
@@ -48,7 +48,11 @@ data class Model(var boolValue: Boolean, var textValue: String)
 fun main() {
     val model = Model(false, "This is a text field")
     invokeLater {
-        LafManager.installTheme(IntelliJTheme())
+        LafManager.installTheme(
+            LafManager.getPreferredThemeStyle().let {
+                PreferredThemeStyle(it.contrastRule, it.colorToneRule)
+            }
+        )
         frame {
             content {
                 lateinit var modifiablePanel: ModifiablePanel
@@ -63,9 +67,10 @@ fun main() {
                     modifiablePanel = center {
                         scrollPane {
                             panel {
+                                lateinit var boolProp: ObservableProperty<Boolean>
+                                lateinit var stringProp: ObservableProperty<String>
                                 hideableRow("Row 1", startHidden = false) {
-                                    lateinit var boolProp: ObservableProperty<Boolean>
-                                    lateinit var stringProp: ObservableProperty<String>
+                                    indent(false)
                                     row {
                                         val initial = 0
                                         val counter = observableProperty(initial)
