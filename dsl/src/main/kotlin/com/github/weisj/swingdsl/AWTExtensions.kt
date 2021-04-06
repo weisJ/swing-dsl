@@ -25,6 +25,8 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.binding.container.ObservableList
+import com.github.weisj.swingdsl.binding.onChange
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.model.CollectionComboBoxModel
 import com.github.weisj.swingdsl.model.CollectionListModel
 import com.github.weisj.swingdsl.model.ObservableComboBoxModel
@@ -65,6 +67,14 @@ fun JComponent.mouseLocation(): Point? {
         SwingUtilities.convertPointFromScreen(it, this@mouseLocation)
         it
     }
+}
+
+fun JComponent.bindVisible(condition: ObservableCondition) {
+    condition.onChange(invokeOnce = true) { isVisible = it }
+}
+
+fun JComponent.bindEnabled(condition: ObservableCondition) {
+    condition.onChange(invokeOnce = true) { isEnabled = it }
 }
 
 operator fun InputMap.set(keyStroke: KeyStroke, actionObj: Any) = put(keyStroke, actionObj)

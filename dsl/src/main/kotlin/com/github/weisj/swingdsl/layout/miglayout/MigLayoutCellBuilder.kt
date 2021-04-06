@@ -26,6 +26,8 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.bindEnabled
+import com.github.weisj.swingdsl.bindVisible
 import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -86,14 +88,12 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     }
 
     override fun enableIf(predicate: ObservableCondition): CellBuilder<T> {
-        component.isEnabled = predicate.get()
-        predicate.onChange { component.isEnabled = it }
+        component.bindEnabled(predicate)
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): CellBuilder<T> {
-        component.isVisible = predicate.get()
-        predicate.onChange { component.isVisible = it }
+        component.bindVisible(predicate)
         return this
     }
 
