@@ -74,11 +74,6 @@ open class HideableTree(
         )
     }
 
-    final override fun getCellRenderer(): TreeCellRenderer? {
-        val renderer = super.getCellRenderer()
-        return if (renderer is HideableTreeCellRendererWrapper) renderer.delegate else renderer
-    }
-
     fun setNodeVisible(node: HideableTreeNode<*>, visible: Boolean) {
         val expanded = getExpandedDescendants(TreePath((node.parent!!.path)))?.asSequence()
         node.isVisible = visible
