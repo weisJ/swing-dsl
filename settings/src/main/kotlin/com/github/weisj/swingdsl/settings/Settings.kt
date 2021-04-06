@@ -181,16 +181,7 @@ class DefaultSubCategory(
 class DefaultTopLevelCategory(
     element: ContainedElement<Category?>,
     displayName: Text,
-) : DefaultCategory<Category?>(element, displayName), TopLevelCategory {
-
-    override fun createUI(row: Row, context: UIContext) {
-        if (subCategories.isNotEmpty()) {
-            row.addCategoryOverview(this, context)
-        } else {
-            super.createUI(row, context)
-        }
-    }
-}
+) : DefaultCategory<Category?>(element, displayName), TopLevelCategory
 
 sealed class DefaultGroup<T : ContainerElement>(
     private val element: ContainedElement<T>,

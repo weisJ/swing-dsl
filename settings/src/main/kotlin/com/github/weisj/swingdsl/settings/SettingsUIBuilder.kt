@@ -62,11 +62,17 @@ fun Row.addCategoryOverview(category: Category, context: UIContext) {
     }
 }
 
-fun RowBuilder.addCategory(category: Category, context: UIContext) {
+fun Row.addCategory(category: Category, context: UIContext) {
     bindDisplayStatus(category)
-    category.groups.forEach {
-        row(isIndented = false) {
-            it.createUI(this, context)
+    if (category.groups.isEmpty()) {
+        if (category.subCategories.isNotEmpty()) {
+            addCategoryOverview(category, context)
+        }
+    } else {
+        category.groups.forEach {
+            row(isIndented = false) {
+                it.createUI(this, context)
+            }
         }
     }
 }
