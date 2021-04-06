@@ -31,6 +31,8 @@ import com.github.weisj.swingdsl.model.ObservableComboBoxModel
 import com.github.weisj.swingdsl.model.ObservableListModel
 import java.awt.Component
 import java.awt.Insets
+import java.awt.MouseInfo
+import java.awt.Point
 import java.awt.Window
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
@@ -56,6 +58,13 @@ fun <T : JComponent> T.on(vararg keyCode: KeyStroke, action: T.(ActionEvent?) ->
 fun JComponent.bindEvent(actionKey: Any, vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
     keyCode.forEach { inputMap[it] = actionKey }
     actionMap[actionKey] = createAction(actionKey, action)
+}
+
+fun JComponent.mouseLocation(): Point? {
+    return MouseInfo.getPointerInfo()?.location?.let {
+        SwingUtilities.convertPointFromScreen(it, this@mouseLocation)
+        it
+    }
 }
 
 operator fun InputMap.set(keyStroke: KeyStroke, actionObj: Any) = put(keyStroke, actionObj)

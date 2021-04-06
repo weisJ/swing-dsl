@@ -38,6 +38,7 @@ import java.awt.Dimension
 import java.awt.Font
 import java.util.*
 import javax.swing.BorderFactory
+import javax.swing.Box
 import javax.swing.JPanel
 import javax.swing.JSplitPane
 import javax.swing.JTree
@@ -52,20 +53,20 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
     private var currentCategory: Category?
 
     private val cardLayout = CardLayout()
-    private val contentPanel = JPanel(cardLayout)
+    private val categoriesPanel = JPanel(cardLayout)
     private val splitPane: JSplitPane
     private val categoryTree: CategoryTree
+    private val breadcrumbBar: BreadcrumbBar<Element>
 
     init {
         layout = BorderLayout()
         categoryTree = CategoryTree(categories)
-        currentCategory = categoryTree.currentCategory
         categoryTree.addCategorySelectionListener {
             it ?: return@addCategorySelectionListener
             navigateTo(it)
         }
 
-        contentPanel.addCategories(categories)
+        categoriesPanel.addCategories(categories)
 
         val treeScrollPane = UIFactory.createScrollPane(categoryTree)
         val treeWrapper = object : JPanel(BorderLayout()) {
@@ -77,8 +78,26 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         }
         treeWrapper.add(treeScrollPane.container, BorderLayout.CENTER)
 
-        val contentScrollPane = UIFactory.createScrollPane(contentPanel)
-        splitPane = object : JSplitPane(HORIZONTAL_SPLIT, treeWrapper, contentScrollPane.container) {
+        breadcrumbBar = BreadcrumbBar()
+        breadcrumbBar.renderer = DynamicUI.withBoldFont(
+            DefaultBreadCrumbRenderer {
+                it.displayName?.get() ?: ""
+            }
+        )
+        breadcrumbBar.addNavigationListener { _, item ->
+            if (item is Category) navigateTo(item)
+        }
+
+        val contentPanel = JPanel(BorderLayout())
+        contentPanel.add(UIFactory.createScrollPane(categoriesPanel).container, BorderLayout.CENTER)
+        contentPanel.add(
+            Box.createHorizontalBox().apply {
+                add(breadcrumbBar)
+            },
+            BorderLayout.NORTH
+        )
+
+        splitPane = object : JSplitPane(HORIZONTAL_SPLIT, treeWrapper, contentPanel) {
             override fun addNotify() {
                 super.addNotify()
                 updateDividerLocation()
@@ -100,13 +119,17 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         })
 
         add(splitPane, BorderLayout.CENTER)
+
+        currentCategory = null
+        categoryTree.currentCategory?.let { navigateTo(it) }
     }
 
     override fun navigateTo(category: Category) {
         if (currentCategory == category) return
         currentCategory = category
-        cardLayout.show(contentPanel, category.layoutIdentifier())
+        cardLayout.show(categoriesPanel, category.layoutIdentifier())
         categoryTree.select(category)
+        breadcrumbBar.breadCrumbs = category.getPath()
     }
 
     private fun JPanel.addCategories(categories: List<Category>) {
@@ -123,6 +146,9 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
     }
 }
 
+val TreePath.category: Category?
+    get() = (lastPathComponent as? HideableTreeNode<*>)?.value as? Category
+
 class CategoryTree private constructor(
     private val nodeMap: Map<Category, HideableTreeNode<*>>,
     model: HideableTreeModel
@@ -130,9 +156,6 @@ class CategoryTree private constructor(
 
     val currentCategory: Category?
         get() = selectionPath?.category
-
-    private val TreePath.category: Category?
-        get() = (lastPathComponent as? HideableTreeNode<*>)?.value as? Category
 
     fun addCategorySelectionListener(action: (Category?) -> Unit) {
         addTreeSelectionListener {
@@ -188,18 +211,20 @@ class CategoryTree private constructor(
 
 private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
 
-    init {
-        invokeLater {
-            DynamicUI.withDynamic(this) {
-                it.font ?: return@withDynamic
-                it.font = it.font.deriveFont(Font.BOLD).stripUIResource()
-            }
-        }
-    }
+    private var normalFont: Font? = font
+    private var boldFont: Font? = font
 
     override fun updateUI() {
-        font = font?.stripUIResource()
         super.updateUI()
+        updateFonts()
+    }
+
+    fun updateFonts() {
+        font ?: return
+        if (normalFont == null) {
+            normalFont = font.stripUIResource()
+            boldFont = normalFont!!.deriveFont(Font.BOLD).stripUIResource()
+        }
     }
 
     override fun getTreeCellRendererComponent(
@@ -217,6 +242,8 @@ private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
             icon = null
             disabledIcon = null
             text = category.displayName.get()
+            updateFonts()
+            font = if (category is TopLevel) boldFont else normalFont
         }
         return this
     }

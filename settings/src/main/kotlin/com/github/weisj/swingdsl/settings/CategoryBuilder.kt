@@ -48,7 +48,7 @@ abstract class CategoryBuilder<C : Category?, T> internal constructor(
         identifier: String,
         name: Text = textOf(identifier),
         description: Text? = null,
-        init: CategoryBuilder<Category, SubCategory>.() -> Unit = {}
+        init: SubCategoryBuilder.() -> Unit = {}
     ) {
         subContainers.add(SubCategoryBuilder(this, identifier, name, description).also(init))
     }

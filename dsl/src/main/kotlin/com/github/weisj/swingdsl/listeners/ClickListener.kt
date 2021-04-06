@@ -44,14 +44,47 @@ abstract class ClickListener {
 
     abstract fun onClick(event: MouseEvent, clickCount: Int): Boolean
 
-    fun installOn(c: Component, allowDragWhileClicking: Boolean = false) {
+    open fun onHover(event: MouseEvent, isHovered: Boolean) {
+        /* Do nothing */
+    }
+
+    fun installOn(
+        c: Component,
+        allowDragWhileClicking: Boolean = false,
+        listenForHover: Boolean = false,
+        hitTest: (Point) -> Boolean = { true }
+    ) {
         listener = object : MouseAdapter() {
             private var pressPoint: Point? = null
             private var lastClickPoint: Point? = null
             private var lastTimeClicked: Long = -1
             private var clickCount = 0
+            private var isHovered = false
+
+            fun checkInside(e: MouseEvent) {
+                if (!listenForHover) return
+                val inside = hitTest(e.point)
+                if (isHovered != inside) onHover(e, inside)
+                isHovered = inside
+            }
+
+            override fun mouseEntered(e: MouseEvent) {
+                checkInside(e)
+            }
+
+            override fun mouseMoved(e: MouseEvent) {
+                checkInside(e)
+            }
+
+            override fun mouseExited(e: MouseEvent) {
+                if (!listenForHover) return
+                isHovered = false
+                onHover(e, false)
+            }
+
             override fun mousePressed(e: MouseEvent) {
                 val point: Point = e.point
+                if (!hitTest(point)) return
                 SwingUtilities.convertPointToScreen(point, e.component)
                 if (abs(lastTimeClicked - e.getWhen()) > getMultiClickInterval() ||
                     lastClickPoint != null && !isWithinEps(lastClickPoint!!, point)
@@ -68,6 +101,7 @@ abstract class ClickListener {
 
             override fun mouseReleased(e: MouseEvent) {
                 val releasedAt: Point = e.point
+                if (!hitTest(releasedAt)) return
                 SwingUtilities.convertPointToScreen(releasedAt, e.component)
                 val clickedAt: Point? = pressPoint
                 lastClickPoint = clickedAt
@@ -80,6 +114,7 @@ abstract class ClickListener {
                 }
             }
         }
+        if (listenForHover) c.addMouseMotionListener(listener)
         c.addMouseListener(listener)
     }
 
