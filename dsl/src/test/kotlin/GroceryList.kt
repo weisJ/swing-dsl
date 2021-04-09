@@ -23,7 +23,6 @@
  *
  */
 import com.github.weisj.darklaf.LafManager
-import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
 import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.container.observableListOf
@@ -71,9 +70,11 @@ class GroceryList {
 fun main() {
     val groceryList = GroceryList()
     invokeLater {
-        LafManager.installTheme(LafManager.getPreferredThemeStyle().let {
-            PreferredThemeStyle(it.contrastRule, it.colorToneRule)
-        })
+        LafManager.installTheme(
+            LafManager.getPreferredThemeStyle().let {
+                PreferredThemeStyle(it.contrastRule, it.colorToneRule)
+            }
+        )
         frame {
             content {
                 panel {
