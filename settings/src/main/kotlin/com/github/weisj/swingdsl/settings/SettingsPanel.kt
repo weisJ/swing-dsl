@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl.settings
 
+import com.github.weisj.swingdsl.bindEnabled
+import com.github.weisj.swingdsl.collection.UndoRedoList
 import com.github.weisj.swingdsl.component.HideableTree
 import com.github.weisj.swingdsl.component.HideableTreeModel
 import com.github.weisj.swingdsl.component.HideableTreeNode
@@ -39,6 +41,7 @@ import java.awt.Font
 import java.util.*
 import javax.swing.BorderFactory
 import javax.swing.Box
+import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JSplitPane
 import javax.swing.JTree
@@ -50,7 +53,9 @@ import kotlin.math.max
 
 class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContext {
     private val categoryPanels = categories.associateWith { createCategoryPanel(it) }
+
     private var currentCategory: Category?
+    private val navigationHistory = UndoRedoList()
 
     private val cardLayout = CardLayout()
     private val categoriesPanel = JPanel(cardLayout)
@@ -88,14 +93,29 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
             if (item is Category) navigateTo(item)
         }
 
+        val banner = Box.createHorizontalBox()
+        banner.add(breadcrumbBar)
+        banner.add(Box.createHorizontalGlue())
+        banner.add(
+            JButton("<-").apply {
+                border = BorderFactory.createEmptyBorder()
+                isContentAreaFilled = false
+                bindEnabled(navigationHistory.observable.canUndo)
+                addActionListener { navigationHistory.undo() }
+            }
+        )
+        banner.add(
+            JButton("->").apply {
+                border = BorderFactory.createEmptyBorder()
+                isContentAreaFilled = false
+                bindEnabled(navigationHistory.observable.canRedo)
+                addActionListener { navigationHistory.redo() }
+            }
+        )
+
         val contentPanel = JPanel(BorderLayout())
         contentPanel.add(UIFactory.createScrollPane(categoriesPanel).container, BorderLayout.CENTER)
-        contentPanel.add(
-            Box.createHorizontalBox().apply {
-                add(breadcrumbBar)
-            },
-            BorderLayout.NORTH
-        )
+        contentPanel.add(banner, BorderLayout.NORTH)
 
         splitPane = object : JSplitPane(HORIZONTAL_SPLIT, treeWrapper, contentPanel) {
             override fun addNotify() {
@@ -124,12 +144,21 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         categoryTree.currentCategory?.let { navigateTo(it) }
     }
 
-    override fun navigateTo(category: Category) {
+    private fun navigateImpl(category: Category) {
         if (currentCategory == category) return
         currentCategory = category
         cardLayout.show(categoriesPanel, category.layoutIdentifier())
         categoryTree.select(category)
         breadcrumbBar.breadCrumbs = category.getPath()
+    }
+
+    override fun navigateTo(category: Category) {
+        if (currentCategory == category) return
+        val current = currentCategory
+        navigationHistory.add(
+            { navigateImpl(category) },
+            current?.let { { navigateImpl(it) } }
+        )
     }
 
     private fun JPanel.addCategories(categories: List<Category>) {
