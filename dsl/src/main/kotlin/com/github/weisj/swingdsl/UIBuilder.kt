@@ -79,12 +79,12 @@ fun <T : JComponent> scrollPane(componentProvider: ComponentBuilderScope.() -> W
     )
 }
 
-inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> T): WrappedComponent<T> {
+inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> WrappedComponent<T>): WrappedComponent<T> {
     val comp = compProvider(ComponentBuilderScope)
     return DefaultWrappedComponent(
-        comp,
+        comp.component,
         JPanel(GridBagLayout()).apply {
-            add(comp)
+            add(comp.container)
         }
     )
 }
