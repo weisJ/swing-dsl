@@ -38,6 +38,7 @@ import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
@@ -108,17 +109,17 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
                 cell {
                     button(+"OK") {
                         categoryPanels.forEach { (_, panel) -> panel.component.apply() }
-                    }
+                    }.makeDefaultButton().sizeGroup("buttons")
                     button(+"Cancel") {
                         categoryPanels.forEach { (_, panel) -> panel.component.reset() }
-                    }
+                    }.sizeGroup("buttons")
                     button(+"Apply") {
                         categoryPanels.forEach { (_, panel) -> panel.component.apply() }
                     }.enableIf(
                         categoryPanels.values.fold(conditionOf(false)) { result, panel ->
                             result or panel.component.modifiedCondition
                         }
-                    )
+                    ).sizeGroup("buttons")
                 }
             }
         }
