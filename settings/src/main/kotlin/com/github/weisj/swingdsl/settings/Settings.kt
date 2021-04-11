@@ -40,7 +40,7 @@ annotation class SettingsMarker
 
 private const val INDENT = "  "
 
-private fun String.indent(level: Int = 1): String {
+private fun String.indentFormat(level: Int = 1): String {
     val indentation = INDENT.repeat(level)
     return indentation + this.replace("\n", "\n$indentation")
 }
@@ -52,10 +52,10 @@ private fun <T : Any> List<T>.joinIndented(title: String): String {
             append(title)
             append(":\n")
             for (it in this@joinIndented) {
-                append(it.toString().indent())
+                append(it.toString().indentFormat())
                 append("\n")
             }
-        }.indent().trimEnd()
+        }.indentFormat().trimEnd()
     }
 }
 
