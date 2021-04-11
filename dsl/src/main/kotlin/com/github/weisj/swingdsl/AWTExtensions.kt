@@ -43,10 +43,13 @@ import javax.swing.ActionMap
 import javax.swing.ComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.InputMap
+import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.KeyStroke
 import javax.swing.ListModel
 import javax.swing.SwingUtilities
+import javax.swing.event.AncestorEvent
+import javax.swing.event.AncestorListener
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.JTextComponent
@@ -61,6 +64,14 @@ fun JComponent.bindEvent(actionKey: Any, vararg keyCode: KeyStroke, action: (Act
     keyCode.forEach { inputMap[it] = actionKey }
     actionMap[actionKey] = createAction(actionKey, action)
 }
+
+fun createAction(name: Any? = null, action: (ActionEvent?) -> Unit): Action =
+    object : AbstractAction(name?.toString()) {
+        override fun actionPerformed(e: ActionEvent?) = action(e)
+    }
+
+operator fun InputMap.set(keyStroke: KeyStroke, actionObj: Any) = put(keyStroke, actionObj)
+operator fun ActionMap.set(actionObj: Any, action: Action) = put(actionObj, action)
 
 fun JComponent.mouseLocation(): Point? {
     return MouseInfo.getPointerInfo()?.location?.let {
@@ -77,13 +88,24 @@ fun JComponent.bindEnabled(condition: ObservableCondition) {
     condition.onChange(invokeOnce = true) { isEnabled = it }
 }
 
-operator fun InputMap.set(keyStroke: KeyStroke, actionObj: Any) = put(keyStroke, actionObj)
-operator fun ActionMap.set(actionObj: Any, action: Action) = put(actionObj, action)
+fun JButton.makeDefaultButton() {
+    check(isDefaultCapable) { "The button is not default capable." }
+    val root = rootPane
+    if (root != null) {
+        root.defaultButton = this
+    } else {
+        addAncestorListener(object : AncestorListener {
+            override fun ancestorAdded(event: AncestorEvent?) {
+                removeAncestorListener(this)
+                rootPane!!.defaultButton = this@makeDefaultButton
+            }
 
-fun createAction(name: Any? = null, action: (ActionEvent?) -> Unit): Action =
-    object : AbstractAction(name?.toString()) {
-        override fun actionPerformed(e: ActionEvent?) = action(e)
+            override fun ancestorRemoved(event: AncestorEvent?) {}
+
+            override fun ancestorMoved(event: AncestorEvent?) {}
+        })
     }
+}
 
 val Insets.width
     get() = left + right

@@ -32,6 +32,7 @@ import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.Observable
 import com.github.weisj.swingdsl.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.makeDefaultButton
 import com.github.weisj.swingdsl.observableSelected
 import com.github.weisj.swingdsl.observableSelection
 import com.github.weisj.swingdsl.observableText
@@ -43,6 +44,7 @@ import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton
+import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.JSpinner
@@ -174,6 +176,10 @@ fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: Mutabl
     ) { comp: AbstractButton, listener: (ChangeEvent) -> Unit ->
         comp.addChangeListener(listener)
     }
+}
+
+fun <T : JButton> CellBuilder<T>.makeDefaultButton(): CellBuilder<T> = applyToComponent {
+    this@applyToComponent.makeDefaultButton()
 }
 
 fun <V, T : JList<V>> CellBuilder<T>.observableSelection(): ObservableProperty<IntArray> =
