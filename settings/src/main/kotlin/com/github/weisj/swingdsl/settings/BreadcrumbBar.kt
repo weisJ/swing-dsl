@@ -60,6 +60,7 @@ class BreadcrumbBar<T> : JComponent() {
         set(value) {
             field = value
             doLayout()
+            revalidate()
             val point = mouseLocation() ?: Point(Int.MIN_VALUE, Int.MIN_VALUE)
             hoverStates = BooleanArray(value.size) {
                 breadcrumbLayout.layoutRects[it].contains(point)
