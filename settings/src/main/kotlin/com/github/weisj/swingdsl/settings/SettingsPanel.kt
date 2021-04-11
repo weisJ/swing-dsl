@@ -24,124 +24,162 @@
  */
 package com.github.weisj.swingdsl.settings
 
+import com.github.weisj.swingdsl.SplitPaneBuilder
 import com.github.weisj.swingdsl.bindEnabled
+import com.github.weisj.swingdsl.borderPanel
+import com.github.weisj.swingdsl.clampSizes
 import com.github.weisj.swingdsl.collection.UndoRedoList
 import com.github.weisj.swingdsl.component.HideableTree
 import com.github.weisj.swingdsl.component.HideableTreeModel
 import com.github.weisj.swingdsl.component.HideableTreeNode
-import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.condition.conditionOf
+import com.github.weisj.swingdsl.condition.or
+import com.github.weisj.swingdsl.configureBorderLayout
+import com.github.weisj.swingdsl.horizontalSplit
+import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.stripUIResource
-import java.awt.BorderLayout
+import com.github.weisj.swingdsl.text.unaryPlus
+import com.github.weisj.swingdsl.unaryPlus
 import java.awt.CardLayout
+import java.awt.Color
 import java.awt.Component
-import java.awt.Dimension
 import java.awt.Font
+import java.awt.Graphics
 import java.util.*
 import javax.swing.BorderFactory
 import javax.swing.Box
+import javax.swing.Icon
 import javax.swing.JButton
+import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.JSplitPane
 import javax.swing.JTree
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.TreePath
-import kotlin.math.max
 
 class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContext {
-    private val categoryPanels = categories.associateWith { createCategoryPanel(it) }
+    private val categoryPanels = mutableMapOf<Category, WrappedComponent<ModifiablePanel>>()
 
-    private var currentCategory: Category?
+    private var currentCategory: Category? = null
     private val navigationHistory = UndoRedoList()
 
     private val cardLayout = CardLayout()
-    private val categoriesPanel = JPanel(cardLayout)
-    private val splitPane: JSplitPane
-    private val categoryTree: CategoryTree
-    private val breadcrumbBar: BreadcrumbBar<Element>
+    private val categoriesPanel = JPanel(cardLayout).apply { addCategories(categories) }
+    private val categoryTree = createCategoryTree()
+    private val breadcrumbBar = createBreadCrumbBar()
 
     init {
-        layout = BorderLayout()
-        categoryTree = CategoryTree(categories)
-        categoryTree.addCategorySelectionListener {
-            it ?: return@addCategorySelectionListener
-            navigateTo(it)
+        configureBorderLayout(this) {
+            center {
+                horizontalSplit {
+                    left {
+                        clampSizes(maxMinWidth = 500, clampBy = categoryTree) {
+                            UIFactory.createScrollPane(categoryTree)
+                        }
+                    }
+                    right {
+                        borderPanel {
+                            north { +createBanner() }
+                            center { UIFactory.createScrollPane(categoriesPanel) }
+                        }
+                    }
+                    clampTo(SplitPaneBuilder.ClampMode.MIN_LOCATION)
+                    categoryTree.addTreeExpansionListener(object : TreeExpansionListener {
+                        override fun treeExpanded(event: TreeExpansionEvent?) = updateDividerLocation()
+                        override fun treeCollapsed(event: TreeExpansionEvent?) = updateDividerLocation()
+                    })
+                }
+            }
+            south {
+                createButtonPanel()
+            }
         }
+        categoryTree.currentCategory?.let { navigateTo(it) }
+    }
 
-        categoriesPanel.addCategories(categories)
-
-        val treeScrollPane = UIFactory.createScrollPane(categoryTree)
-        val treeWrapper = object : JPanel(BorderLayout()) {
-            override fun getMinimumSize(): Dimension {
-                return categoryTree.preferredSize.apply {
-                    width = Integer.min(width, 1000)
+    private fun createButtonPanel(): WrappedComponent<out JComponent> = panel {
+        row {
+            right {
+                cell {
+                    button(+"OK") {
+                        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
+                    }
+                    button(+"Cancel") {
+                        categoryPanels.forEach { (_, panel) -> panel.component.reset() }
+                    }
+                    button(+"Apply") {
+                        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
+                    }.enableIf(
+                        categoryPanels.values.fold(conditionOf(false)) { result, panel ->
+                            result or panel.component.modifiedCondition
+                        }
+                    )
                 }
             }
         }
-        treeWrapper.add(treeScrollPane.container, BorderLayout.CENTER)
+    }
 
-        breadcrumbBar = BreadcrumbBar()
-        breadcrumbBar.renderer = DynamicUI.withBoldFont(
-            DefaultBreadCrumbRenderer {
-                it.displayName?.get() ?: ""
-            }
-        )
-        breadcrumbBar.addNavigationListener { _, item ->
-            if (item is Category) navigateTo(item)
+    class SolidColorIcon(private val color: Color) : Icon {
+        override fun paintIcon(c: Component?, g: Graphics?, x: Int, y: Int) {
+            g?.color = color
+            g?.fillRect(x, y, iconWidth, iconHeight)
         }
 
-        val banner = Box.createHorizontalBox()
-        banner.add(breadcrumbBar)
-        banner.add(Box.createHorizontalGlue())
-        banner.add(
-            JButton("<-").apply {
-                border = BorderFactory.createEmptyBorder()
-                isContentAreaFilled = false
-                bindEnabled(navigationHistory.observable.canUndo)
-                addActionListener { navigationHistory.undo() }
-            }
-        )
-        banner.add(
-            JButton("->").apply {
-                border = BorderFactory.createEmptyBorder()
-                isContentAreaFilled = false
-                bindEnabled(navigationHistory.observable.canRedo)
-                addActionListener { navigationHistory.redo() }
-            }
-        )
+        override fun getIconWidth(): Int = 16
 
-        val contentPanel = JPanel(BorderLayout())
-        contentPanel.add(UIFactory.createScrollPane(categoriesPanel).container, BorderLayout.CENTER)
-        contentPanel.add(banner, BorderLayout.NORTH)
+        override fun getIconHeight(): Int = 16
+    }
 
-        splitPane = object : JSplitPane(HORIZONTAL_SPLIT, treeWrapper, contentPanel) {
-            override fun addNotify() {
-                super.addNotify()
-                updateDividerLocation()
-            }
+    private fun createBanner(): JComponent {
+        return Box.createHorizontalBox().apply {
+            add(breadcrumbBar)
+            add(Box.createHorizontalGlue())
+            add(
+                JButton().apply {
+                    isFocusable = false
+                    icon = SolidColorIcon(Color.RED)
+                    disabledIcon = SolidColorIcon(Color.GRAY)
+                    bindEnabled(navigationHistory.observable.canUndo)
+                    addActionListener { navigationHistory.undo() }
+                }
+            )
+            add(
+                JButton().apply {
+                    isFocusable = false
+                    icon = SolidColorIcon(Color.GREEN)
+                    disabledIcon = SolidColorIcon(Color.GRAY)
+                    bindEnabled(navigationHistory.observable.canRedo)
+                    addActionListener { navigationHistory.redo() }
+                }
+            )
+        }
+    }
 
-            override fun updateUI() {
-                super.updateUI()
-                updateDividerLocation()
+    private fun createCategoryTree(): CategoryTree {
+        return CategoryTree(categories).apply {
+            addCategorySelectionListener {
+                it ?: return@addCategorySelectionListener
+                navigateTo(it)
             }
         }
-        categoryTree.addTreeExpansionListener(object : TreeExpansionListener {
-            override fun treeExpanded(event: TreeExpansionEvent?) {
-                invokeLater { splitPane.updateDividerLocation() }
+    }
+
+    private fun createBreadCrumbBar(): BreadcrumbBar<Element> {
+        return BreadcrumbBar<Element>().apply {
+            renderer = DynamicUI.withBoldFont(
+                DefaultBreadCrumbRenderer {
+                    it.displayName?.get() ?: ""
+                }
+            )
+            addNavigationListener { _, item ->
+                if (item is Category) navigateTo(item)
             }
-
-            override fun treeCollapsed(event: TreeExpansionEvent?) {
-                invokeLater { splitPane.updateDividerLocation() }
-            }
-        })
-
-        add(splitPane, BorderLayout.CENTER)
-
-        currentCategory = null
-        categoryTree.currentCategory?.let { navigateTo(it) }
+        }
     }
 
     private fun navigateImpl(category: Category) {
@@ -163,16 +201,15 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
 
     private fun JPanel.addCategories(categories: List<Category>) {
         for (category in categories) {
-            add(createCategoryPanel(category).container, category.layoutIdentifier())
+            add(
+                categoryPanels.getOrPut(category) { createCategoryPanel(category) }.container,
+                category.layoutIdentifier()
+            )
             addCategories(category.subCategories)
         }
     }
 
     private fun Category.layoutIdentifier(): String = "$identifier${hashCode()}"
-
-    private fun JSplitPane.updateDividerLocation() {
-        dividerLocation = max(minimumDividerLocation, dividerLocation)
-    }
 }
 
 val TreePath.category: Category?
