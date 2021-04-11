@@ -39,7 +39,7 @@ fun createSettingsPanel(categories: List<Category>): JComponent = SettingsPanel(
 fun createSettingsPanel(vararg categories: Category): JComponent = SettingsPanel(listOf(*categories))
 
 fun SettingsPanel.createCategoryPanel(category: Category): WrappedComponent<ModifiablePanel> {
-    return panel {
+    return panel(title = category.displayName) {
         row {
             indent(false)
             category.createUI(this, this@createCategoryPanel)
@@ -101,6 +101,8 @@ fun <T> Row.addValue(value: DefaultValue<T>) {
             }
         }
         onGlobalApply { value.value.set(value.preview.get()) }
+        onGlobalReset { value.preview.set(value.value.get()) }
+        onGlobalIsModified { value.value.get() != value.preview.get() }
     }
 }
 
