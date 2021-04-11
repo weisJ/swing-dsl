@@ -198,7 +198,11 @@ abstract class Cell : ButtonGroupBuilder {
         return component(JComboBox(model))
             .applyToComponent {
                 this.renderer = renderer ?: SimpleListCellRenderer.create { it -> it.toString() }
-                selectedItem = modelBinding.get()
+                val currentItem = modelBinding.get()
+                selectedItem = currentItem
+                if (currentItem != selectedItem) {
+                    error("$currentItem is not available to be selected in $model.")
+                }
             }
             .withBinding(
                 { component -> component.selectedItem as T },

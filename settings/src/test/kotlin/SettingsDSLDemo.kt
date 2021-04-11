@@ -61,7 +61,7 @@ class TestData {
 
     var s1 = "Hello World!"
     var s2 = "Hello Settings!"
-    var s3 = "Hello Settings!"
+    var s3 = "Item 1"
 
     var i1 = 0
     var i2 = 2
