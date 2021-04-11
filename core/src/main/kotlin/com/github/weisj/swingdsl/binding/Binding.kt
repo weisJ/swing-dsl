@@ -156,6 +156,18 @@ fun <T> ObservableProperty<T?>.withFallback(fallback: T): ObservableProperty<T> 
 fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == null }
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 
+fun <T> ObservableProperty<T>.bind(setter: (T) -> Unit) {
+    onChange(invokeOnce = true) { setter(it) }
+}
+
+fun <T> ObservableProperty<T>.bind(prop: MutableProperty<T>) {
+    onChange(invokeOnce = true) { prop.set(it) }
+}
+
+fun <T> ObservableProperty<T>.bind(prop: KMutableProperty0<T>) {
+    onChange(invokeOnce = true) { prop.set(it) }
+}
+
 fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
     private val listeners by lazy { mutableListOf<(T) -> Unit>() }
     private var backingField: T = initial

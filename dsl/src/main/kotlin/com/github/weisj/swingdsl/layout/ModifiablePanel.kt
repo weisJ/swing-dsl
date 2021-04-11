@@ -27,6 +27,7 @@
 package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.ModifiableComponent
+import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
@@ -56,6 +57,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     }
 
     init {
+        title?.bind(::setName)
         putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
     }
 
@@ -116,7 +118,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
 
         override fun eventDispatched(event: AWTEvent?) {
             event ?: return
-            if (!panel.isVisible) return
+            if (!panel.isShowing) return
             when (event.id) {
                 MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_RELEASED, MouseEvent.MOUSE_DRAGGED -> {
                     val me = event as MouseEvent
