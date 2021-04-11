@@ -33,11 +33,18 @@ import javax.swing.JPanel
 import kotlin.reflect.KProperty
 
 @BuilderMarker
-class BorderLayoutBuilder private constructor(override val component: JPanel) :
+class BorderLayoutBuilder internal constructor(private val component: JPanel) :
     UIBuilder<JPanel>, ContainerConfiguration<JPanel> by ContainerConfigurationImpl(component) {
+
+    init {
+        component.layout = BorderLayout()
+    }
+
     val layout: BorderLayout = component.layout as BorderLayout
 
     constructor() : this(JPanel(BorderLayout()))
+
+    override fun build(): JPanel = component
 
     private class LayoutDelegate(val constraint: String, val component: JComponent, val layout: BorderLayout) {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): JComponent {

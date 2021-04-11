@@ -31,14 +31,19 @@ import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.UIFactory
+import java.awt.BorderLayout
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.GridBagLayout
+import java.lang.Integer.max
+import java.lang.Integer.min
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.JSplitPane
 
 interface UIBuilder<T : JComponent> {
-    val component: T
+    fun build(): T
 }
 
 @DslMarker
@@ -67,8 +72,20 @@ fun frame(init: JFrameConfiguration<JFrame>.() -> Unit): JFrame {
     return frame
 }
 
+fun verticalSplit(init: VerticalSplitPaneBuilder.() -> Unit): WrappedComponent<JSplitPane> {
+    return +VerticalSplitPaneBuilder().apply(init).build()
+}
+
+fun horizontalSplit(init: HorizontalSplitPaneBuilder.() -> Unit): WrappedComponent<JSplitPane> {
+    return +HorizontalSplitPaneBuilder().apply(init).build()
+}
+
 fun borderPanel(init: BorderLayoutBuilder.() -> Unit): WrappedComponent<JPanel> {
-    return +BorderLayoutBuilder().apply(init).component
+    return +BorderLayoutBuilder().apply(init).build()
+}
+
+fun configureBorderLayout(panel: JPanel, init: BorderLayoutBuilder.() -> Unit) {
+    BorderLayoutBuilder(panel).init()
 }
 
 fun <T : JComponent> scrollPane(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): WrappedComponent<T> {
@@ -77,6 +94,38 @@ fun <T : JComponent> scrollPane(componentProvider: ComponentBuilderScope.() -> W
         comp.component,
         UIFactory.createScrollPane(comp.container).container
     )
+}
+
+fun <T : JComponent> clampSizes(
+    maxMinWidth: Int = -1,
+    maxMinHeight: Int = -1,
+    minMaxWidth: Int = -1,
+    minMaxHeight: Int = -1,
+    usePreferredSizeForMinimum: Boolean = true,
+    usePreferredSizeForMaximum: Boolean = true,
+    clampBy: JComponent? = null,
+    componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
+): WrappedComponent<T> {
+    val comp = componentProvider(ComponentBuilderScope)
+    if (minMaxWidth < 0 && minMaxHeight < 0 && maxMinWidth < 0 && maxMinHeight < 0) return comp
+    val clampComp = clampBy ?: comp.component
+    val wrapper = object : JPanel(BorderLayout()) {
+        override fun getMinimumSize(): Dimension {
+            val baseSize = if (usePreferredSizeForMinimum) clampComp.preferredSize else clampComp.minimumSize
+            if (maxMinWidth > 0) baseSize.width = min(baseSize.width, maxMinWidth)
+            if (maxMinHeight > 0) baseSize.height = min(baseSize.height, maxMinHeight)
+            return baseSize
+        }
+
+        override fun getMaximumSize(): Dimension {
+            val baseSize = if (usePreferredSizeForMaximum) clampComp.preferredSize else clampComp.maximumSize
+            if (minMaxWidth > 0) baseSize.width = max(baseSize.width, minMaxWidth)
+            if (minMaxHeight > 0) baseSize.height = max(baseSize.height, minMaxHeight)
+            return baseSize
+        }
+    }
+    wrapper.add(comp.container, BorderLayout.CENTER)
+    return DefaultWrappedComponent(comp.component, wrapper)
 }
 
 inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> WrappedComponent<T>): WrappedComponent<T> {
