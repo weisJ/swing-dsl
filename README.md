@@ -5,6 +5,8 @@
 
 # Swing DSL
 
+Note: This library is still in an early phase and the API may change drastically between versions.
+
 A standalone library port of the IntelliJ plugin api UI builder dsl.
 
 See https://plugins.jetbrains.com/docs/intellij/kotlin-ui-dsl.html for more information.
