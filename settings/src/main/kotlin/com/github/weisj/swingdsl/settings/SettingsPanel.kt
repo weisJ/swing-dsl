@@ -24,40 +24,56 @@
  */
 package com.github.weisj.swingdsl.settings
 
+import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
 import com.github.weisj.swingdsl.bindEnabled
+import com.github.weisj.swingdsl.bindVisible
+import com.github.weisj.swingdsl.binding.onChange
+import com.github.weisj.swingdsl.border.empty
+import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.clampSizes
 import com.github.weisj.swingdsl.collection.UndoRedoList
 import com.github.weisj.swingdsl.component.HideableTree
 import com.github.weisj.swingdsl.component.HideableTreeModel
 import com.github.weisj.swingdsl.component.HideableTreeNode
+import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.condition.or
 import com.github.weisj.swingdsl.configureBorderLayout
+import com.github.weisj.swingdsl.configureContainer
 import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
+import com.github.weisj.swingdsl.on
+import com.github.weisj.swingdsl.properties
+import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
+import com.github.weisj.swingdsl.style.backgroundColorOf
 import com.github.weisj.swingdsl.style.stripUIResource
 import com.github.weisj.swingdsl.text.unaryPlus
+import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.unaryPlus
+import com.github.weisj.swingdsl.wrap
+import java.awt.AWTEvent
 import java.awt.CardLayout
-import java.awt.Color
 import java.awt.Component
+import java.awt.Container
+import java.awt.Dimension
 import java.awt.Font
-import java.awt.Graphics
-import java.util.*
-import javax.swing.BorderFactory
+import java.awt.Toolkit
+import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.Box
-import javax.swing.Icon
-import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.JTextField
 import javax.swing.JTree
+import javax.swing.KeyStroke
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultTreeCellRenderer
@@ -69,31 +85,68 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
     private var currentCategory: Category? = null
     private val navigationHistory = UndoRedoList()
 
-    private val cardLayout = CardLayout()
+    private val cardLayout = ScrollCardLayout()
     private val categoriesPanel = JPanel(cardLayout).apply { addCategories(categories) }
     private val categoryTree = createCategoryTree()
     private val breadcrumbBar = createBreadCrumbBar()
+
+    private val modifiedCondition = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
+        result or panel.component.modifiedCondition
+    }
 
     init {
         configureBorderLayout(this) {
             center {
                 horizontalSplit {
                     left {
-                        clampSizes(maxMinWidth = 500, clampBy = categoryTree) {
-                            UIFactory.createScrollPane(categoryTree)
+                        borderPanel {
+//                            north {
+//                                wrap({
+//                                    border = empty(10)
+//                                    isOpaque = true
+//                                    backgroundColorOf(categoryTree).onChange(invokeOnce = true) {
+//                                        background = it
+//                                    }
+//                                }) {
+//                                    +JTextField().apply {
+//                                        columns = 10
+//                                        minimumSize = preferredSize
+//                                        properties {
+//                                            client["JTextField.variant"] = "search"
+//                                        }
+//                                    }
+//                                }
+//                            }
+                            center {
+                                clampSizes(maxMinWidth = 500, clampBy = categoryTree) {
+                                    scrollPane {
+                                        +categoryTree
+                                    }
+                                }
+                            }
                         }
                     }
                     right {
                         borderPanel {
-                            north { +createBanner() }
-                            center { UIFactory.createScrollPane(categoriesPanel) }
+                            north { createBanner() }
+                            center {
+                                scrollPane({
+                                    verticalScrollBar.unitIncrement = 20
+                                    horizontalScrollBar.unitIncrement = 100
+                                }) {
+                                    +categoriesPanel
+                                }
+                            }
                         }
                     }
-                    clampTo(SplitPaneBuilder.ClampMode.MIN_LOCATION)
+                    clampTo(SplitPaneBuilder.ClampMode.DEFAULT)
                     categoryTree.addTreeExpansionListener(object : TreeExpansionListener {
                         override fun treeExpanded(event: TreeExpansionEvent?) = updateDividerLocation()
                         override fun treeCollapsed(event: TreeExpansionEvent?) = updateDividerLocation()
                     })
+                    properties {
+                        client["JSplitPane.style"] = "invisible"
+                    }
                 }
             }
             south {
@@ -101,68 +154,52 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
             }
         }
         categoryTree.currentCategory?.let { navigateTo(it) }
+        on(KeyEvent.VK_LEFT.toKeyStroke(KeyEvent.ALT_DOWN_MASK), focusState = FocusState.IN_FOCUSED_WINDOW) {
+            navigationHistory.undoIfPossible()
+        }
+        on(KeyEvent.VK_RIGHT.toKeyStroke(KeyEvent.ALT_DOWN_MASK), focusState = FocusState.IN_FOCUSED_WINDOW) {
+            navigationHistory.redoIfPossible()
+        }
     }
 
     private fun createButtonPanel(): WrappedComponent<out JComponent> = panel {
         row {
             right {
                 cell {
-                    button(+"OK") {
-                        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
-                    }.makeDefaultButton().sizeGroup("buttons")
-                    button(+"Cancel") {
-                        categoryPanels.forEach { (_, panel) -> panel.component.reset() }
-                    }.sizeGroup("buttons")
-                    button(+"Apply") {
-                        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
-                    }.enableIf(
-                        categoryPanels.values.fold(conditionOf(false)) { result, panel ->
-                            result or panel.component.modifiedCondition
-                        }
-                    ).sizeGroup("buttons")
+                    //TODO: Bind this to close/hide actions as well
+                    button(+"OK") { apply() }.makeDefaultButton().sizeGroup("buttons")
+                    button(+"Cancel") { reset() }.sizeGroup("buttons")
+                    button(+"Apply") { apply() }.enableIf(modifiedCondition).sizeGroup("buttons")
+                }
+            }
+        }
+    }.apply {
+        container.border = topBorder(UIFactory::getBorderColor)
+    }
+
+    private fun createBanner(): WrappedComponent<JPanel> {
+        return borderPanel {
+            center { +breadcrumbBar }
+            east {
+                +DynamicUI.withBoldFont(HyperlinkLabel(+"Reset")).apply {
+                    addListener { reset() }
+                    border = empty(5, 5, 5, 5)
+                    bindVisible(modifiedCondition)
                 }
             }
         }
     }
 
-    class SolidColorIcon(private val color: Color) : Icon {
-        override fun paintIcon(c: Component?, g: Graphics?, x: Int, y: Int) {
-            g?.color = color
-            g?.fillRect(x, y, iconWidth, iconHeight)
-        }
-
-        override fun getIconWidth(): Int = 16
-
-        override fun getIconHeight(): Int = 16
-    }
-
-    private fun createBanner(): JComponent {
-        return Box.createHorizontalBox().apply {
-            add(breadcrumbBar)
-            add(Box.createHorizontalGlue())
-            add(
-                JButton().apply {
-                    isFocusable = false
-                    icon = SolidColorIcon(Color.RED)
-                    disabledIcon = SolidColorIcon(Color.GRAY)
-                    bindEnabled(navigationHistory.observable.canUndo)
-                    addActionListener { navigationHistory.undo() }
-                }
-            )
-            add(
-                JButton().apply {
-                    isFocusable = false
-                    icon = SolidColorIcon(Color.GREEN)
-                    disabledIcon = SolidColorIcon(Color.GRAY)
-                    bindEnabled(navigationHistory.observable.canRedo)
-                    addActionListener { navigationHistory.redo() }
-                }
-            )
-        }
-    }
-
     private fun createCategoryTree(): CategoryTree {
         return CategoryTree(categories).apply {
+            DynamicUI.withDynamic(this) {
+                it.background = UIFactory.colorBackgroundColor.stripUIResource()
+            }
+            border = empty(0, 10, 0, 10)
+            properties {
+                client["JTree.lineStyle"] = "none"
+                client["focusParent"] = categoriesPanel
+            }
             addCategorySelectionListener {
                 it ?: return@addCategorySelectionListener
                 navigateTo(it)
@@ -183,10 +220,18 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         }
     }
 
+    private fun reset() {
+        categoryPanels.forEach { (_, panel) -> panel.component.reset() }
+    }
+
+    private fun apply() {
+        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
+    }
+
     private fun navigateImpl(category: Category) {
         if (currentCategory == category) return
         currentCategory = category
-        cardLayout.show(categoriesPanel, category.layoutIdentifier())
+        cardLayout.showCard(categoriesPanel, category.layoutIdentifier(), categoryPanels[category]?.container)
         categoryTree.select(category)
         breadcrumbBar.breadCrumbs = category.getPath()
     }
@@ -268,7 +313,6 @@ class CategoryTree private constructor(
             root.addCategories(categories, tree, nodeMap)
             model.reload()
             return tree.also {
-                it.border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
                 it.setSelectionRow(0)
                 it.setCellRenderer(CategoryTreeCellRenderer())
             }
@@ -312,6 +356,25 @@ private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
             updateFonts()
             font = if (category is TopLevel) boldFont else normalFont
         }
+        background = null
         return this
+    }
+}
+
+private class ScrollCardLayout : CardLayout() {
+
+    private var current: JComponent? = null
+
+    fun showCard(parent: Container, identifier: String, comp: JComponent?) {
+        super.show(parent, identifier)
+        current = comp
+    }
+
+    override fun preferredLayoutSize(parent: Container?): Dimension {
+        return if (current != null) current!!.preferredSize else super.preferredLayoutSize(parent)
+    }
+
+    override fun minimumLayoutSize(parent: Container?): Dimension {
+        return if (current != null) current!!.minimumSize else super.minimumLayoutSize(parent)
     }
 }

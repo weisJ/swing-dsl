@@ -44,7 +44,7 @@ fun SettingsPanel.createCategoryPanel(category: Category): WrappedComponent<Modi
             indent(false)
             category.createUI(this, this@createCategoryPanel)
         }
-    }
+    }.also { name = category.identifier }
 }
 
 fun Row.addCategoryOverview(category: Category, context: UIContext) {
