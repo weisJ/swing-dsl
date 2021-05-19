@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.config.CloseOperation
+import com.github.weisj.swingdsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfigurationImpl
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
@@ -40,6 +41,7 @@ import java.lang.Integer.min
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.JScrollPane
 import javax.swing.JSplitPane
 
 interface UIBuilder<T : JComponent> {
@@ -88,12 +90,25 @@ fun configureBorderLayout(panel: JPanel, init: BorderLayoutBuilder.() -> Unit) {
     BorderLayoutBuilder(panel).init()
 }
 
-fun <T : JComponent> scrollPane(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): WrappedComponent<T> {
+fun <T : JComponent> scrollPane(
+    scrollInit: JScrollPane.() -> Unit = {},
+    componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
+): WrappedComponent<T> {
     val comp = componentProvider(ComponentBuilderScope)
-    return DefaultWrappedComponent(
-        comp.component,
-        UIFactory.createScrollPane(comp.container).container
-    )
+    val scroll = UIFactory.createScrollPane(comp.container)
+    scroll.component.scrollInit()
+    return DefaultWrappedComponent(comp.component, scroll.container)
+}
+
+fun <T : JComponent> wrap(
+    init: JComponent.() -> Unit = {},
+    componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
+): WrappedComponent<T> {
+    val wrapper = JPanel(BorderLayout())
+    val comp = componentProvider(ComponentBuilderScope)
+    wrapper.add(comp.container, BorderLayout.CENTER)
+    wrapper.init()
+    return DefaultWrappedComponent(comp.component, wrapper)
 }
 
 fun <T : JComponent> clampSizes(
@@ -143,3 +158,17 @@ inline fun <T : JComponent> component(compProvider: () -> T): WrappedComponent<T
 }
 
 operator fun <T : JComponent> T.unaryPlus(): WrappedComponent<T> = SelfWrappedComponent(this)
+
+fun <T : JComponent> T.configure(action: JComponentConfiguration<T>.() -> Unit) {
+    JComponentConfiguration(this).action()
+}
+
+fun <T : JComponent> WrappedComponent<T>.configureContainer(action: JComponentConfiguration<JComponent>.() -> Unit): WrappedComponent<T> {
+    container.configure(action)
+    return this
+}
+
+fun <T : JComponent> WrappedComponent<T>.configureComponent(action: JComponentConfiguration<T>.() -> Unit): WrappedComponent<T> {
+    component.configure(action)
+    return this
+}
