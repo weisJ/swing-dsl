@@ -24,15 +24,16 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.config.ContainerConfiguration
-import com.github.weisj.swingdsl.config.ContainerConfigurationImpl
+import com.github.weisj.swingdsl.config.JComponentConfiguration
+import com.github.weisj.swingdsl.config.JComponentConfigurationImpl
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JSplitPane
 
 sealed class SplitPaneBuilder constructor(internal val component: JSplitPane) :
     UIBuilder<JSplitPane>,
-    ContainerConfiguration<JSplitPane> by ContainerConfigurationImpl(component) {
+    JComponentConfiguration<JSplitPane> by JComponentConfigurationImpl(component) {
 
     init {
         component.addPropertyChangeListener {
@@ -47,7 +48,7 @@ sealed class SplitPaneBuilder constructor(internal val component: JSplitPane) :
     }
 
     enum class ClampMode {
-        NONE,
+        DEFAULT,
         MIN_LOCATION,
         MAX_LOCATION
     }
@@ -56,15 +57,15 @@ sealed class SplitPaneBuilder constructor(internal val component: JSplitPane) :
         clampTo = mode
     }
 
-    private var clampTo: ClampMode = ClampMode.NONE
+    private var clampTo: ClampMode = ClampMode.DEFAULT
 
     fun updateDividerLocation() {
         invokeLater {
             applyToComponent {
                 dividerLocation = when (clampTo) {
-                    ClampMode.NONE -> dividerLocation.coerceIn(minimumDividerLocation, maximumDividerLocation)
-                    ClampMode.MIN_LOCATION -> minimumDividerLocation
-                    ClampMode.MAX_LOCATION -> maximumDividerLocation
+                    ClampMode.DEFAULT -> dividerLocation.coerceIn(minimumDividerLocation, maximumDividerLocation)
+                    ClampMode.MIN_LOCATION -> dividerLocation.coerceAtLeast(minimumDividerLocation)
+                    ClampMode.MAX_LOCATION -> dividerLocation.coerceAtMost(maximumDividerLocation)
                 }
             }
         }
@@ -78,8 +79,8 @@ class HorizontalSplitPaneBuilder internal constructor(component: JSplitPane = JS
         component.dividerLocation = JSplitPane.HORIZONTAL_SPLIT
     }
 
-    var left by delegate(component::getLeftComponent, component::setLeftComponent)
-    var right by delegate(component::getRightComponent, component::setRightComponent)
+    var left: Component? by delegate(component::getLeftComponent, component::setLeftComponent)
+    var right: Component? by delegate(component::getRightComponent, component::setRightComponent)
 
     inline fun <T : JComponent> left(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
         val comp = componentProvider(ComponentBuilderScope)
@@ -101,8 +102,8 @@ class VerticalSplitPaneBuilder internal constructor(component: JSplitPane = JSpl
         component.dividerLocation = JSplitPane.VERTICAL_SPLIT
     }
 
-    var top by delegate(component::getTopComponent, component::setTopComponent)
-    var bottom by delegate(component::getBottomComponent, component::setBottomComponent)
+    var top: Component? by delegate(component::getTopComponent, component::setTopComponent)
+    var bottom: Component? by delegate(component::getBottomComponent, component::setBottomComponent)
 
     inline fun <T : JComponent> left(componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>): T {
         val comp = componentProvider(ComponentBuilderScope)
