@@ -47,6 +47,7 @@ import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.KeyStroke
 import javax.swing.ListModel
+import javax.swing.ListSelectionModel
 import javax.swing.SwingUtilities
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
@@ -147,6 +148,27 @@ fun onSwingThread(action: () -> Unit) {
         invokeLater(action)
     }
 }
+
+val ListSelectionModel.selectedIndicesArray: IntArray
+    get() {
+        val iMin = minSelectionIndex
+        val iMax = maxSelectionIndex
+
+        if ((iMin < 0) || (iMax < 0)) {
+            return IntArray(size = 0)
+        }
+
+        val rvTmp = IntArray(size = 1 + (iMax - iMin))
+        var n = 0
+        for (i in iMin..iMax) {
+            if (isSelectedIndex(i)) {
+                rvTmp[n++] = i
+            }
+        }
+        val rv = IntArray(n)
+        rvTmp.copyInto(rv, 0, 0, n)
+        return rv
+    }
 
 fun JTextComponent.addDocumentChangeListener(listener: (DocumentEvent?) -> Unit) =
     document.addDocumentListener(DocumentChangeListener(listener))

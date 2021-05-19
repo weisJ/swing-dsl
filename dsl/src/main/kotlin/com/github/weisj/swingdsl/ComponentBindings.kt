@@ -33,7 +33,7 @@ import javax.swing.ListSelectionModel
 import javax.swing.text.JTextComponent
 
 fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
-    override fun get(): IntArray = selectedIndices
+    override fun get(): IntArray = selectedIndicesArray
 
     override fun onChange(callback: (IntArray) -> Unit) {
         addListSelectionListener {
