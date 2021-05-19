@@ -78,6 +78,9 @@ public interface ComponentFactory {
     Color getHyperlinkColor();
 
     @NotNull
+    Color getHyperlinkClickColor();
+
+    @NotNull
     Color getSecondaryTextForeground();
 
     @NotNull

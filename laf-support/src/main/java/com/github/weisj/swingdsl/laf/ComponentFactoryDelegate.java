@@ -115,6 +115,11 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
+    public @NotNull Color getHyperlinkClickColor() {
+        return getDelegate().getHyperlinkClickColor();
+    }
+
+    @Override
     public @NotNull Color getSecondaryTextForeground() {
         return getDelegate().getSecondaryTextForeground();
     }

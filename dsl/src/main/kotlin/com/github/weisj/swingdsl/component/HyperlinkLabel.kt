@@ -30,6 +30,11 @@ import javax.swing.event.HyperlinkEvent
 import javax.swing.event.HyperlinkListener
 
 class HyperlinkLabel(observableText: Text) : ClickableLabelBase<HyperlinkEvent, HyperlinkListener>(observableText) {
+
+    init {
+        updateColors()
+    }
+
     override fun createEvent(): HyperlinkEvent =
         HyperlinkEvent(this@HyperlinkLabel, HyperlinkEvent.EventType.ACTIVATED, null)
 
@@ -37,8 +42,14 @@ class HyperlinkLabel(observableText: Text) : ClickableLabelBase<HyperlinkEvent, 
         hyperlinkUpdate(event)
     }
 
+    private fun updateColors() {
+        armedForeground = UIFactory.hyperlinkClickColor
+        normalForeground = UIFactory.hyperlinkColor
+        foreground = normalForeground
+    }
+
     override fun updateUI() {
         super.updateUI()
-        foreground = UIFactory.hyperlinkColor
+        updateColors()
     }
 }

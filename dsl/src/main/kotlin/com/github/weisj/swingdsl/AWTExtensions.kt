@@ -62,6 +62,7 @@ enum class FocusState(val magicValue: Int) {
 }
 
 fun Int.toKeyStroke(modifiers: Int = 0): KeyStroke = KeyStroke.getKeyStroke(this, modifiers)
+fun String.toKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(this)
 
 fun <T : JComponent> T.on(
     vararg keyCode: KeyStroke,

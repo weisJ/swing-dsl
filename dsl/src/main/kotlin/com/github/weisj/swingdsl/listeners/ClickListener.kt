@@ -48,6 +48,10 @@ abstract class ClickListener {
         /* Do nothing */
     }
 
+    open fun onArmed(event: MouseEvent, isArmed: Boolean) {
+        /* Do nothing */
+    }
+
     fun installOn(
         c: Component,
         allowDragWhileClicking: Boolean = false,
@@ -60,6 +64,7 @@ abstract class ClickListener {
             private var lastTimeClicked: Long = -1
             private var clickCount = 0
             private var isHovered = false
+            private var isArmed = false
 
             fun checkInside(e: MouseEvent) {
                 if (!listenForHover) return
@@ -96,6 +101,8 @@ abstract class ClickListener {
                 lastTimeClicked = e.getWhen()
                 if (!e.isPopupTrigger) {
                     pressPoint = point
+                    isArmed = true
+                    onArmed(e, isArmed)
                 }
             }
 
@@ -106,6 +113,8 @@ abstract class ClickListener {
                 val clickedAt: Point? = pressPoint
                 lastClickPoint = clickedAt
                 pressPoint = null
+                isArmed = false
+                onArmed(e, isArmed)
                 if (e.isConsumed || clickedAt == null || e.isPopupTrigger || !e.component.contains(e.point)) {
                     return
                 }

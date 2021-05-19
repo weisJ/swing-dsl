@@ -136,6 +136,10 @@ class DefaultComponentFactoryImpl : ComponentFactory {
         return UIManager.getColor("hyperlink") ?: Color.BLUE.brighter()
     }
 
+    override fun getHyperlinkClickColor(): Color {
+        return UIManager.getColor("hyperlinkClick") ?: Color.ORANGE.darker()
+    }
+
     override fun getSecondaryTextForeground(): Color {
         return UIManager.getColor("textForegroundSecondary")
             ?: (UIManager.getColor("Label.foreground") ?: Color.BLACK).mix(Color.WHITE, 0.80f)

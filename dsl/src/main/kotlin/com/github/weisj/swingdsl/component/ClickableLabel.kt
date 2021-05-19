@@ -30,13 +30,13 @@ import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.util.toHtml
+import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 
 class ClickableLabel(text: Text) : ClickableLabelBase<ActionEvent, ActionListener>(text) {
@@ -54,7 +54,8 @@ abstract class ClickableLabelBase<E, L>(observableText: Text) :
     private var isHovered = false
     private var isFocused = false
     private var originalText: String? = observableText.get()
-
+    var armedForeground: Color = foreground
+    var normalForeground: Color = foreground
     var showHoverEffect: Boolean = true
 
     private fun setTrueText(value: String?) = super.setText(value)
@@ -78,21 +79,6 @@ abstract class ClickableLabelBase<E, L>(observableText: Text) :
     }
 
     private fun setupListener() {
-        addMouseListener(object : MouseAdapter() {
-            override fun mouseEntered(e: MouseEvent?) {
-                if (!showHoverEffect) return
-                isHovered = true
-                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-                updateText()
-            }
-
-            override fun mouseExited(e: MouseEvent?) {
-                if (!showHoverEffect) return
-                isHovered = false
-                cursor = Cursor.getDefaultCursor()
-                updateText()
-            }
-        })
         addFocusListener(object : FocusListener {
             override fun focusGained(e: FocusEvent?) {
                 isFocused = true
@@ -110,8 +96,23 @@ abstract class ClickableLabelBase<E, L>(observableText: Text) :
                 notifyClick()
                 return true
             }
-        }.installOn(this)
+
+            override fun onHover(event: MouseEvent, isHovered: Boolean) {
+                if (!showHoverEffect) return
+                this@ClickableLabelBase.isHovered = isHovered
+                cursor = if (isHovered) Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) else Cursor.getDefaultCursor()
+                updateText()
+            }
+
+            override fun onArmed(event: MouseEvent, isArmed: Boolean) {
+                updateForeground(isArmed)
+            }
+        }.installOn(this, listenForHover = true)
         on(KeyEvent.VK_SPACE.toKeyStroke()) { notifyClick() }
+    }
+
+    fun updateForeground(isArmed: Boolean) {
+        foreground = if (isArmed) armedForeground else normalForeground
     }
 
     protected abstract fun createEvent(): E
