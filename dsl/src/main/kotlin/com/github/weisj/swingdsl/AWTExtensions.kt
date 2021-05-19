@@ -54,14 +54,29 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.JTextComponent
 
-fun Int.toKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(this, 0)
-
-fun <T : JComponent> T.on(vararg keyCode: KeyStroke, action: T.(ActionEvent?) -> Unit) {
-    bindEvent(Any(), *keyCode, action = { this.action((it)) })
+enum class FocusState(val magicValue: Int) {
+    FOCUSED(JComponent.WHEN_FOCUSED),
+    ANCESTOR_OF_FOCUSED_COMPONENT(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT),
+    IN_FOCUSED_WINDOW(JComponent.WHEN_IN_FOCUSED_WINDOW)
 }
 
-fun JComponent.bindEvent(actionKey: Any, vararg keyCode: KeyStroke, action: (ActionEvent?) -> Unit) {
-    keyCode.forEach { inputMap[it] = actionKey }
+fun Int.toKeyStroke(modifiers: Int = 0): KeyStroke = KeyStroke.getKeyStroke(this, modifiers)
+
+fun <T : JComponent> T.on(
+    vararg keyCode: KeyStroke,
+    focusState: FocusState = FocusState.FOCUSED,
+    action: T.(ActionEvent?) -> Unit
+) {
+    bindEvent(Any(), *keyCode, focusState = focusState, action = { this.action((it)) })
+}
+
+fun JComponent.bindEvent(
+    actionKey: Any,
+    vararg keyCode: KeyStroke,
+    focusState: FocusState = FocusState.FOCUSED,
+    action: (ActionEvent?) -> Unit
+) {
+    keyCode.forEach { getInputMap(focusState.magicValue)[it] = actionKey }
     actionMap[actionKey] = createAction(actionKey, action)
 }
 
