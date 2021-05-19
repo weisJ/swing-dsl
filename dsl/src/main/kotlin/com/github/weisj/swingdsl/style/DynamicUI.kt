@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl.style
 
 import com.github.weisj.swingdsl.text.Text
+import java.awt.Color
 import java.awt.Component
 import java.awt.Font
 import java.beans.PropertyChangeEvent
@@ -32,6 +33,7 @@ import java.util.*
 import java.util.function.BiFunction
 import javax.swing.JComponent
 import javax.swing.UIManager
+import javax.swing.plaf.ColorUIResource
 import javax.swing.plaf.FontUIResource
 import javax.swing.plaf.UIResource
 
@@ -121,5 +123,8 @@ class DynamicUI private constructor() {
 
 fun Font.asUIResource(): Font = if (this is UIResource) this else FontUIResource(this)
 fun Font.stripUIResource(): Font = if (this !is UIResource) this else NonUIResourceFont(this)
+
+fun Color.asUIResource(): Color = if (this is UIResource) this else ColorUIResource(this)
+fun Color.stripUIResource(): Color = if (this !is UIResource) this else Color(red, green, blue, alpha)
 
 private class NonUIResourceFont(font: Font) : Font(font)
