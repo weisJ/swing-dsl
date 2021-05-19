@@ -174,7 +174,7 @@ allprojects {
 
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "9"
             freeCompilerArgs = listOf(
                 "-Xjvm-default=enable",
                 "-Xopt-in=kotlin.RequiresOptIn"
