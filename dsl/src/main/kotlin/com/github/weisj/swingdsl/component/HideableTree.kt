@@ -194,7 +194,7 @@ class HideableTreeNode<T>(
         if (children == null) error("node has no children")
         var realIndex = -1
         var visibleIndex = -1
-        children.elements().asIterator().forEach {
+        for (it in children.elements().asIterator()) {
             it as HideableTreeNode<*>
             if (it.isVisible) visibleIndex++
             realIndex++
