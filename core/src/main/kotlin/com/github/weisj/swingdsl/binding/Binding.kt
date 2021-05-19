@@ -81,14 +81,25 @@ operator fun <R, T> MutableProperty<T>.setValue(thisRef: R, property: KProperty<
 
 class ChangeTracker<T>(private val prop: Property<T>) {
     private var current: T = prop.get()
+    private val changeStatus: MutableMap<(T) -> Unit, Boolean> by lazy { mutableMapOf() }
 
-    val hasChanged: Boolean
-        get() {
-            val updated = prop.get()
-            val changed = updated != current
-            current = updated
-            return changed
+    private fun refresh() {
+        val updated = prop.get()
+        val changed = updated != current
+        current = updated
+        if (changed) {
+            changeStatus.entries.forEach { it.setValue(true) }
         }
+    }
+
+    fun registerListener(listener: (T) -> Unit) {
+        changeStatus[listener] = false
+    }
+
+    fun hasChangedFor(listener: (T) -> Unit): Boolean {
+        refresh()
+        return changeStatus[listener] ?: true
+    }
 }
 
 private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, private val transform: (K) -> T) :
@@ -97,7 +108,10 @@ private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, pri
     private val changeTracker = ChangeTracker(this)
 
     override fun onChange(callback: (T) -> Unit) {
-        prop.onChange { if (changeTracker.hasChanged) callback(get()) }
+        changeTracker.registerListener(callback)
+        prop.onChange {
+            if (changeTracker.hasChangedFor(callback)) callback(get())
+        }
     }
 }
 
@@ -110,8 +124,9 @@ private class CombinedProperty<T, K1, K2>(
     override fun get(): T = combiner(first.get(), second.get())
 
     override fun onChange(callback: (T) -> Unit) {
-        first.onChange { if (changeTracker.hasChanged) callback(get()) }
-        second.onChange { if (changeTracker.hasChanged) callback(get()) }
+        changeTracker.registerListener(callback)
+        first.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
+        second.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
     }
 }
 

@@ -84,6 +84,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
             }
         }
         applyCallbacks[null]?.forEach { it() }
+        (modifiedCondition as ModifiedCondition).maybeModified()
     }
 
     override fun reset() {
@@ -93,13 +94,15 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
             callbacks.forEach { it() }
         }
         resetCallbacks[null]?.forEach { it() }
+        (modifiedCondition as ModifiedCondition).maybeModified()
     }
 
     override fun isModified(): Boolean {
         return isModifiedCallbacks.values.any { list -> list.any { it() } }
     }
 
-    private class ModifiedCondition(private val panel: ModifiablePanel) : ObservableCondition, AWTEventListener {
+    private class ModifiedCondition(private val panel: ModifiablePanel) : ObservableCondition,
+        AWTEventListener {
 
         private var modified = false
         private val listeners: MutableList<(Boolean) -> Unit> by lazy {
@@ -137,12 +140,15 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
             }
         }
 
-        private fun maybeModified() {
+        fun updateModifiedState(newModified: Boolean) {
+            if (newModified == modified) return
+            modified = newModified
+            listeners.forEach { it(newModified) }
+        }
+
+        fun maybeModified() {
             invokeLater {
-                val newModified = panel.isModified()
-                if (newModified == modified) return@invokeLater
-                modified = newModified
-                listeners.forEach { it(newModified) }
+                updateModifiedState(panel.isModified())
             }
         }
 

@@ -104,9 +104,10 @@ internal class ObservableListImpl<T> internal constructor(
                 override fun get(): Int = this@ObservableListImpl.size
 
                 override fun onChange(callback: (Int) -> Unit) {
-                    onClear { if (changeTracker.hasChanged) callback(get()) }
-                    onAdd { _, _ -> if (changeTracker.hasChanged) callback(get()) }
-                    onRemove { _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                    changeTracker.registerListener(callback)
+                    onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
+                    onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+                    onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
                 }
             }
 
@@ -119,10 +120,11 @@ internal class ObservableListImpl<T> internal constructor(
                     private val changeTracker = ChangeTracker(this)
 
                     override fun onChange(callback: (T?) -> Unit) {
-                        onClear { if (changeTracker.hasChanged) callback(get()) }
-                        onAdd { _, _ -> if (changeTracker.hasChanged) callback(get()) }
-                        onRemove { _, _ -> if (changeTracker.hasChanged) callback(get()) }
-                        onSet { _, _, _ -> if (changeTracker.hasChanged) callback(get()) }
+                        changeTracker.registerListener(callback)
+                        onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
+                        onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+                        onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+                        onSet { _, _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
                     }
                 }
             }
