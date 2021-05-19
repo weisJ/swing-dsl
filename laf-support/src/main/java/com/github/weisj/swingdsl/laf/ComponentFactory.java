@@ -21,6 +21,8 @@
  */
 package com.github.weisj.swingdsl.laf;
 
+import java.awt.Color;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -61,10 +63,29 @@ public interface ComponentFactory {
     WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right);
 
     @NotNull
-    SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(@Nullable TextProperty label);
+    ComponentSpec<JComponent> createSeparatorComponent(@Nullable TextProperty label);
 
     @NotNull
-    SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
-            @Nullable TextProperty label);
+    ComponentSpec<CollapsibleComponent> createCollapsibleSeparatorComponent(@Nullable TextProperty label);
 
+    @NotNull
+    StateValue<Color> getDividerColor();
+
+    @NotNull
+    Color getBorderColor();
+
+    @NotNull
+    Color getHyperlinkColor();
+
+    @NotNull
+    Color getSecondaryTextForeground();
+
+    @NotNull
+    Color getColorBackgroundColor();
+
+    @NotNull
+    StateValue<Icon> getExpandedIcon();
+
+    @NotNull
+    StateValue<Icon> getCollapsedIcon();
 }

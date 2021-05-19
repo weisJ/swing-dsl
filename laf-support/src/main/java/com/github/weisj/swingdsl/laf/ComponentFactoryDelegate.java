@@ -21,6 +21,8 @@
  */
 package com.github.weisj.swingdsl.laf;
 
+import java.awt.Color;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -48,49 +50,88 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
-    public @NotNull WrappedComponent<JLabel> createLabel(@NotNull TextProperty text, Icon icon) {
+    public @NotNull WrappedComponent<@NotNull JLabel> createLabel(@NotNull TextProperty text, Icon icon) {
         return getDelegate().createLabel(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JButton> createButton(@NotNull TextProperty text, Icon icon) {
+    public @NotNull WrappedComponent<@NotNull JButton> createButton(@NotNull TextProperty text, Icon icon) {
         return getDelegate().createButton(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JCheckBox> createCheckBox(@NotNull TextProperty text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<@NotNull JCheckBox> createCheckBox(@NotNull TextProperty text,
+            @Nullable Icon icon) {
         return getDelegate().createCheckBox(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JRadioButton> createRadioButton(@NotNull TextProperty text, @Nullable Icon icon) {
+    public @NotNull WrappedComponent<@NotNull JRadioButton> createRadioButton(@NotNull TextProperty text,
+            @Nullable Icon icon) {
         return getDelegate().createRadioButton(text, icon);
     }
 
     @Override
-    public @NotNull WrappedComponent<JScrollPane> createScrollPane(@NotNull JComponent content) {
+    public @NotNull WrappedComponent<@NotNull JScrollPane> createScrollPane(@NotNull JComponent content) {
         return getDelegate().createScrollPane(content);
     }
 
     @Override
-    public @NotNull <T> WrappedComponent<JList<T>> createList(@NotNull ListModel<T> content) {
+    public @NotNull <T> WrappedComponent<@NotNull JList<T>> createList(@NotNull ListModel<T> content) {
         return getDelegate().createList(content);
     }
 
     @Override
-    public @NotNull WrappedComponent<JSplitPane> createSplitPane(@NotNull JComponent left, @NotNull JComponent right) {
+    public @NotNull WrappedComponent<@NotNull JSplitPane> createSplitPane(@NotNull JComponent left,
+            @NotNull JComponent right) {
         return getDelegate().createSplitPane(left, right);
     }
 
     @Override
-    public @NotNull SeparatorSpec<JComponent, SeparatorSpec.Default> createSeparatorComponent(
+    public @NotNull ComponentSpec<@Nullable JComponent> createSeparatorComponent(
             @Nullable TextProperty label) {
         return getDelegate().createSeparatorComponent(label);
     }
 
     @Override
-    public @NotNull SeparatorSpec<CollapsibleComponent, SeparatorSpec.DefaultCollapsible> createCollapsibleSeparatorComponent(
+    public @NotNull ComponentSpec<@Nullable CollapsibleComponent> createCollapsibleSeparatorComponent(
             @Nullable TextProperty label) {
         return getDelegate().createCollapsibleSeparatorComponent(label);
     }
+
+    @Override
+    public @NotNull StateValue<Color> getDividerColor() {
+        return getDelegate().getDividerColor();
+    }
+
+    @Override
+    public @NotNull Color getBorderColor() {
+        return getDelegate().getBorderColor();
+    }
+
+    @Override
+    public @NotNull Color getHyperlinkColor() {
+        return getDelegate().getHyperlinkColor();
+    }
+
+    @Override
+    public @NotNull Color getSecondaryTextForeground() {
+        return getDelegate().getSecondaryTextForeground();
+    }
+
+    @Override
+    public @NotNull Color getColorBackgroundColor() {
+        return getDelegate().getColorBackgroundColor();
+    }
+
+    @Override
+    public @NotNull StateValue<Icon> getExpandedIcon() {
+        return getDelegate().getExpandedIcon();
+    }
+
+    @Override
+    public @NotNull StateValue<Icon> getCollapsedIcon() {
+        return getDelegate().getCollapsedIcon();
+    }
+
 }

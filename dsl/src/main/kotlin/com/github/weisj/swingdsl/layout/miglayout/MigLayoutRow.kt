@@ -38,18 +38,16 @@ import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
+import com.github.weisj.swingdsl.style.asUIResource
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.util.mix
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LayoutUtil
-import java.awt.Color
 import java.awt.Dimension
 import java.lang.Integer.min
 import javax.swing.*
 import javax.swing.border.LineBorder
-import javax.swing.plaf.ColorUIResource
 import javax.swing.text.JTextComponent
 import kotlin.math.max
 import kotlin.reflect.KMutableProperty0
@@ -102,10 +100,10 @@ internal class MigLayoutRow(
             val comp = if (separatorSpec.providesCustomComponent()) {
                 separatorSpec.provided!!
             } else {
-                val spec = separatorSpec.defaultImplSpec!!
                 DynamicUI.withDynamic(TitledSeparator(title)) {
-                    it.color = spec.color
-                    it.disabledColor = spec.disabledColor
+                    val dividerColor = UIFactory.dividerColor
+                    it.color = dividerColor.enabled
+                    it.disabledColor = dividerColor.disabled
                 }
             }
             row.addTitleComponent(comp, isEmpty = title == null)
@@ -347,14 +345,16 @@ internal class MigLayoutRow(
         val separator = if (separatorSpec.providesCustomComponent()) {
             separatorSpec.provided!!
         } else {
-            val spec = separatorSpec.defaultImplSpec!!
             DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
-                it.color = spec.color
-                it.disabledColor = spec.disabledColor
-                it.expandedIcon = spec.expandedIcon
-                it.collapsedIcon = spec.collapsedIcon
-                it.disabledExpandedIcon = spec.disabledExpandedIcon
-                it.disabledCollapsedIcon = spec.disabledCollapsedIcon
+                val dividerColor = UIFactory.dividerColor
+                val expandedIcon = UIFactory.expandedIcon
+                val collapsedIcon = UIFactory.collapsedIcon
+                it.color = dividerColor.enabled
+                it.disabledColor = dividerColor.disabled
+                it.expandedIcon = expandedIcon.enabled
+                it.collapsedIcon = collapsedIcon.enabled
+                it.disabledExpandedIcon = expandedIcon.disabled
+                it.disabledCollapsedIcon = collapsedIcon.disabled
             }
         }
 
@@ -542,7 +542,7 @@ internal class MigLayoutRow(
         textArea.isEditable = false
         textArea.selectable = false
         DynamicUI.withDynamic(textArea) {
-            it.foreground = getCommentForeground()
+            it.foreground = UIFactory.secondaryTextForeground.asUIResource()
         }
         return textArea
     }
@@ -550,7 +550,7 @@ internal class MigLayoutRow(
     private fun createNoWrapCommentComponent(text: Text): WrappedComponent<JLabel> {
         val wrapped = UIFactory.createLabel(text)
         DynamicUI.withDynamic(wrapped.component) {
-            it.foreground = getCommentForeground()
+            it.foreground = UIFactory.secondaryTextForeground.asUIResource()
         }
         return wrapped
     }
@@ -648,13 +648,6 @@ internal class MigLayoutRow(
         // Update child rows
         getOrCreateSubRowsList().forEach { it.commitImmediately() }
         childCells.forEach { it.commitImmediately() }
-    }
-
-    private fun getCommentForeground(): Color {
-        return ColorUIResource(
-            UIManager.getColor("textForegroundSecondary")
-                ?: (UIManager.getColor("Label.foreground") ?: Color.BLACK).mix(Color.WHITE, 0.80f)
-        )
     }
 
     private class ConstrainedTextArea(boundText: Text, private val maxLineLength: Int) : JTextArea() {

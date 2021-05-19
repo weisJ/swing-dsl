@@ -24,11 +24,14 @@
  */
 package com.github.weisj.swingdsl.style
 
+import com.github.weisj.swingdsl.icons.ArrowDownIcon
+import com.github.weisj.swingdsl.icons.ArrowRightIcon
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.ComponentFactory
+import com.github.weisj.swingdsl.laf.ComponentSpec
+import com.github.weisj.swingdsl.laf.ComponentSpec.createDefaultImpl
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
-import com.github.weisj.swingdsl.laf.SeparatorSpec
-import com.github.weisj.swingdsl.laf.SeparatorSpec.DefaultCollapsible
+import com.github.weisj.swingdsl.laf.StateValue
 import com.github.weisj.swingdsl.laf.TextProperty
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
@@ -36,6 +39,7 @@ import com.github.weisj.swingdsl.text.TextButton
 import com.github.weisj.swingdsl.text.TextCheckBox
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.TextRadioButton
+import com.github.weisj.swingdsl.util.mix
 import java.awt.Color
 import java.util.function.Consumer
 import javax.swing.Icon
@@ -99,23 +103,54 @@ class DefaultComponentFactoryImpl : ComponentFactory {
         return SelfWrappedComponent(JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right))
     }
 
-    override fun createSeparatorComponent(label: TextProperty?): SeparatorSpec<JComponent, SeparatorSpec.Default> {
-        return SeparatorSpec(null, SeparatorSpec.Default(::getSeparatorColor))
+    override fun createSeparatorComponent(label: TextProperty?): ComponentSpec<JComponent> {
+        return createDefaultImpl()
     }
 
-    override fun createCollapsibleSeparatorComponent(
-        label: TextProperty?
-    ): SeparatorSpec<CollapsibleComponent, DefaultCollapsible> {
-        return SeparatorSpec(
-            null, DefaultCollapsible(::getSeparatorColor, null, null)
-        )
+    override fun createCollapsibleSeparatorComponent(label: TextProperty?): ComponentSpec<CollapsibleComponent> {
+        return createDefaultImpl()
     }
 
-    private fun getSeparatorColor(enabled: Boolean): Color {
-        val c = UIManager.getColor(if (enabled) "Label.foreground" else "Label.disabledForeground")
-        if (c != null) {
-            return c
+    override fun getDividerColor(): StateValue<Color> {
+        return StateValue(getDividerColor(true), getDividerColor(false))
+    }
+
+    private fun getDividerColor(enabled: Boolean): Color {
+        return if (enabled) {
+            UIManager.getColor("borderSecondary")
+                ?: UIManager.getColor("Label.foreground")
+                ?: Color.BLACK
+        } else {
+            UIManager.getColor("Label.disabledForeground")
+                ?: Color.GRAY
         }
-        return if (enabled) Color.BLACK else Color.GRAY
+    }
+
+    override fun getBorderColor(): Color {
+        return UIManager.getColor("border")
+            ?: UIManager.getColor("Label.foreground")
+            ?: Color.BLACK
+    }
+
+    override fun getHyperlinkColor(): Color {
+        return UIManager.getColor("hyperlink") ?: Color.BLUE.brighter()
+    }
+
+    override fun getSecondaryTextForeground(): Color {
+        return UIManager.getColor("textForegroundSecondary")
+            ?: (UIManager.getColor("Label.foreground") ?: Color.BLACK).mix(Color.WHITE, 0.80f)
+    }
+
+    override fun getColorBackgroundColor(): Color {
+        return UIManager.getColor("backgroundColorful")
+            ?: Color.BLUE.brighter().brighter().brighter()
+    }
+
+    override fun getExpandedIcon(): StateValue<Icon> {
+        return StateValue(ArrowDownIcon(getDividerColor(true)), ArrowDownIcon(getDividerColor(false)))
+    }
+
+    override fun getCollapsedIcon(): StateValue<Icon> {
+        return StateValue(ArrowRightIcon(getDividerColor(true)), ArrowRightIcon(getDividerColor(false)))
     }
 }

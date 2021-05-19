@@ -21,8 +21,23 @@
  */
 package com.github.weisj.swingdsl.laf;
 
-@FunctionalInterface
-public interface DefaultSupplier<T> {
+import org.jetbrains.annotations.NotNull;
 
-    T get(boolean enabled);
+public class StateValue<T> {
+
+    private final @NotNull T enabled;
+    private final @NotNull T disabled;
+
+    public StateValue(final @NotNull T enabled, final @NotNull T disabled) {
+        this.enabled = enabled;
+        this.disabled = disabled;
+    }
+
+    public @NotNull T getEnabled() {
+        return enabled;
+    }
+
+    public @NotNull T getDisabled() {
+        return disabled;
+    }
 }
