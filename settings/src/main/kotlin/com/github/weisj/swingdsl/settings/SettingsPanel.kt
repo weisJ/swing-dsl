@@ -26,9 +26,7 @@ package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
-import com.github.weisj.swingdsl.bindEnabled
 import com.github.weisj.swingdsl.bindVisible
-import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.border.empty
 import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
@@ -41,7 +39,6 @@ import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.condition.or
 import com.github.weisj.swingdsl.configureBorderLayout
-import com.github.weisj.swingdsl.configureContainer
 import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
@@ -52,28 +49,19 @@ import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.style.backgroundColorOf
 import com.github.weisj.swingdsl.style.stripUIResource
 import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.unaryPlus
-import com.github.weisj.swingdsl.wrap
-import java.awt.AWTEvent
 import java.awt.CardLayout
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
 import java.awt.Font
-import java.awt.Toolkit
 import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import javax.swing.Box
 import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.JTextField
 import javax.swing.JTree
-import javax.swing.KeyStroke
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultTreeCellRenderer
@@ -166,7 +154,7 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         row {
             right {
                 cell {
-                    //TODO: Bind this to close/hide actions as well
+                    // TODO: Bind this to close/hide actions as well
                     button(+"OK") { apply() }.makeDefaultButton().sizeGroup("buttons")
                     button(+"Cancel") { reset() }.sizeGroup("buttons")
                     button(+"Apply") { apply() }.enableIf(modifiedCondition).sizeGroup("buttons")

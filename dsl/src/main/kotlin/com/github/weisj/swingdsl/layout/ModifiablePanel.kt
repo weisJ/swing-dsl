@@ -101,7 +101,8 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
         return isModifiedCallbacks.values.any { list -> list.any { it() } }
     }
 
-    private class ModifiedCondition(private val panel: ModifiablePanel) : ObservableCondition,
+    private class ModifiedCondition(private val panel: ModifiablePanel) :
+        ObservableCondition,
         AWTEventListener {
 
         private var modified = false

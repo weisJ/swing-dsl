@@ -41,6 +41,7 @@ import com.github.weisj.swingdsl.layout.observableText
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.unaryPlus
 import javax.swing.JLabel
 
 data class Model(var boolValue: Boolean, var textValue: String)
@@ -59,7 +60,7 @@ fun main() {
                 borderPanel {
                     north {
                         centered {
-                            JLabel("North").apply {
+                            +JLabel("North").apply {
                                 font = font.deriveFont(20f)
                             }
                         }
