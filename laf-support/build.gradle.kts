@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jetbrains:annotations")
+    implementation(libs.nullabilityAnnotations)
 }

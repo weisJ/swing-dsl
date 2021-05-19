@@ -7,11 +7,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":swing-dsl-core"))
-    api(project(":swing-dsl-laf-support"))
-    implementation("com.miglayout:miglayout-swing")
+    api(projects.swingExtensionsCore)
+    api(projects.swingExtensionsLafSupport)
+    implementation(libs.miglayout)
 
-    testImplementation("com.github.weisj:darklaf-core") {
+    testImplementation(libs.darklaf.core) {
         isChanging = true
     }
     testImplementation(kotlin("reflect"))

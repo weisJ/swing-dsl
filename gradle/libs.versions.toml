@@ -1,0 +1,5 @@
+[libraries]
+miglayout = { module ="com.miglayout:miglayout-swing", version = "5.2" }
+nullabilityAnnotations = { module = "org.jetbrains:annotations", version = "16.0.2" }
+darklaf-core = { module = "com.github.weisj:darklaf-core", version = "latest.integration" }
+obersvableCollections = { module = "net.pearx.okservable:okservable-jvm", version = "1.0.0" }

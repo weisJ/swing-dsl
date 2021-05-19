@@ -168,13 +168,6 @@ allprojects {
         fileMode = "664".toInt(8)
     }
 
-    plugins.withType<JavaLibraryPlugin> {
-        dependencies {
-            "api"(platform(project(":dependencies-bom")))
-            "annotationProcessor"(platform(project(":dependencies-bom")))
-        }
-    }
-
     extensions.findByType(KotlinProjectExtension::class)?.run {
         explicitApi()
     }
@@ -282,13 +275,6 @@ allprojects {
         }
 
         configure<PublishingExtension> {
-            if (project.path.startsWith(":dependencies-bom") ||
-                project.path == ":"
-            ) {
-                // We don't it to Central for now
-                return@configure
-            }
-
             publications {
                 create<MavenPublication>(project.name) {
                     artifactId = "${project.name}$snapshotIdentifier"

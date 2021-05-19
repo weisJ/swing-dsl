@@ -4,9 +4,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":swing-dsl"))
-    testImplementation("com.miglayout:miglayout-swing")
-    testImplementation("com.github.weisj:darklaf-core") {
+    implementation(projects.swingExtensionsDsl)
+    testImplementation(libs.miglayout)
+    testImplementation(libs.darklaf.core) {
         isChanging = true
     }
 }

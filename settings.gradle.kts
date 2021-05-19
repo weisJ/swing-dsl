@@ -1,3 +1,6 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("VERSION_CATALOGS")
+
 pluginManagement {
     plugins {
         fun String.v() = extra["$this.version"].toString()
@@ -13,10 +16,9 @@ pluginManagement {
     }
 }
 
-rootProject.name = "swing-dsl"
+rootProject.name = "swing-extensions"
 
 include(
-    "dependencies-bom",
     "core",
     "laf-support",
     "dsl",
@@ -27,7 +29,17 @@ for (p in rootProject.children) {
     // Rename leaf projects only
     // E.g. we don't expect to publish examples as a Maven module
     when {
-        p.name == "dsl" -> p.name = "swing-dsl"
-        p.children.isEmpty() && p.name != "dependencies-bom" -> p.name = "swing-dsl" + "-" + p.name
+        p.children.isEmpty() -> p.name = rootProject.name + "-" + p.name
     }
+}
+
+fun property(name: String) =
+    when (extra.has(name)) {
+        true -> extra.get(name) as? String
+        else -> null
+    }
+
+property("localDarklaf")?.ifBlank { "../darklaf" }?.let {
+    println("Importing project '$it'")
+    includeBuild(it)
 }
