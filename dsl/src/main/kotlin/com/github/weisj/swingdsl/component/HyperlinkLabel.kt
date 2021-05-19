@@ -24,109 +24,21 @@
  */
 package com.github.weisj.swingdsl.component
 
-import com.github.weisj.swingdsl.listeners.ClickListener
-import com.github.weisj.swingdsl.on
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextLabel
-import com.github.weisj.swingdsl.toKeyStroke
-import com.github.weisj.swingdsl.util.toHtml
-import java.awt.Color
-import java.awt.Cursor
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
-import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import javax.swing.UIManager
 import javax.swing.event.HyperlinkEvent
 import javax.swing.event.HyperlinkListener
 
-class HyperlinkLabel(observableText: Text) : TextLabel(observableText) {
+class HyperlinkLabel(observableText: Text) : ClickableLabelBase<HyperlinkEvent, HyperlinkListener>(observableText) {
+    override fun createEvent(): HyperlinkEvent =
+        HyperlinkEvent(this@HyperlinkLabel, HyperlinkEvent.EventType.ACTIVATED, null)
 
-    private val listeners: MutableList<HyperlinkListener> = mutableListOf()
-
-    private var isHovered = false
-    private var isFocused = false
-    private var originalText: String? = observableText.get()
-
-    var showHoverEffect: Boolean = true
-
-    private fun setTrueText(value: String?) = super.setText(value)
-
-    override fun setText(text: String?) {
-        originalText = text
-        updateText()
-    }
-
-    init {
-        setupListener()
-        isFocusable = true
+    override fun HyperlinkListener.dispatch(event: HyperlinkEvent) {
+        hyperlinkUpdate(event)
     }
 
     override fun updateUI() {
         super.updateUI()
-        foreground = UIManager.getColor("hyperlink") ?: Color.BLUE.brighter()
-    }
-
-    private fun updateText() {
-        if (isFocused || (isHovered && showHoverEffect)) {
-            setTrueText(underlineTextInHtml(originalText))
-        } else {
-            setTrueText(originalText)
-        }
-    }
-
-    private fun setupListener() {
-        addMouseListener(object : MouseAdapter() {
-            override fun mouseEntered(e: MouseEvent?) {
-                if (!showHoverEffect) return
-                isHovered = true
-                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-                updateText()
-            }
-
-            override fun mouseExited(e: MouseEvent?) {
-                if (!showHoverEffect) return
-                isHovered = false
-                cursor = Cursor.getDefaultCursor()
-                updateText()
-            }
-        })
-        addFocusListener(object : FocusListener {
-            override fun focusGained(e: FocusEvent?) {
-                isFocused = true
-                updateText()
-            }
-
-            override fun focusLost(e: FocusEvent?) {
-                isFocused = false
-                updateText()
-            }
-        })
-
-        object : ClickListener() {
-            override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
-                notifyClick()
-                return true
-            }
-        }.installOn(this)
-        on(KeyEvent.VK_SPACE.toKeyStroke()) { notifyClick() }
-    }
-
-    private fun notifyClick() {
-        val e = HyperlinkEvent(this@HyperlinkLabel, HyperlinkEvent.EventType.ACTIVATED, null)
-        listeners.forEach { it.hyperlinkUpdate(e) }
-    }
-
-    fun addHyperlinkListener(listener: HyperlinkListener) {
-        listeners.add(listener)
-    }
-
-    fun removeHyperlinkListener(listener: HyperlinkListener) {
-        listeners.remove(listener)
-    }
-
-    private fun underlineTextInHtml(text: String?): String? {
-        return text?.toHtml("u")
+        foreground = UIFactory.hyperlinkColor
     }
 }

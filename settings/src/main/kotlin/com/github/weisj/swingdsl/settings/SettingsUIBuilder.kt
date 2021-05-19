@@ -54,7 +54,7 @@ fun Row.addCategoryOverview(category: Category, context: UIContext) {
             category.subCategories.forEach { cat ->
                 component(
                     HyperlinkLabel(cat.displayName).apply {
-                        addHyperlinkListener { context.navigateTo(cat) }
+                        addListener { context.navigateTo(cat) }
                     }
                 )
             }
