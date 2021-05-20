@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.binding.container.ObservableList
 import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.condition.ObservableCondition
@@ -98,11 +99,11 @@ fun JComponent.mouseLocation(): Point? {
 }
 
 fun JComponent.bindVisible(condition: ObservableCondition) {
-    condition.onChange(invokeOnce = true) { isVisible = it }
+    condition.bind { isVisible = it }
 }
 
 fun JComponent.bindEnabled(condition: ObservableCondition) {
-    condition.onChange(invokeOnce = true) { isEnabled = it }
+    condition.bind { isEnabled = it }
 }
 
 fun JButton.makeDefaultButton() {

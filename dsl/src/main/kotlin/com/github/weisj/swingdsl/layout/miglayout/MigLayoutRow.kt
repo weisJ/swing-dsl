@@ -26,6 +26,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
@@ -675,7 +676,7 @@ internal class MigLayoutRow(
 
         init {
             minimumSize = Dimension(10, 10)
-            boundText.onChange(invokeOnce = true) {
+            boundText.bind {
                 text = it
 
                 val oldWrap = lineWrap
