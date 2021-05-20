@@ -31,6 +31,8 @@ import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.border.emptyBorder
+import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
@@ -279,7 +281,8 @@ abstract class Cell : ButtonGroupBuilder {
 
     fun placeholder(): CellBuilder<JComponent> {
         return component(
-            JPanel().apply {
+            DefaultJPanel().apply {
+                border = emptyBorder()
                 minimumSize = Dimension(0, 0)
                 preferredSize = Dimension(0, 0)
                 maximumSize = Dimension(0, 0)

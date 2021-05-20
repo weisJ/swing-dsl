@@ -94,7 +94,6 @@ class CategoryTree private constructor(
             return tree.also {
                 it.setSelectionRow(0)
                 it.setCellRenderer(CategoryTreeCellRenderer())
-                it.showsRootHandles = false
             }
         }
     }

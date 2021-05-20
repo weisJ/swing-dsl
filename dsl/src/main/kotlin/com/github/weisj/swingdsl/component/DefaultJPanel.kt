@@ -29,7 +29,7 @@ import java.awt.BorderLayout
 import java.awt.LayoutManager
 import javax.swing.JPanel
 
-open class BorderlessPanel(layout: LayoutManager? = BorderLayout()) : JPanel(layout) {
+open class DefaultJPanel(layout: LayoutManager? = BorderLayout()) : JPanel(layout) {
     init {
         border = emptyBorder()
     }

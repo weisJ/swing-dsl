@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.component.BorderlessPanel
-import com.github.weisj.swingdsl.config.ContainerConfiguration
-import com.github.weisj.swingdsl.config.ContainerConfigurationImpl
+import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.config.JComponentConfiguration
+import com.github.weisj.swingdsl.config.JComponentConfigurationImpl
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.BorderLayout
 import javax.swing.JComponent
@@ -35,7 +35,7 @@ import kotlin.reflect.KProperty
 
 @BuilderMarker
 class BorderLayoutBuilder internal constructor(private val component: JPanel) :
-    UIBuilder<JPanel>, ContainerConfiguration<JPanel> by ContainerConfigurationImpl(component) {
+    UIBuilder<JPanel>, JComponentConfiguration<JPanel> by JComponentConfigurationImpl(component) {
 
     init {
         component.layout = BorderLayout()
@@ -43,7 +43,7 @@ class BorderLayoutBuilder internal constructor(private val component: JPanel) :
 
     val layout: BorderLayout = component.layout as BorderLayout
 
-    constructor() : this(BorderlessPanel(BorderLayout()))
+    constructor() : this(DefaultJPanel(BorderLayout()))
 
     override fun build(): JPanel = component
 
@@ -51,7 +51,7 @@ class BorderLayoutBuilder internal constructor(private val component: JPanel) :
         operator fun getValue(thisRef: Any?, property: KProperty<*>): JComponent {
             var comp: JComponent? = layout.getLayoutComponent(constraint) as? JComponent
             if (comp == null) {
-                comp = JPanel()
+                comp = DefaultJPanel()
                 component.add(comp, constraint)
             }
             return comp

@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.component.BorderlessPanel
+import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfiguration
@@ -105,7 +105,7 @@ fun <T : JComponent> wrap(
     init: JComponent.() -> Unit = {},
     componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
 ): WrappedComponent<T> {
-    val wrapper = BorderlessPanel(BorderLayout())
+    val wrapper = DefaultJPanel(BorderLayout())
     val comp = componentProvider(ComponentBuilderScope)
     wrapper.add(comp.container, BorderLayout.CENTER)
     wrapper.init()
@@ -125,7 +125,7 @@ fun <T : JComponent> clampSizes(
     val comp = componentProvider(ComponentBuilderScope)
     if (minMaxWidth < 0 && minMaxHeight < 0 && maxMinWidth < 0 && maxMinHeight < 0) return comp
     val clampComp = clampBy ?: comp.component
-    val wrapper = object : BorderlessPanel(BorderLayout()) {
+    val wrapper = object : DefaultJPanel(BorderLayout()) {
         override fun getMinimumSize(): Dimension {
             val baseSize = if (usePreferredSizeForMinimum) clampComp.preferredSize else clampComp.minimumSize
             if (maxMinWidth > 0) baseSize.width = min(baseSize.width, maxMinWidth)
@@ -148,7 +148,7 @@ inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> W
     val comp = compProvider(ComponentBuilderScope)
     return DefaultWrappedComponent(
         comp.component,
-        JPanel(GridBagLayout()).apply {
+        DefaultJPanel(GridBagLayout()).apply {
             add(comp.container)
         }
     )

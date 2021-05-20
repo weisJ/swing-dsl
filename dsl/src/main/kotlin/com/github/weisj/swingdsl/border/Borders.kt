@@ -37,7 +37,7 @@ import javax.swing.border.Border
 fun emptyBorder(): Border = BorderFactory.createEmptyBorder()
 fun emptyBorder(size: Int): Border = emptyBorder(size, size, size, size)
 fun emptyBorder(insets: Insets): Border = emptyBorder(insets.top, insets.left, insets.bottom, insets.right)
-fun emptyBorder(top: Int, left: Int, bottom: Int, right: Int): Border =
+fun emptyBorder(top: Int = 0, left: Int = 0, bottom: Int = 0, right: Int = 0): Border =
     BorderFactory.createEmptyBorder(top, left, bottom, right)
 
 fun dialogSpacing(

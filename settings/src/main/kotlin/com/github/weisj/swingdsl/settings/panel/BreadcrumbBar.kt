@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.settings.panel
 
+import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.mouseLocation
 import com.github.weisj.swingdsl.style.DynamicUI
@@ -41,7 +42,6 @@ import java.util.Collections.emptyList
 import javax.swing.CellRendererPane
 import javax.swing.JComponent
 import javax.swing.JLabel
-import javax.swing.border.EmptyBorder
 
 fun interface BreadcrumbRenderer<in T> {
 
@@ -98,7 +98,7 @@ class BreadcrumbBar<T> : JComponent() {
     var rendererPane = CellRendererPane()
     private val breadcrumbLayout = BreadcrumbLayout<T>()
     var separator: JComponent = JLabel("\u276F").apply {
-        border = EmptyBorder(padding / 2, padding, padding / 2, padding)
+        border = emptyBorder(top = padding / 2, padding, bottom = padding / 2, padding)
         DynamicUI.withBoldFont(this)
     }
 

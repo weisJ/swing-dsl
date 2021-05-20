@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl.component
 
 import com.github.weisj.swingdsl.bindEvent
+import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.text.Text
@@ -43,7 +44,6 @@ import java.awt.event.FocusListener
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import javax.swing.BorderFactory
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -60,7 +60,7 @@ open class TitledSeparator(title: Text?) : JComponent() {
     init {
         isOpaque = false
         layout = GridBagLayout()
-        border = BorderFactory.createEmptyBorder(7, 0, 5, 0)
+        border = emptyBorder(7, 0, 5, 0)
         add(
             label,
             GridBagConstraints(

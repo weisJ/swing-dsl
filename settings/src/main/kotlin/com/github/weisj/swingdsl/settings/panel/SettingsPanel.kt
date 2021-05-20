@@ -33,6 +33,7 @@ import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.clampSizes
 import com.github.weisj.swingdsl.collection.UndoRedoList
+import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.condition.or
@@ -65,14 +66,14 @@ import javax.swing.JPanel
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 
-class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContext {
+class SettingsPanel(private val categories: List<Category>) : DefaultJPanel(), UIContext {
     private val categoryPanels = mutableMapOf<Category, WrappedComponent<ModifiablePanel>>()
 
     private var currentCategory: Category? = null
     private val navigationHistory = UndoRedoList()
 
     private val cardLayout = ScrollCardLayout()
-    private val categoriesPanel = JPanel(cardLayout).apply { addCategories(categories) }
+    private val categoriesPanel = DefaultJPanel(cardLayout).apply { addCategories(categories) }
     private val categoryTree = createCategoryTree()
     private val breadcrumbBar = createBreadCrumbBar()
 
@@ -84,6 +85,7 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
         configureBorderLayout(this) {
             center {
                 horizontalSplit {
+                    border = emptyBorder()
                     left {
                         borderPanel {
 //                            north {
