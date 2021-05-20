@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl.border
 
 import com.github.weisj.swingdsl.height
+import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.width
 import java.awt.Color
 import java.awt.Component
@@ -38,6 +39,20 @@ fun emptyBorder(size: Int): Border = emptyBorder(size, size, size, size)
 fun emptyBorder(insets: Insets): Border = emptyBorder(insets.top, insets.left, insets.bottom, insets.right)
 fun emptyBorder(top: Int, left: Int, bottom: Int, right: Int): Border =
     BorderFactory.createEmptyBorder(top, left, bottom, right)
+
+fun dialogSpacing(
+    top: Boolean = false,
+    left: Boolean = false,
+    bottom: Boolean = false,
+    right: Boolean = false,
+): Border = getDefaultSpacingConfiguration().run {
+    emptyBorder(
+        if (top) dialogTopBottom else 0,
+        if (left) dialogLeftRight else 0,
+        if (bottom) dialogTopBottom else 0,
+        if (right) dialogLeftRight else 0,
+    )
+}
 
 fun lineBorder(insets: Insets, colorSupplier: () -> Color): Border = LineBorder(insets, colorSupplier)
 fun lineBorder(insets: Insets, color: Color): Border = LineBorder(insets) { color }
