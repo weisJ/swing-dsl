@@ -33,10 +33,10 @@ import java.awt.Insets
 import javax.swing.BorderFactory
 import javax.swing.border.Border
 
-fun empty(): Border = BorderFactory.createEmptyBorder()
-fun empty(size: Int): Border = empty(size, size, size, size)
-fun empty(insets: Insets): Border = empty(insets.top, insets.left, insets.bottom, insets.right)
-fun empty(top: Int, left: Int, bottom: Int, right: Int): Border =
+fun emptyBorder(): Border = BorderFactory.createEmptyBorder()
+fun emptyBorder(size: Int): Border = emptyBorder(size, size, size, size)
+fun emptyBorder(insets: Insets): Border = emptyBorder(insets.top, insets.left, insets.bottom, insets.right)
+fun emptyBorder(top: Int, left: Int, bottom: Int, right: Int): Border =
     BorderFactory.createEmptyBorder(top, left, bottom, right)
 
 fun lineBorder(insets: Insets, colorSupplier: () -> Color): Border = LineBorder(insets, colorSupplier)

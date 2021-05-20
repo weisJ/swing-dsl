@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.component.BorderlessPanel
 import com.github.weisj.swingdsl.config.ContainerConfiguration
 import com.github.weisj.swingdsl.config.ContainerConfigurationImpl
 import com.github.weisj.swingdsl.laf.WrappedComponent
@@ -42,7 +43,7 @@ class BorderLayoutBuilder internal constructor(private val component: JPanel) :
 
     val layout: BorderLayout = component.layout as BorderLayout
 
-    constructor() : this(JPanel(BorderLayout()))
+    constructor() : this(BorderlessPanel(BorderLayout()))
 
     override fun build(): JPanel = component
 

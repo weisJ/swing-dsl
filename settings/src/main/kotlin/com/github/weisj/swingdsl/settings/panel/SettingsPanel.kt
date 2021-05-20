@@ -28,7 +28,7 @@ import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
 import com.github.weisj.swingdsl.bindVisible
 import com.github.weisj.swingdsl.border.dialogSpacing
-import com.github.weisj.swingdsl.border.empty
+import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.clampSizes
@@ -165,7 +165,7 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
 
     private fun createBanner(): WrappedComponent<JPanel> {
         return borderPanel {
-            border = getDefaultSpacingConfiguration().run { empty(componentVerticalGap, 0, 0, dialogLeftRight) }
+            border = getDefaultSpacingConfiguration().run { emptyBorder(componentVerticalGap, 0, 0, dialogLeftRight) }
             center { +breadcrumbBar }
             east {
                 +DynamicUI.withBoldFont(HyperlinkLabel(+"Reset")).apply {
