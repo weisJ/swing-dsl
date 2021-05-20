@@ -22,6 +22,7 @@
  * SOFTWARE.
  *
  */
+import com.formdev.flatlaf.extras.FlatInspector
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.DarculaTheme
 import com.github.weisj.swingdsl.frame
@@ -37,7 +38,6 @@ import com.github.weisj.swingdsl.settings.string
 import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.unaryPlus
 import java.awt.Dimension
-import java.util.*
 
 class TestData {
 
@@ -153,7 +153,10 @@ fun SubCategoryBuilder.addNested(level: Int) {
 
 fun main() {
     invokeLater {
+        // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+        System.setProperty("darklaf.allowNativeCode", "false")
         LafManager.install(DarculaTheme())
+        FlatInspector.install("ctrl shift alt X")
         frame {
             content {
                 +createSettingsPanel(

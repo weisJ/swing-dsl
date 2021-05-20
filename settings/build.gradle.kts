@@ -6,7 +6,6 @@ plugins {
 dependencies {
     implementation(projects.swingExtensionsDsl)
     testImplementation(libs.miglayout)
-    testImplementation(libs.darklaf.core) {
-        isChanging = true
-    }
+    testImplementation(libs.darklaf.core) { isChanging = true }
+    testImplementation(libs.flatInspector)
 }
