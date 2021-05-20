@@ -543,6 +543,7 @@ internal class MigLayoutRow(
         textArea.selectable = false
         DynamicUI.withDynamic(textArea) {
             it.foreground = UIFactory.secondaryTextForeground.asUIResource()
+            it.isOpaque = false
         }
         return textArea
     }
@@ -551,6 +552,7 @@ internal class MigLayoutRow(
         val wrapped = UIFactory.createLabel(text)
         DynamicUI.withDynamic(wrapped.component) {
             it.foreground = UIFactory.secondaryTextForeground.asUIResource()
+            it.isOpaque = false
         }
         return wrapped
     }

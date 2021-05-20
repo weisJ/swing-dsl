@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings
+package com.github.weisj.swingdsl.settings.panel
 
 import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.mouseLocation
@@ -54,6 +54,12 @@ fun interface NavigationListener<T> {
 
 class BreadcrumbBar<T> : JComponent() {
 
+    var padding: Int = 10
+        set(pad) {
+            field = pad
+            doLayout()
+            repaint()
+        }
     private val navigationListeners: MutableList<NavigationListener<T>> = mutableListOf()
     private var clickListeners: List<ClickListener> = emptyList()
     var breadCrumbs: List<T> = emptyList()
@@ -92,7 +98,7 @@ class BreadcrumbBar<T> : JComponent() {
     var rendererPane = CellRendererPane()
     private val breadcrumbLayout = BreadcrumbLayout<T>()
     var separator: JComponent = JLabel("\u276F").apply {
-        border = EmptyBorder(5, 10, 5, 10)
+        border = EmptyBorder(padding / 2, padding, padding / 2, padding)
         DynamicUI.withBoldFont(this)
     }
 
@@ -179,19 +185,20 @@ private class BreadcrumbLayout<T> : LayoutManager {
         val availableWidth = parent.width
         val availableHeight = parent.height
         parent.rendererPane.add(parent.separator)
-        separatorSize = parent.separator.preferredSize
         layoutRects = getSizes(parent) { Rectangle(it.preferredSize) }.toList()
-        var x = separatorSize.width / 2
+        var x = parent.padding
+        separatorSize = parent.separator.preferredSize
+        val separatorAdvance = separatorSize.width
         for (rect in layoutRects) {
             rect.x = x
             if (availableHeight < rect.height) rect.height = availableHeight
             rect.y = max(0, (availableHeight - rect.height) / 2)
-            x += rect.width + separatorSize.width
+            x += rect.width + separatorAdvance
         }
         // Adjust for separator size after last item.
-        if (layoutRects.isNotEmpty()) x -= separatorSize.width
+        if (layoutRects.isNotEmpty()) x -= separatorAdvance
 
-        x += separatorSize.width / 2
+        x += parent.padding
         if (x > availableWidth) {
             val extra = x - availableWidth
             // Shift to the left.

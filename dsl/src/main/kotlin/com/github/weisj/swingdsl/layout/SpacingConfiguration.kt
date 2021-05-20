@@ -66,23 +66,25 @@ interface SpacingConfiguration {
     val indentLevel: Int
 }
 
-fun createDefaultSpacingConfiguration(): SpacingConfiguration {
-    return object : SpacingConfiguration {
-        override val horizontalGap = 6
-        override val componentVerticalGap = 6
-        override val labelColumnHorizontalGap = 6
-        override val largeHorizontalGap = 16
-        override val largeVerticalGap = 20
-        override val radioGroupTitleVerticalGap = 8
+private object DefaultSpacingConfiguration : SpacingConfiguration {
+    override val horizontalGap = 6
+    override val componentVerticalGap = 6
+    override val labelColumnHorizontalGap = 6
+    override val largeHorizontalGap = 16
+    override val largeVerticalGap = 20
+    override val radioGroupTitleVerticalGap = 8
 
-        override val shortTextWidth = 250
-        override val maxShortTextWidth = 350
+    override val shortTextWidth = 250
+    override val maxShortTextWidth = 350
 
-        override val dialogTopBottom = 10
-        override val dialogLeftRight = 12
+    override val dialogTopBottom = 10
+    override val dialogLeftRight = 12
 
-        override val commentVerticalTopGap = 6
+    override val commentVerticalTopGap = 6
 
-        override val indentLevel: Int = 15
-    }
+    override val indentLevel: Int = 15
+}
+
+fun getDefaultSpacingConfiguration(): SpacingConfiguration {
+    return DefaultSpacingConfiguration
 }

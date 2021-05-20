@@ -31,6 +31,7 @@ import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.RowBuilder
 import com.github.weisj.swingdsl.layout.panel
+import com.github.weisj.swingdsl.settings.panel.SettingsPanel
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.isConstantNullOrEmpty
 import javax.swing.JComponent

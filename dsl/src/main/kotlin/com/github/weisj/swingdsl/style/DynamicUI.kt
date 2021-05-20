@@ -82,7 +82,7 @@ class DynamicUI private constructor() {
         }
 
         fun <T : Component> withBoldFont(component: T): T {
-            return withTransformedFont(component, { f: Font -> f.deriveFont(Font.BOLD) })
+            return withTransformedFont(component) { f: Font -> f.deriveFont(Font.BOLD) }
         }
 
         fun <T : Component> withTransformedFont(

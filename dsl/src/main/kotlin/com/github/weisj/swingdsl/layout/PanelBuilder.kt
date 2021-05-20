@@ -105,7 +105,7 @@ fun panel(
 
 @PublishedApi
 internal fun createLayoutBuilder(): PanelBuilder {
-    return PanelBuilder(MigLayoutBuilder(createDefaultSpacingConfiguration()))
+    return PanelBuilder(MigLayoutBuilder(getDefaultSpacingConfiguration()))
 }
 
 @PublishedApi

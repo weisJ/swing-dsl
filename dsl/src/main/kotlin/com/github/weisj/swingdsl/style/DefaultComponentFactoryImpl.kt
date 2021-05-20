@@ -51,6 +51,7 @@ import javax.swing.JList
 import javax.swing.JRadioButton
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
+import javax.swing.JTree
 import javax.swing.ListModel
 import javax.swing.UIManager
 
@@ -74,6 +75,8 @@ fun Text.asTextProperty(): TextProperty = if (this is TextWrapper) this.textProp
 fun TextProperty.asText(): Text = if (this is TextPropertyWrapper) this.text else TextWrapper(this)
 
 class DefaultComponentFactoryImpl : ComponentFactory {
+
+    private val lazyTree: JTree by lazy { DynamicUI.withDynamic(JTree()) { it.updateUI() } }
 
     override fun createLabel(text: TextProperty, icon: Icon?): WrappedComponent<JLabel> {
         return SelfWrappedComponent(TextLabel(text.asText(), icon))
@@ -147,7 +150,7 @@ class DefaultComponentFactoryImpl : ComponentFactory {
 
     override fun getColorBackgroundColor(): Color {
         return UIManager.getColor("backgroundColorful")
-            ?: Color.BLUE.brighter().brighter().brighter()
+            ?: lazyTree.background
     }
 
     override fun getExpandedIcon(): StateValue<Icon> {

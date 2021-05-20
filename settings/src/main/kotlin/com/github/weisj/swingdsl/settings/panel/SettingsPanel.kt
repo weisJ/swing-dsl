@@ -22,19 +22,17 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings
+package com.github.weisj.swingdsl.settings.panel
 
 import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
 import com.github.weisj.swingdsl.bindVisible
+import com.github.weisj.swingdsl.border.dialogSpacing
 import com.github.weisj.swingdsl.border.empty
 import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.clampSizes
 import com.github.weisj.swingdsl.collection.UndoRedoList
-import com.github.weisj.swingdsl.component.HideableTree
-import com.github.weisj.swingdsl.component.HideableTreeModel
-import com.github.weisj.swingdsl.component.HideableTreeNode
 import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.condition.or
@@ -42,11 +40,16 @@ import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.scrollPane
+import com.github.weisj.swingdsl.settings.Category
+import com.github.weisj.swingdsl.settings.Element
+import com.github.weisj.swingdsl.settings.UIContext
+import com.github.weisj.swingdsl.settings.createCategoryPanel
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.stripUIResource
@@ -54,18 +57,13 @@ import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.unaryPlus
 import java.awt.CardLayout
-import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
-import java.awt.Font
 import java.awt.event.KeyEvent
 import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.JTree
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
-import javax.swing.tree.DefaultTreeCellRenderer
-import javax.swing.tree.TreePath
 
 class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContext {
     private val categoryPanels = mutableMapOf<Category, WrappedComponent<ModifiablePanel>>()
@@ -167,11 +165,11 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
 
     private fun createBanner(): WrappedComponent<JPanel> {
         return borderPanel {
+            border = getDefaultSpacingConfiguration().run { empty(componentVerticalGap, 0, 0, dialogLeftRight) }
             center { +breadcrumbBar }
             east {
                 +DynamicUI.withBoldFont(HyperlinkLabel(+"Reset")).apply {
                     addListener { reset() }
-                    border = empty(5, 5, 5, 5)
                     bindVisible(modifiedCondition)
                 }
             }
@@ -183,7 +181,7 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
             DynamicUI.withDynamic(this) {
                 it.background = UIFactory.colorBackgroundColor.stripUIResource()
             }
-            border = empty(0, 10, 0, 10)
+            border = dialogSpacing(left = true, right = true)
             properties {
                 client["JTree.lineStyle"] = "none"
                 client["focusParent"] = categoriesPanel
@@ -197,6 +195,7 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
 
     private fun createBreadCrumbBar(): BreadcrumbBar<Element> {
         return BreadcrumbBar<Element>().apply {
+            padding = getDefaultSpacingConfiguration().dialogLeftRight
             renderer = DynamicUI.withBoldFont(
                 DefaultBreadCrumbRenderer {
                     it.displayName?.get() ?: ""
@@ -244,109 +243,6 @@ class SettingsPanel(private val categories: List<Category>) : JPanel(), UIContex
     }
 
     private fun Category.layoutIdentifier(): String = "$identifier${hashCode()}"
-}
-
-val TreePath.category: Category?
-    get() = (lastPathComponent as? HideableTreeNode<*>)?.value as? Category
-
-class CategoryTree private constructor(
-    private val nodeMap: Map<Category, HideableTreeNode<*>>,
-    model: HideableTreeModel
-) : HideableTree(model) {
-
-    val currentCategory: Category?
-        get() = selectionPath?.category
-
-    fun addCategorySelectionListener(action: (Category?) -> Unit) {
-        addTreeSelectionListener {
-            action(currentCategory)
-        }
-    }
-
-    fun select(category: Category) {
-        nodeMap[category]?.let {
-            val path = TreePath(it.path)
-            scrollPathToVisible(path)
-            selectionPath = path
-        }
-    }
-
-    companion object {
-        private fun HideableTreeNode<*>.addCategories(
-            categories: List<Category>,
-            tree: HideableTree,
-            nodeMap: MutableMap<Category, HideableTreeNode<*>>
-        ) {
-            for (category in categories) {
-                val node = HideableTreeNode(category)
-                nodeMap[category] = node
-                val visibleProp = category.displayState.let {
-                    if (it is DefaultDisplayState) it.originalVisible
-                    else it.visible
-                }
-                val enabledProp = category.displayState.let {
-                    if (it is DefaultDisplayState) it.originalEnabled
-                    else it.enabled
-                }
-                addWithBinding(node, tree, visibleProp, enabledProp)
-                node.addCategories(category.subCategories, tree, nodeMap)
-            }
-        }
-
-        operator fun invoke(categories: List<Category>): CategoryTree {
-            val root = HideableTreeNode(null)
-            val model = HideableTreeModel(root)
-            val nodeMap = mutableMapOf<Category, HideableTreeNode<*>>()
-            val tree = CategoryTree(nodeMap, model)
-            root.addCategories(categories, tree, nodeMap)
-            model.reload()
-            return tree.also {
-                it.setSelectionRow(0)
-                it.setCellRenderer(CategoryTreeCellRenderer())
-            }
-        }
-    }
-}
-
-private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
-
-    private var normalFont: Font? = font
-    private var boldFont: Font? = font
-
-    override fun updateUI() {
-        super.updateUI()
-        updateFonts()
-    }
-
-    fun updateFonts() {
-        font ?: return
-        if (normalFont == null) {
-            normalFont = font.stripUIResource()
-            boldFont = normalFont!!.deriveFont(Font.BOLD).stripUIResource()
-        }
-    }
-
-    override fun getTreeCellRendererComponent(
-        tree: JTree?,
-        value: Any?,
-        sel: Boolean,
-        expanded: Boolean,
-        leaf: Boolean,
-        row: Int,
-        hasFocus: Boolean
-    ): Component {
-        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
-        if (value is HideableTreeNode<*>) {
-            val category = value.value as Category
-            icon = null
-            disabledIcon = null
-            text = category.displayName.get()
-            updateFonts()
-            font = if (category is TopLevel) boldFont else normalFont
-        }
-        background = null
-        return this
-    }
 }
 
 private class ScrollCardLayout : CardLayout() {
