@@ -41,6 +41,7 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 import javax.swing.JComponent
 import javax.swing.JFrame
+import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
@@ -152,6 +153,10 @@ inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> W
             add(comp.container)
         }
     )
+}
+
+fun layered(init: LayerBuilder.() -> Unit): WrappedComponent<JLayeredPane> {
+    return +LayerBuilder().also(init).build()
 }
 
 inline fun <T : JComponent> component(compProvider: () -> T): WrappedComponent<T> {
