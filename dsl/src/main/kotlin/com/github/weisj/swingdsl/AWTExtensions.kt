@@ -116,6 +116,7 @@ fun JButton.makeDefaultButton() {
             override fun ancestorAdded(event: AncestorEvent?) {
                 removeAncestorListener(this)
                 rootPane!!.defaultButton = this@makeDefaultButton
+                this@makeDefaultButton.requestFocusInWindow()
             }
 
             override fun ancestorRemoved(event: AncestorEvent?) {}
