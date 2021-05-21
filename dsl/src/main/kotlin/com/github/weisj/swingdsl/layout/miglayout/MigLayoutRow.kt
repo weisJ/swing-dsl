@@ -31,6 +31,9 @@ import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.createLayoutTag
+import com.github.weisj.swingdsl.highlight.emptyLayoutTag
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -57,6 +60,7 @@ internal class MigLayoutRow(
     private val parent: MigLayoutRow?,
     override val builder: MigLayoutBuilder,
     private val labeled: Boolean = false,
+    private var layoutTag: LayoutTag,
     val noGrid: Boolean = false,
     private val indentationLevel: Int,
     private val incrementsIndentationLevel: Boolean = parent != null
@@ -73,7 +77,7 @@ internal class MigLayoutRow(
             forComponent: Boolean,
             withLeftGap: Boolean,
             columnIndex: Int
-        ) {
+        ): LayoutTag {
             val cc = CC()
             val commentRow = parent.createChildRow()
             parent.getOrCreateCommentRowsList().add(commentRow)
@@ -93,21 +97,28 @@ internal class MigLayoutRow(
                     cc.horizontal.gapBefore = gapToBoundSize(indent + extraSpace, true)
                 }
             }
+            return component.createLayoutTag()
         }
 
         // as static method to ensure that members of current row are not used
-        private fun configureSeparatorRow(row: MigLayoutRow, title: Text?) {
+        // Returns the layout tag corresponding to the title.
+        private fun configureSeparatorRow(row: MigLayoutRow, title: Text?): LayoutTag {
             val separatorSpec = UIFactory.createSeparatorComponent(title?.asTextProperty())
+            lateinit var titleLayoutTag: LayoutTag
             val comp = if (separatorSpec.providesCustomComponent()) {
-                separatorSpec.provided!!
+                separatorSpec.provided!!.also {
+                    titleLayoutTag = it.createLayoutTag()
+                }
             } else {
                 DynamicUI.withDynamic(TitledSeparator(title)) {
+                    titleLayoutTag = it.label.createLayoutTag()
                     val dividerColor = UIFactory.dividerColor
                     it.color = dividerColor.enabled
                     it.disabledColor = dividerColor.disabled
                 }
             }
             row.addTitleComponent(comp, isEmpty = title == null)
+            return titleLayoutTag
         }
     }
 
@@ -247,6 +258,8 @@ internal class MigLayoutRow(
 
     internal var cellModeSpans = mutableListOf(CellModeSpan(start = -1, end = -1))
 
+    override fun createLayoutTag(): LayoutTag = layoutTag
+
     override fun createChildRow(
         label: WrappedComponent<JLabel>?,
         isSeparated: Boolean,
@@ -264,21 +277,30 @@ internal class MigLayoutRow(
         noGrid: Boolean = false,
         title: Text? = null,
         isIndented: Boolean = true,
-        incrementsIndent: Boolean = true
+        incrementsIndent: Boolean = true,
+        childLayoutTag: LayoutTag = label?.createLayoutTag() ?: emptyLayoutTag()
     ): MigLayoutRow {
         val newIndent = if (!this.incrementsIndentationLevel || !isIndented) indent else indent + spacing.indentLevel
         val subRows = getOrCreateSubRowsList()
         val row = MigLayoutRow(
             this, builder,
             labeled = label != null,
+            layoutTag = childLayoutTag,
             noGrid = noGrid,
             indentationLevel = if (subRowIndentationLevel >= 0) subRowIndentationLevel * spacing.indentLevel else newIndent,
             incrementsIndentationLevel = incrementsIndent
         )
 
         if (isSeparated) {
-            val separatorRow = MigLayoutRow(this, builder, indentationLevel = newIndent, noGrid = true)
-            configureSeparatorRow(separatorRow, title)
+            val separatorRow = MigLayoutRow(
+                parent = this,
+                builder = builder,
+                layoutTag = emptyLayoutTag(), // Is set further down.
+                indentationLevel = newIndent,
+                noGrid = true
+            )
+            val titleLayoutTag = configureSeparatorRow(separatorRow, title)
+            separatorRow.layoutTag = titleLayoutTag
             separatorRow.enabled = subRowsEnabled
             separatorRow.subRowsEnabled = subRowsEnabled
             separatorRow.visible = subRowsVisible
@@ -343,10 +365,12 @@ internal class MigLayoutRow(
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
         val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
 
+        lateinit var titleLayoutTag: LayoutTag
         val separator = if (separatorSpec.providesCustomComponent()) {
-            separatorSpec.provided!!
+            separatorSpec.provided!!.also { titleLayoutTag = it.component.createLayoutTag() }
         } else {
             DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
+                titleLayoutTag = it.label.createLayoutTag()
                 val dividerColor = UIFactory.dividerColor
                 val expandedIcon = UIFactory.expandedIcon
                 val collapsedIcon = UIFactory.collapsedIcon
@@ -363,7 +387,8 @@ internal class MigLayoutRow(
         separatorRow.addTitleComponent(separator.component, isEmpty = false)
         builder.hideableRowNestingLevel++
         try {
-            val panelRow = createChildRow(indentationLevel + spacing.indentLevel)
+            val panelRow =
+                createChildRow(indent = indentationLevel + spacing.indentLevel, childLayoutTag = titleLayoutTag)
             panelRow.init()
             separator.setCollapseCallback {
                 panelRow.visible = false
@@ -503,12 +528,12 @@ internal class MigLayoutRow(
         maxLineLength: Int,
         forComponent: Boolean,
         withLeftGap: Boolean = true
-    ) {
-        addCommentRow(createCommentComponent(comment, maxLineLength), forComponent, withLeftGap)
+    ): LayoutTag {
+        return addCommentRow(createCommentComponent(comment, maxLineLength), forComponent, withLeftGap)
     }
 
-    override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean) {
-        addCommentRow(
+    override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean): LayoutTag {
+        return addCommentRow(
             comment = text,
             maxLineLength,
             forComponent = false,
@@ -558,11 +583,19 @@ internal class MigLayoutRow(
         return wrapped
     }
 
-    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true) {
+    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true): LayoutTag {
         gapAfter = "${spacing.commentVerticalTopGap}px!"
 
         val isParentRowLabeled = labeled
-        createCommentRow(this, component, indentationLevel, isParentRowLabeled, forComponent, withLeftGap, columnIndex)
+        return createCommentRow(
+            this,
+            component,
+            indentationLevel,
+            isParentRowLabeled,
+            forComponent,
+            withLeftGap,
+            columnIndex
+        )
     }
 
     override fun alignRight() {

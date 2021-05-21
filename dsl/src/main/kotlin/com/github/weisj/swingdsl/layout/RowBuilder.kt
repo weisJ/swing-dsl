@@ -31,6 +31,7 @@ import com.github.weisj.swingdsl.ModifiableContainerBuilder
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
@@ -114,13 +115,13 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
         text: Text,
         maxLineLength: Int = 70,
         withLeftGap: Boolean = true
-    )
+    ): LayoutTag
 
     fun commentRow(
         text: String,
         maxLineLength: Int = 70,
         withLeftGap: Boolean = true
-    ) = commentRow(textOf(text), maxLineLength, withLeftGap)
+    ): LayoutTag = commentRow(textOf(text), maxLineLength, withLeftGap)
 }
 
 inline fun <reified T : Any> RowBuilder.buttonGroup(

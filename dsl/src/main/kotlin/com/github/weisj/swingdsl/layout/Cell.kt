@@ -33,6 +33,7 @@ import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
@@ -76,6 +77,8 @@ abstract class Cell : ButtonGroupBuilder {
     @Suppress("unused")
     val pushY = CCFlags.pushY
     val push = CCFlags.push
+
+    abstract fun createLayoutTag(): LayoutTag
 
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 

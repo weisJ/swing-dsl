@@ -29,6 +29,8 @@ package com.github.weisj.swingdsl.layout.miglayout
 import com.github.weisj.swingdsl.bindEnabled
 import com.github.weisj.swingdsl.bindVisible
 import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
@@ -50,6 +52,10 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         if (commitImmediately) commitImmediately()
     }
 
+    override fun createLayoutTag(): LayoutTag {
+        return component.createLayoutTag()
+    }
+
     override fun comment(text: Text, maxLineLength: Int, forComponent: Boolean): CellBuilder<T> {
         row.addCommentRow(
             comment = text,
@@ -65,17 +71,17 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     }
 
     override fun onApply(callback: () -> Unit): CellBuilder<T> {
-        builder.applyCallbacks.getOrPut(component, { mutableListOf() }).add(callback)
+        builder.applyCallbacks.getOrPut(component) { mutableListOf() }.add(callback)
         return this
     }
 
     override fun onReset(callback: () -> Unit): CellBuilder<T> {
-        builder.resetCallbacks.getOrPut(component, { mutableListOf() }).add(callback)
+        builder.resetCallbacks.getOrPut(component) { mutableListOf() }.add(callback)
         return this
     }
 
     override fun onIsModified(callback: () -> Boolean): CellBuilder<T> {
-        builder.isModifiedCallbacks.getOrPut(component, { mutableListOf() }).add(callback)
+        builder.isModifiedCallbacks.getOrPut(component) { mutableListOf() }.add(callback)
         return this
     }
 
