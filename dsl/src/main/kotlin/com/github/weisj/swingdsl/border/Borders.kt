@@ -40,6 +40,8 @@ fun emptyBorder(insets: Insets): Border = emptyBorder(insets.top, insets.left, i
 fun emptyBorder(top: Int = 0, left: Int = 0, bottom: Int = 0, right: Int = 0): Border =
     BorderFactory.createEmptyBorder(top, left, bottom, right)
 
+fun dialogSpacing(): Border = dialogSpacing(top = true, left = true, bottom = true, right = true)
+
 fun dialogSpacing(
     top: Boolean = false,
     left: Boolean = false,
@@ -83,7 +85,8 @@ class LineBorder(private val insets: Insets, private val colorSupplier: () -> Co
         g.fillRect(0, 0, c.width, insets.top)
         g.fillRect(0, insets.top, insets.left, height - insets.height)
         g.fillRect(width - insets.right, insets.top, insets.right, height - insets.height)
-        g.fillRect(insets.left, height - insets.bottom, width - insets.width, insets.bottom)
+        g.fillRect(0, height - insets.bottom, width, insets.bottom)
+        g.translate(-x, -y)
     }
 
     override fun getBorderInsets(c: Component?): Insets = Insets(insets.top, insets.left, insets.bottom, insets.right)
