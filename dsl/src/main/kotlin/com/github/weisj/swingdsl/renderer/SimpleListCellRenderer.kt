@@ -92,14 +92,8 @@ open class SimpleListCellRenderer<T> : JLabel(), ListCellRenderer<T> {
     }
 
     companion object {
-        fun <T> create(toText: (T) -> String): SimpleListCellRenderer<T?> {
-            return object : SimpleListCellRenderer<T?>() {
-                override fun customize(value: T?) {
-                    value?.let {
-                        text = toText(it)
-                    }
-                }
-            }
+        fun <T> create(toText: StringMapper<T>): SimpleListCellRenderer<T?> {
+            return StringMapperListCellRenderer(toText)
         }
 
         fun <T> create(customize: (JLabel, T) -> Unit): SimpleListCellRenderer<T?> {
@@ -108,6 +102,24 @@ open class SimpleListCellRenderer<T> : JLabel(), ListCellRenderer<T> {
                     value?.let { customize(this, it) }
                 }
             }
+        }
+    }
+}
+
+fun interface StringMapper<T> {
+    fun stringValueOf(value: T): String
+}
+
+interface HasStringMapper<T> {
+    val mapper: StringMapper<T>
+}
+
+internal class StringMapperListCellRenderer<T>(override val mapper: StringMapper<T>) :
+    SimpleListCellRenderer<T?>(),
+    HasStringMapper<T> {
+    override fun customize(value: T?) {
+        value?.let {
+            text = mapper.stringValueOf(it)
         }
     }
 }

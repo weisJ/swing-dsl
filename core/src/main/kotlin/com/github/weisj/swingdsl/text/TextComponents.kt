@@ -24,20 +24,51 @@
  */
 package com.github.weisj.swingdsl.text
 
+import com.github.weisj.swingdsl.binding.Property
 import com.github.weisj.swingdsl.binding.PseudoObservableProperty
+import com.github.weisj.swingdsl.binding.SimpleProperty
+import javax.swing.AbstractButton
 import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JRadioButton
+import javax.swing.text.JTextComponent
+
+interface HasTextProperty {
+    val textProp: Property<String>
+}
+
+fun JLabel.textProperty(): Property<String> = when (this) {
+    is HasTextProperty -> textProp
+    else -> SimpleProperty(this::getText)
+}
+
+fun AbstractButton.textProperty(): Property<String> = when (this) {
+    is HasTextProperty -> textProp
+    else -> SimpleProperty(this::getText)
+}
+
+fun JTextComponent.textProperty(): Property<String> = when (this) {
+    is HasTextProperty -> textProp
+    else -> SimpleProperty(this::getText)
+}
+
+fun JComponent.textProperty(): Property<String>? = when (this) {
+    is JTextComponent -> textProperty()
+    is AbstractButton -> textProperty()
+    is JLabel -> textProperty()
+    else -> null
+}
 
 /**
  * Button which takes [Text] instead of a [String].
  */
 open class TextButton @JvmOverloads constructor(
-    private val textProp: Text = emptyText(),
+    final override val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JButton(textProp.get(), icon) {
+) : JButton(textProp.get(), icon), HasTextProperty {
     init {
         textProp.onChange {
             this.text = it
@@ -60,9 +91,9 @@ open class TextButton @JvmOverloads constructor(
  * Checkbox which takes [Text] instead of a [String].
  */
 open class TextCheckBox @JvmOverloads constructor(
-    private val textProp: Text = emptyText(),
+    final override val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JCheckBox(textProp.get(), icon) {
+) : JCheckBox(textProp.get(), icon), HasTextProperty {
     init {
         textProp.onChange {
             this.text = it
@@ -85,9 +116,9 @@ open class TextCheckBox @JvmOverloads constructor(
  * Radiobutton which takes [Text] instead of a [String].
  */
 open class TextRadioButton @JvmOverloads constructor(
-    private val textProp: Text = emptyText(),
+    final override val textProp: Text = emptyText(),
     icon: Icon? = null
-) : JRadioButton(textProp.get(), icon) {
+) : JRadioButton(textProp.get(), icon), HasTextProperty {
     init {
         textProp.onChange {
             this.text = it
@@ -110,9 +141,9 @@ open class TextRadioButton @JvmOverloads constructor(
  * Label which takes [Text] instead of a [String].
  */
 open class TextLabel @JvmOverloads constructor(
-    private val textProp: Text,
+    final override val textProp: Text,
     icon: Icon? = null
-) : JLabel(textProp.get(), icon, LEFT) {
+) : JLabel(textProp.get(), icon, LEFT), HasTextProperty {
     init {
         textProp.onChange {
             this.text = it

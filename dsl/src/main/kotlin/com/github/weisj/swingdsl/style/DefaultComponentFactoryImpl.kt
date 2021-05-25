@@ -39,6 +39,7 @@ import com.github.weisj.swingdsl.text.TextButton
 import com.github.weisj.swingdsl.text.TextCheckBox
 import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.text.TextRadioButton
+import com.github.weisj.swingdsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.util.mix
 import java.awt.Color
 import java.util.function.Consumer
@@ -51,7 +52,6 @@ import javax.swing.JList
 import javax.swing.JRadioButton
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
-import javax.swing.JTree
 import javax.swing.ListModel
 import javax.swing.UIManager
 
@@ -75,8 +75,6 @@ fun Text.asTextProperty(): TextProperty = if (this is TextWrapper) this.textProp
 fun TextProperty.asText(): Text = if (this is TextPropertyWrapper) this.text else TextWrapper(this)
 
 class DefaultComponentFactoryImpl : ComponentFactory {
-
-    private val lazyTree: JTree by lazy { DynamicUI.withDynamic(JTree()) { it.updateUI() } }
 
     override fun createLabel(text: TextProperty, icon: Icon?): WrappedComponent<JLabel> {
         return SelfWrappedComponent(TextLabel(text.asText(), icon))
@@ -150,7 +148,7 @@ class DefaultComponentFactoryImpl : ComponentFactory {
 
     override fun getColorBackgroundColor(): Color {
         return UIManager.getColor("backgroundColorful")
-            ?: lazyTree.background
+            ?: SharedLazyComponents.tree.background
     }
 
     override fun getExpandedIcon(): StateValue<Icon> {

@@ -26,7 +26,6 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.highlight.emptyLayoutTag
 import com.github.weisj.swingdsl.layout.Cell.Companion.UNBOUND_RADIO_BUTTON
 import com.github.weisj.swingdsl.layout.LCFlags
 import com.github.weisj.swingdsl.layout.ModifiablePanel
@@ -70,8 +69,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
         get() = buttonGroupStack.lastOrNull()
     internal var hideableRowNestingLevel = 0
 
-    override val rootRow =
-        MigLayoutRow(parent = null, builder = this, layoutTag = emptyLayoutTag(), indentationLevel = 0)
+    override val rootRow = MigLayoutRow(parent = null, builder = this, indentationLevel = 0)
     override var applyCallbacks: MutableMap<JComponent?, MutableList<() -> Unit>> = linkedMapOf()
     override var resetCallbacks: MutableMap<JComponent?, MutableList<() -> Unit>> = linkedMapOf()
     override var isModifiedCallbacks: MutableMap<JComponent?, MutableList<() -> Boolean>> = linkedMapOf()

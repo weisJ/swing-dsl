@@ -10,6 +10,7 @@ dependencies {
     api(projects.swingExtensionsCore)
     api(projects.swingExtensionsLafSupport)
     implementation(libs.miglayout)
+    implementation(libs.fuzzySearch)
 
     testImplementation(libs.darklaf.core) {
         isChanging = true

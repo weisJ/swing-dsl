@@ -26,7 +26,6 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.text.Text
 import javax.swing.ButtonGroup
@@ -34,9 +33,6 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 
 class InnerCell(val cell: Cell) : Cell() {
-    override fun createLayoutTag(): LayoutTag {
-        return cell.createLayoutTag()
-    }
 
     override fun commentNoWrap(text: Text): CellBuilder<JLabel> {
         return cell.commentNoWrap(text)

@@ -63,7 +63,6 @@ class LayerAccessor(private val component: JLayeredPane) {
     }
 
     operator fun set(layer: Int, comp: Component) {
-        println("Adding $layer $comp")
         component.add(comp, layer, -1)
     }
 

@@ -31,7 +31,7 @@ import com.github.weisj.swingdsl.ModifiableContainerBuilder
 import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
-import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.text.Text
@@ -48,6 +48,9 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     val doIndentSubRows: Boolean
 
     fun commitImmediately()
+
+    fun setSearchPointSink(sink: StringSearchPointSink)
+    fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit)
 
     // manual JvmOverloads
     fun row(init: Row.() -> Unit): Row = row(null as Text?, init)
@@ -115,13 +118,13 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
         text: Text,
         maxLineLength: Int = 70,
         withLeftGap: Boolean = true
-    ): LayoutTag
+    )
 
     fun commentRow(
         text: String,
         maxLineLength: Int = 70,
         withLeftGap: Boolean = true
-    ): LayoutTag = commentRow(textOf(text), maxLineLength, withLeftGap)
+    ): Unit = commentRow(textOf(text), maxLineLength, withLeftGap)
 }
 
 inline fun <reified T : Any> RowBuilder.buttonGroup(

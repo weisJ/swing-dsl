@@ -26,7 +26,6 @@ package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.binding.container.ObservableList
-import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.model.CollectionComboBoxModel
 import com.github.weisj.swingdsl.model.CollectionListModel
@@ -34,6 +33,7 @@ import com.github.weisj.swingdsl.model.ObservableComboBoxModel
 import com.github.weisj.swingdsl.model.ObservableListModel
 import java.awt.Component
 import java.awt.Insets
+import java.awt.KeyboardFocusManager
 import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.Window
@@ -106,7 +106,7 @@ fun JComponent.bindEnabled(condition: ObservableCondition) {
     condition.bind { isEnabled = it }
 }
 
-fun JButton.makeDefaultButton() {
+fun JButton.makeDefaultButton(requestFocus: Boolean = true) {
     check(isDefaultCapable) { "The button is not default capable." }
     val root = rootPane
     if (root != null) {
@@ -116,7 +116,7 @@ fun JButton.makeDefaultButton() {
             override fun ancestorAdded(event: AncestorEvent?) {
                 removeAncestorListener(this)
                 rootPane!!.defaultButton = this@makeDefaultButton
-                this@makeDefaultButton.requestFocusInWindow()
+                if (requestFocus) this@makeDefaultButton.requestFocusInWindow()
             }
 
             override fun ancestorRemoved(event: AncestorEvent?) {}
@@ -199,4 +199,13 @@ private class DocumentChangeListener(val onChange: (DocumentEvent?) -> Unit) : D
     override fun removeUpdate(e: DocumentEvent?) = onChange(e)
 
     override fun changedUpdate(e: DocumentEvent?) = onChange(e)
+}
+
+fun Component.yieldFocus() {
+    check(hasFocus())
+    returnFocusToPreviousOwner()
+}
+
+fun returnFocusToPreviousOwner() {
+    KeyboardFocusManager.getCurrentKeyboardFocusManager().permanentFocusOwner.requestFocusInWindow()
 }

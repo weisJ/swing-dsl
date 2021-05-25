@@ -26,14 +26,14 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.binding.Property
 import com.github.weisj.swingdsl.binding.bind
-import com.github.weisj.swingdsl.binding.onChange
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
 import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.highlight.createLayoutTag
-import com.github.weisj.swingdsl.highlight.emptyLayoutTag
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -43,7 +43,10 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
 import com.github.weisj.swingdsl.style.asUIResource
+import com.github.weisj.swingdsl.text.HasTextProperty
 import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.text.textProperty
+import com.github.weisj.swingdsl.util.getTextPropertyForComponent
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
@@ -53,6 +56,7 @@ import java.lang.Integer.min
 import javax.swing.*
 import javax.swing.border.LineBorder
 import javax.swing.text.JTextComponent
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.reflect.KMutableProperty0
 
@@ -60,11 +64,11 @@ internal class MigLayoutRow(
     private val parent: MigLayoutRow?,
     override val builder: MigLayoutBuilder,
     private val labeled: Boolean = false,
-    private var layoutTag: LayoutTag,
     val noGrid: Boolean = false,
     private val indentationLevel: Int,
     private val incrementsIndentationLevel: Boolean = parent != null
 ) : Row() {
+
     companion object {
         private const val COMPONENT_ENABLED_STATE_KEY = "MigLayoutRow.enabled"
 
@@ -77,7 +81,7 @@ internal class MigLayoutRow(
             forComponent: Boolean,
             withLeftGap: Boolean,
             columnIndex: Int
-        ): LayoutTag {
+        ) {
             val cc = CC()
             val commentRow = parent.createChildRow()
             parent.getOrCreateCommentRowsList().add(commentRow)
@@ -97,28 +101,25 @@ internal class MigLayoutRow(
                     cc.horizontal.gapBefore = gapToBoundSize(indent + extraSpace, true)
                 }
             }
-            return component.createLayoutTag()
         }
 
         // as static method to ensure that members of current row are not used
         // Returns the layout tag corresponding to the title.
-        private fun configureSeparatorRow(row: MigLayoutRow, title: Text?): LayoutTag {
+        private fun configureSeparatorRow(row: MigLayoutRow, title: Text?) {
             val separatorSpec = UIFactory.createSeparatorComponent(title?.asTextProperty())
-            lateinit var titleLayoutTag: LayoutTag
             val comp = if (separatorSpec.providesCustomComponent()) {
                 separatorSpec.provided!!.also {
-                    titleLayoutTag = it.createLayoutTag()
+                    if (title != null) row.issueSearchTag(title, it.createLayoutTag())
                 }
             } else {
                 DynamicUI.withDynamic(TitledSeparator(title)) {
-                    titleLayoutTag = it.label.createLayoutTag()
+                    if (title != null) row.issueSearchTag(title, it.label.createLayoutTag())
                     val dividerColor = UIFactory.dividerColor
                     it.color = dividerColor.enabled
                     it.disabledColor = dividerColor.disabled
                 }
             }
             row.addTitleComponent(comp, isEmpty = title == null)
-            return titleLayoutTag
         }
     }
 
@@ -258,7 +259,22 @@ internal class MigLayoutRow(
 
     internal var cellModeSpans = mutableListOf(CellModeSpan(start = -1, end = -1))
 
-    override fun createLayoutTag(): LayoutTag = layoutTag
+    private var searchSink: StringSearchPointSink? = parent?.searchSink
+
+    private fun issueSearchTag(prop: Property<String>, tag: LayoutTag) {
+        searchSink?.onSearchPointCreated(prop, tag)
+    }
+
+    override fun setSearchPointSink(sink: StringSearchPointSink) {
+        searchSink = sink
+    }
+
+    override fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit) {
+        val currentSink = searchSink
+        searchSink = sink
+        this.init()
+        searchSink = currentSink
+    }
 
     override fun createChildRow(
         label: WrappedComponent<JLabel>?,
@@ -278,14 +294,12 @@ internal class MigLayoutRow(
         title: Text? = null,
         isIndented: Boolean = true,
         incrementsIndent: Boolean = true,
-        childLayoutTag: LayoutTag = label?.createLayoutTag() ?: emptyLayoutTag()
     ): MigLayoutRow {
         val newIndent = if (!this.incrementsIndentationLevel || !isIndented) indent else indent + spacing.indentLevel
         val subRows = getOrCreateSubRowsList()
         val row = MigLayoutRow(
             this, builder,
             labeled = label != null,
-            layoutTag = childLayoutTag,
             noGrid = noGrid,
             indentationLevel = if (subRowIndentationLevel >= 0) subRowIndentationLevel * spacing.indentLevel else newIndent,
             incrementsIndentationLevel = incrementsIndent
@@ -295,12 +309,10 @@ internal class MigLayoutRow(
             val separatorRow = MigLayoutRow(
                 parent = this,
                 builder = builder,
-                layoutTag = emptyLayoutTag(), // Is set further down.
                 indentationLevel = newIndent,
                 noGrid = true
             )
-            val titleLayoutTag = configureSeparatorRow(separatorRow, title)
-            separatorRow.layoutTag = titleLayoutTag
+            configureSeparatorRow(separatorRow, title)
             separatorRow.enabled = subRowsEnabled
             separatorRow.subRowsEnabled = subRowsEnabled
             separatorRow.visible = subRowsVisible
@@ -323,6 +335,7 @@ internal class MigLayoutRow(
         row.subRowsVisible = subRowsVisible
 
         if (label != null) {
+            issueSearchTag(label.component.textProperty(), label.createLayoutTag())
             row.addComponent(label.container)
         }
 
@@ -337,7 +350,7 @@ internal class MigLayoutRow(
         } else {
             cc.growX()
         }
-        addComponent(titleComponent, cc)
+        addComponent(titleComponent, cc, createSearchTag = false)
     }
 
     override fun titledRow(title: Text, init: Row.() -> Unit): Row {
@@ -365,12 +378,10 @@ internal class MigLayoutRow(
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
         val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
 
-        lateinit var titleLayoutTag: LayoutTag
         val separator = if (separatorSpec.providesCustomComponent()) {
-            separatorSpec.provided!!.also { titleLayoutTag = it.component.createLayoutTag() }
+            separatorSpec.provided!!
         } else {
             DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
-                titleLayoutTag = it.label.createLayoutTag()
                 val dividerColor = UIFactory.dividerColor
                 val expandedIcon = UIFactory.expandedIcon
                 val collapsedIcon = UIFactory.collapsedIcon
@@ -381,14 +392,15 @@ internal class MigLayoutRow(
                 it.disabledExpandedIcon = expandedIcon.disabled
                 it.disabledCollapsedIcon = collapsedIcon.disabled
             }
+        }.also {
+            issueSearchTag(title, it.component.createLayoutTag())
         }
 
         val separatorRow = createChildRow()
         separatorRow.addTitleComponent(separator.component, isEmpty = false)
         builder.hideableRowNestingLevel++
         try {
-            val panelRow =
-                createChildRow(indent = indentationLevel + spacing.indentLevel, childLayoutTag = titleLayoutTag)
+            val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
             panelRow.init()
             separator.setCollapseCallback {
                 panelRow.visible = false
@@ -457,7 +469,12 @@ internal class MigLayoutRow(
         }
     }
 
-    internal fun addComponent(component: JComponent, cc: CC = CC()) {
+    internal fun addComponent(component: JComponent, cc: CC = CC(), createSearchTag: Boolean = true) {
+        if (createSearchTag) {
+            getTextPropertyForComponent(component)?.let {
+                issueSearchTag(it, component.createLayoutTag())
+            }
+        }
         components.add(component)
         builder.componentConstraints[component] = cc
 
@@ -528,11 +545,11 @@ internal class MigLayoutRow(
         maxLineLength: Int,
         forComponent: Boolean,
         withLeftGap: Boolean = true
-    ): LayoutTag {
+    ) {
         return addCommentRow(createCommentComponent(comment, maxLineLength), forComponent, withLeftGap)
     }
 
-    override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean): LayoutTag {
+    override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean) {
         return addCommentRow(
             comment = text,
             maxLineLength,
@@ -583,11 +600,11 @@ internal class MigLayoutRow(
         return wrapped
     }
 
-    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true): LayoutTag {
+    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true) {
         gapAfter = "${spacing.commentVerticalTopGap}px!"
 
         val isParentRowLabeled = labeled
-        return createCommentRow(
+        createCommentRow(
             this,
             component,
             indentationLevel,
@@ -686,7 +703,9 @@ internal class MigLayoutRow(
         childCells.forEach { it.commitImmediately() }
     }
 
-    private class ConstrainedTextArea(boundText: Text, private val maxLineLength: Int) : JTextArea() {
+    private class ConstrainedTextArea(override val textProp: Text, private val maxLineLength: Int) :
+        JTextArea(),
+        HasTextProperty {
         private var oldHighlighter = highlighter
         var selectable: Boolean = true
             set(value) {
@@ -709,7 +728,7 @@ internal class MigLayoutRow(
 
         init {
             minimumSize = Dimension(10, 10)
-            boundText.bind {
+            textProp.bind {
                 text = it
 
                 val oldWrap = lineWrap

@@ -33,7 +33,6 @@ import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.component.DefaultJPanel
-import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
@@ -77,8 +76,6 @@ abstract class Cell : ButtonGroupBuilder {
     @Suppress("unused")
     val pushY = CCFlags.pushY
     val push = CCFlags.push
-
-    abstract fun createLayoutTag(): LayoutTag
 
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 
@@ -200,8 +197,8 @@ abstract class Cell : ButtonGroupBuilder {
         modelBinding: MutableProperty<T>,
         renderer: ListCellRenderer<T?>? = null
     ): CellBuilder<JComboBox<T>> {
-        return component(JComboBox(model))
-            .applyToComponent {
+        return component(
+            JComboBox(model).apply {
                 this.renderer = renderer ?: SimpleListCellRenderer.create { it -> it.toString() }
                 val currentItem = modelBinding.get()
                 selectedItem = currentItem
@@ -209,13 +206,13 @@ abstract class Cell : ButtonGroupBuilder {
                     error("$currentItem is not available to be selected in $model.")
                 }
             }
-            .withBinding(
-                { component -> component.selectedItem as T },
-                { component, value -> component.setSelectedItem(value) },
-                modelBinding
-            ) { comp: JComboBox<T>, listener: (ItemEvent) -> Unit ->
-                comp.addItemListener(listener)
-            }
+        ).withBinding(
+            { component -> component.selectedItem as T },
+            { component, value -> component.setSelectedItem(value) },
+            modelBinding
+        ) { comp: JComboBox<T>, listener: (ItemEvent) -> Unit ->
+            comp.addItemListener(listener)
+        }
     }
 
     fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JTextField> =
@@ -329,13 +326,17 @@ abstract class Cell : ButtonGroupBuilder {
     ) {
         constraints(*constraints)
         if (comment != null) {
-            if (comment.get().length < 50) {
-                commentNoWrap(comment)
-            } else {
-                comment(comment)
-            }
+            initComment(comment)
         }
         if (growPolicy != null) growPolicy(growPolicy)
+    }
+
+    fun CellBuilder<*>.initComment(comment: Text) {
+        if (comment.get().length < 50) {
+            commentNoWrap(comment)
+        } else {
+            comment(comment)
+        }
     }
 
     // String overloads

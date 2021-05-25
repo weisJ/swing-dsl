@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl.text
 
 import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.binding.Property
 import com.github.weisj.swingdsl.binding.derive
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -55,7 +56,12 @@ data class ConstantText(internal val text: String) : Text {
 operator fun String.unaryPlus(): Text = textOf(this)
 
 fun textOf(str: String = ""): Text = ConstantText(str)
+
+fun <T> stringPropOf(prop: Property<T>): Property<String> = prop.derive { it.toString() }
+fun <T> stringPropOf(prop: Property<T?>, fallback: String = ""): Property<String> = prop.derive { it?.toString() ?: fallback }
+
 fun <T> textOf(prop: ObservableProperty<T>): Text = prop.derive { it.toString() }
+fun <T> textOf(prop: ObservableProperty<T?>, fallback: String = ""): Text = prop.derive { it?.toString() ?: fallback }
 
 @JvmName("textOfText")
 fun textOf(prop: Text): Text = prop

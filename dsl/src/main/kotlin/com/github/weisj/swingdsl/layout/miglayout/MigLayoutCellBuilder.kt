@@ -29,8 +29,6 @@ package com.github.weisj.swingdsl.layout.miglayout
 import com.github.weisj.swingdsl.bindEnabled
 import com.github.weisj.swingdsl.bindVisible
 import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.highlight.LayoutTag
-import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
@@ -50,10 +48,6 @@ internal class MigLayoutCellBuilder<T : JComponent>(
 
     init {
         if (commitImmediately) commitImmediately()
-    }
-
-    override fun createLayoutTag(): LayoutTag {
-        return component.createLayoutTag()
     }
 
     override fun comment(text: Text, maxLineLength: Int, forComponent: Boolean): CellBuilder<T> {

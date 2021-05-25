@@ -39,12 +39,27 @@ internal sealed class ComponentLayoutTag<T : Component>(protected val anchor: T)
     abstract fun getBounds(): Rectangle
 
     override fun getBoundsIn(comp: Component): Rectangle {
-        return SwingUtilities.convertRectangle(anchor, getBounds(), comp)
+        val anchorBounds = getBounds()
+        if (comp === anchor) return anchorBounds
+        return SwingUtilities.convertRectangle(anchor, anchorBounds, comp)
+    }
+
+    override fun toString(): String {
+        return "LayoutTag[$anchor]"
     }
 }
 
 internal class ComponentBoundsLayoutTag<T : Component>(anchor: T) : ComponentLayoutTag<T>(anchor) {
     override fun getBounds(): Rectangle = Rectangle(0, 0, anchor.width, anchor.height)
+
+    override fun hashCode(): Int {
+        return anchor.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ComponentBoundsLayoutTag<*>) return false
+        return (this::class == other::class) && anchor == other.anchor
+    }
 }
 
 internal class ComponentRegionBoundsLayoutTag<T : Component>(
@@ -52,6 +67,26 @@ internal class ComponentRegionBoundsLayoutTag<T : Component>(
     private val regionSupplier: (T) -> Rectangle
 ) : ComponentLayoutTag<T>(anchor) {
     override fun getBounds(): Rectangle = regionSupplier(anchor)
+}
+
+internal class ComponentFixedRegionBoundsLayoutTag(
+    anchor: JComponent,
+    private val anchorBounds: Rectangle
+) : ComponentLayoutTag<JComponent>(anchor) {
+    override fun getBounds(): Rectangle = anchorBounds
+
+    override fun hashCode(): Int {
+        return anchor.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ComponentFixedRegionBoundsLayoutTag) return false
+        return (this::class == other::class) && anchor == other.anchor && anchorBounds == other.anchorBounds
+    }
+
+    override fun toString(): String {
+        return "LayoutTag[$anchorBounds, $anchor]"
+    }
 }
 
 private object EmptyLayoutTag : LayoutTag {
@@ -62,16 +97,19 @@ private object EmptyLayoutTag : LayoutTag {
 
 fun emptyLayoutTag(): LayoutTag = EmptyLayoutTag
 
+fun <T : JComponent> T.createLayoutTag(bounds: Rectangle): LayoutTag =
+    ComponentFixedRegionBoundsLayoutTag(this, bounds)
+
 fun <T : JComponent> T.createLayoutTag(regionSupplier: (T) -> Rectangle): LayoutTag =
     ComponentRegionBoundsLayoutTag(this, regionSupplier)
 
 fun <T : JComponent> T.createLayoutTag(): LayoutTag =
     ComponentBoundsLayoutTag(this)
 
-fun <T : JComponent> WrappedComponent<T>.createContainerLayoutTag(regionSupplier: (JComponent) -> Rectangle): LayoutTag =
-    container.createLayoutTag(regionSupplier)
+fun <T : JComponent> WrappedComponent<T>.createContainerLayoutTag(): LayoutTag =
+    container.createLayoutTag()
 
-fun <T : JComponent> WrappedComponent<T>.createComponentLayoutTag(regionSupplier: (T) -> Rectangle): LayoutTag =
-    component.createLayoutTag(regionSupplier)
+fun <T : JComponent> WrappedComponent<T>.createComponentLayoutTag(): LayoutTag =
+    component.createLayoutTag()
 
-fun <T : JComponent> WrappedComponent<T>.createLayoutTag(): LayoutTag = container.createLayoutTag()
+fun <T : JComponent> WrappedComponent<T>.createLayoutTag(): LayoutTag = createContainerLayoutTag()

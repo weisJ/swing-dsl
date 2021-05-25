@@ -32,7 +32,6 @@ import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.Observable
 import com.github.weisj.swingdsl.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.makeDefaultButton
 import com.github.weisj.swingdsl.observableSelected
 import com.github.weisj.swingdsl.observableSelection
@@ -59,8 +58,6 @@ annotation class CellMarker
 
 interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuilder<T>> {
     val component: T
-
-    fun createLayoutTag(): LayoutTag
 
     fun onApply(callback: () -> Unit): CellBuilder<T>
     fun onReset(callback: () -> Unit): CellBuilder<T>
@@ -181,8 +178,8 @@ fun <T : AbstractButton> CellBuilder<T>.withSelectedBinding(modelBinding: Mutabl
     }
 }
 
-fun <T : JButton> CellBuilder<T>.makeDefaultButton(): CellBuilder<T> = applyToComponent {
-    this@applyToComponent.makeDefaultButton()
+fun <T : JButton> CellBuilder<T>.makeDefaultButton(requestFocus: Boolean = true): CellBuilder<T> = applyToComponent {
+    this@applyToComponent.makeDefaultButton(requestFocus)
 }
 
 fun <V, T : JList<V>> CellBuilder<T>.observableSelection(): ObservableProperty<IntArray> =

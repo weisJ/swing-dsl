@@ -35,6 +35,10 @@ interface Property<out T> {
     fun get(): T
 }
 
+class SimpleProperty<T>(private val getter: () -> T) : Property<T> {
+    override fun get(): T = getter()
+}
+
 interface MutableProperty<T> : Property<T> {
     fun set(value: T)
 }
@@ -102,9 +106,17 @@ class ChangeTracker<T>(private val prop: Property<T>) {
     }
 }
 
-private class DerivedProperty<T, K>(private val prop: ObservableProperty<K>, private val transform: (K) -> T) :
-    ObservableProperty<T> {
+private open class DerivedProperty<T, K, PropType : Property<K>>(
+    protected val prop: PropType,
+    private val transform: (K) -> T
+) : Property<T> {
     override fun get(): T = transform(prop.get())
+}
+
+private class ObservableDerivedProperty<T, K>(
+    prop: ObservableProperty<K>,
+    transform: (K) -> T
+) : DerivedProperty<T, K, ObservableProperty<K>>(prop, transform), ObservableProperty<T> {
     private val changeTracker = ChangeTracker(this)
 
     override fun onChange(callback: (T) -> Unit) {
@@ -130,7 +142,11 @@ private class CombinedProperty<T, K1, K2>(
     }
 }
 
-fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> = DerivedProperty(this, transform)
+fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> =
+    ObservableDerivedProperty(this, transform)
+
+fun <T, K> Property<K>.derive(transform: (K) -> T): Property<T> =
+    DerivedProperty(this, transform)
 
 fun <T, K1, K2> combinedProperty(
     first: ObservableProperty<K1>,
