@@ -40,15 +40,17 @@ class UndoRedoList {
     val observable: UndoRedoListObservable = UndoRedoListObservable()
 
     @Suppress("UNCHECKED_CAST")
-    fun updateState() {
+    private fun updateState() {
         (observable.canUndo as MutableProperty<Boolean>).set(canUndo())
         (observable.canRedo as MutableProperty<Boolean>).set(canRedo())
     }
 
-    fun add(doAction: () -> Unit, undoAction: (() -> Unit)?) {
+    fun add(doAction: () -> Unit, undoAction: (() -> Unit)?, executeAction: Boolean = true) {
         val action = Action(doAction, undoAction)
         history.add(action)
-        action.doAction()
+        if (executeAction) {
+            action.doAction()
+        }
         updateState()
     }
 

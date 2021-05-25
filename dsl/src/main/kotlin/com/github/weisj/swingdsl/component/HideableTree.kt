@@ -40,7 +40,7 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 
 private val TreePath?.enabled: Boolean
-    get() = (this?.lastPathComponent as? HideableTreeNode<*>)?.isEnabled != false
+    get() = (this?.lastPathComponent as? HideableTreeNode<*>)?.realEnabled != false
 
 @Suppress("LeakingThis")
 open class HideableTree(
@@ -74,15 +74,27 @@ open class HideableTree(
         )
     }
 
-    fun setNodeVisible(node: HideableTreeNode<*>, visible: Boolean) {
+    fun setNodeVisible(node: HideableTreeNode<*>, visible: Boolean, setForcedValue: Boolean = false) {
         val expanded = getExpandedDescendants(TreePath((node.parent!!.path)))?.asSequence()
-        node.isVisible = visible
+        if (!setForcedValue) {
+            if (node.isVisible == visible) return
+            node.isVisible = visible
+        } else {
+            if (node.forceHide == !visible) return
+            node.forceHide = !visible
+        }
         (model as HideableTreeModel).nodeStructureChanged(node.parent)
         expanded?.forEach { expandPath(TreePath(it.path)) }
     }
 
-    fun setNodeEnabled(node: HideableTreeNode<*>, enabled: Boolean) {
-        node.isEnabled = enabled
+    fun setNodeEnabled(node: HideableTreeNode<*>, enabled: Boolean, setForcedValue: Boolean = false) {
+        if (!setForcedValue) {
+            if (node.isEnabled == enabled) return
+            node.isEnabled = enabled
+        } else {
+            if (node.forceDisable == !enabled) return
+            node.forceDisable = !enabled
+        }
         if (!enabled) collapsePath(TreePath(node.path))
         (model as HideableTreeModel).nodeChanged(node)
     }
@@ -186,8 +198,15 @@ class HideableTreeNode<T>(
         return super.getParent() as DefaultMutableTreeNode?
     }
 
-    var isVisible: Boolean = true
-    var isEnabled: Boolean = false
+    val realVisible: Boolean
+        get() = isVisible && !forceHide
+    val realEnabled: Boolean
+        get() = isEnabled && !forceDisable
+
+    internal var isVisible: Boolean = true
+    internal var forceHide: Boolean = false
+    internal var isEnabled: Boolean = true
+    internal var forceDisable: Boolean = false
 
     fun getChildAt(index: Int, filterIsActive: Boolean): TreeNode {
         if (!filterIsActive) return super.getChildAt(index)
@@ -196,7 +215,7 @@ class HideableTreeNode<T>(
         var visibleIndex = -1
         for (it in children.elements().asIterator()) {
             it as HideableTreeNode<*>
-            if (it.isVisible) visibleIndex++
+            if (it.realVisible) visibleIndex++
             realIndex++
             if (visibleIndex == index) {
                 return children.elementAt(realIndex) as TreeNode
@@ -208,7 +227,7 @@ class HideableTreeNode<T>(
     fun getChildCount(filterIsActive: Boolean): Int {
         if (!filterIsActive) return super.getChildCount()
         if (children == null) return 0
-        return children.elements().asSequence().count { (it as HideableTreeNode<*>).isVisible }
+        return children.elements().asSequence().count { (it as HideableTreeNode<*>).realVisible }
     }
 
     private fun bindVisible(
@@ -262,7 +281,7 @@ class HideableTreeCellRendererWrapper(var delegate: TreeCellRenderer) : TreeCell
         hasFocus: Boolean
     ): Component {
         val comp = delegate.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus)
-        comp.isEnabled = (value as? HideableTreeNode<*>)?.isEnabled ?: true
+        comp.isEnabled = (value as? HideableTreeNode<*>)?.realEnabled ?: true
         return comp
     }
 }

@@ -35,10 +35,8 @@ import com.github.weisj.swingdsl.text.Text
 
 class StringValue(element: ContainedElement<Group>, displayName: Text, value: MutableProperty<String>) :
     DefaultValue<String>(element, displayName, value) {
-    override fun createValueUI(row: Row): CellBuilder<*> {
-        return row.textField(preview)() {
-            commitImmediately()
-        }
+    override fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
+        return row.textField(preview)() { commitImmediately() }
     }
 }
 
@@ -46,10 +44,8 @@ class BoolValue(element: ContainedElement<Group>, displayName: Text, value: Muta
     DefaultValue<Boolean>(element, displayName, value) {
     override val showTitle: Boolean = false
     override val showDescription: Boolean = false
-    override fun createValueUI(row: Row): CellBuilder<*> {
-        return row.checkBox(displayName, preview, description)() {
-            commitImmediately()
-        }
+    override fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
+        return row.checkBox(displayName, preview, description)() { commitImmediately() }
     }
 }
 
@@ -61,10 +57,8 @@ class IntValue(
     private val high: Int,
     private val step: Int
 ) : DefaultValue<Int>(element, displayName, value) {
-    override fun createValueUI(row: Row): CellBuilder<*> {
-        return row.spinner(preview, preview.get(), low, high, step)() {
-            commitImmediately()
-        }
+    override fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
+        return row.spinner(preview, preview.get(), low, high, step)() { commitImmediately() }
     }
 }
 
@@ -75,7 +69,7 @@ class ChoiceValue<T : Any>(
     private val choices: ObservableList<T>,
     private val renderer: (T) -> String = { it.toString() },
 ) : DefaultValue<T>(element, displayName, value) {
-    override fun createValueUI(row: Row): CellBuilder<*> {
+    override fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
         return row.comboBox(comboBoxModelOf(choices), preview, SimpleListCellRenderer.create(renderer))() {
             commitImmediately()
         }
@@ -90,7 +84,7 @@ class StaticChoiceValue<T : Any>(
     private val renderer: (T) -> String = { it.toString() },
     private val unwrapLimit: Int = 2
 ) : DefaultValue<T>(element, displayName, value) {
-    override fun createValueUI(row: Row): CellBuilder<*> {
+    override fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
         return if (choices.size <= unwrapLimit) {
             lateinit var cellBuilder: CellBuilder<*>
             row.apply {
@@ -98,7 +92,8 @@ class StaticChoiceValue<T : Any>(
                     choices.forEach { item ->
                         row {
                             bindDisplayStatus(this@StaticChoiceValue)
-                            cellBuilder = radioButton(PseudoObservableProperty { renderer(item) }).applyToComponent {
+                            val rendererProperty = PseudoObservableProperty { renderer(item) }
+                            cellBuilder = radioButton(rendererProperty).applyToComponent {
                                 isSelected = value.get() == item
                                 addActionListener { if (isSelected) preview.set(item) }
                             }

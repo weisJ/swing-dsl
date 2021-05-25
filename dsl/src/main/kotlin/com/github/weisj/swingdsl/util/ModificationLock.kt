@@ -22,44 +22,28 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.highlight
+package com.github.weisj.swingdsl.util
 
-import com.github.weisj.swingdsl.util.drawRect
-import com.github.weisj.swingdsl.util.fillRect
-import java.awt.Color
-import java.awt.Graphics
-import java.awt.Rectangle
-import javax.swing.JComponent
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-interface RegionPainter {
-    fun paint(g: Graphics, bounds: Rectangle)
-}
+class ModificationLock {
 
-class RectanglePainter : RegionPainter {
-    override fun paint(g: Graphics, bounds: Rectangle) {
-        g.color = Color(200, 0, 0)
-        g.drawRect(bounds)
-        g.color = Color(255, 0, 0, 50)
-        g.fillRect(bounds)
-    }
-}
+    @PublishedApi
+    internal val locked: AtomicBoolean = AtomicBoolean(false)
 
-class ComponentHighlighter(private val painter: RegionPainter = RectanglePainter()) : JComponent() {
-
-    var targets: List<LayoutTag> = emptyList()
-        set(value) {
-            field = value
-            repaint()
-        }
-
-    init {
-        isOpaque = false
-    }
-
-    override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-        targets.forEach {
-            painter.paint(g, it.getBoundsIn(this))
+    @OptIn(ExperimentalContracts::class)
+    inline fun withLock(action: () -> Unit) {
+        contract { callsInPlace(action, InvocationKind.AT_MOST_ONCE) }
+        if (!locked.get()) {
+            locked.set(true)
+            try {
+                action()
+            } finally {
+                locked.set(false)
+            }
         }
     }
 }

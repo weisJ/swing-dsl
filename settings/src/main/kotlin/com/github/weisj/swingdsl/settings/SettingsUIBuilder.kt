@@ -26,13 +26,15 @@ package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.component.HyperlinkLabel
+import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.createSink
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.RowBuilder
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.settings.panel.SettingsPanel
-import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.settings.panel.SettingsSearchContext
 import com.github.weisj.swingdsl.text.isConstantNullOrEmpty
 import javax.swing.JComponent
 
@@ -49,13 +51,16 @@ fun SettingsPanel.createCategoryPanel(category: Category): WrappedComponent<Modi
 }
 
 fun Row.addCategoryOverview(category: Category, context: UIContext) {
-    category.description?.let { left { commentRow(it) } }
+    setSearchPointSink(context.createSink(category))
+    category.description?.let {
+        left { commentRow(it) }
+    }
     row {
         cell(isVerticalFlow = true) {
             category.subCategories.forEach { cat ->
                 component(
                     HyperlinkLabel(cat.displayName).apply {
-                        addListener { context.navigateTo(cat) }
+                        addListener { context.reveal(cat) }
                     }
                 )
             }
@@ -79,35 +84,39 @@ fun Row.addCategory(category: Category, context: UIContext) {
 }
 
 fun RowBuilder.addGroup(group: Group, context: UIContext) {
-    maybeTitledRow(group.displayName) {
+    setSearchPointSink(context.createSink(group))
+    maybeTitledRow(group) {
         bindDisplayStatus(group)
         noIndent {
-            row { group.description?.let { commentRow(it, withLeftGap = false) } }
+            group.description?.let {
+                row {
+                    commentRow(it, withLeftGap = false)
+                }
+            }
             group.values.forEach { it.createUI(this, context) }
         }
         group.subGroups.forEach { it.createUI(this, context) }
     }
 }
 
-fun <T> Row.addValue(value: DefaultValue<T>) {
-    valueRow(value) {
-        bindDisplayStatus(value)
-        value.createValueUI(this)() {
-            if (value.showDescription) value.description?.let {
-                if (it.get().length < 50) {
-                    commentNoWrap(it)
-                } else {
-                    comment(it, forComponent = true)
+fun <T> Row.addValue(value: DefaultValue<T>, context: UIContext) {
+    withSearchPointSink(context.createSink(value)) {
+        valueRow(value) {
+            bindDisplayStatus(value)
+            value.createValueUI(this, context)() {
+                if (value.showDescription) value.description?.let {
+                    initComment(it)
                 }
             }
+            onGlobalApply { value.value.set(value.preview.get()) }
+            onGlobalReset { value.preview.set(value.value.get()) }
+            onGlobalIsModified { value.value.get() != value.preview.get() }
         }
-        onGlobalApply { value.value.set(value.preview.get()) }
-        onGlobalReset { value.preview.set(value.value.get()) }
-        onGlobalIsModified { value.value.get() != value.preview.get() }
     }
 }
 
-private fun RowBuilder.maybeTitledRow(name: Text?, init: Row.() -> Unit): Row {
+private fun RowBuilder.maybeTitledRow(element: Element, init: Row.() -> Unit): Row {
+    val name = element.displayName
     return if (!name.isConstantNullOrEmpty()) {
         titledRow(name, init)
     } else {
@@ -115,11 +124,11 @@ private fun RowBuilder.maybeTitledRow(name: Text?, init: Row.() -> Unit): Row {
     }
 }
 
-private fun Row.valueRow(value: DefaultValue<*>, init: Row.() -> Unit): Row {
+private fun <T> Row.valueRow(value: DefaultValue<T>, init: Row.() -> Unit): Row {
     return if (value.showTitle) {
         row(value.displayName, init = init)
     } else {
-        if (value.parent is TopLevel && value.parent.displayName.isConstantNullOrEmpty()) {
+        if (value.parent is TopLevel && !value.parent.displayName.isConstantNullOrEmpty()) {
             lateinit var r: Row
             left {
                 r = row(init)
@@ -136,8 +145,8 @@ fun BuilderWithEnabledProperty<*>.bindDisplayStatus(element: Element) {
     visibleIf(element.displayState.visible)
 }
 
-interface UIContext {
-    fun navigateTo(category: Category)
+interface UIContext : SettingsSearchContext {
+    fun reveal(category: Category, tag: LayoutTag? = null, includeInNavigationHistory: Boolean = true)
 }
 
 interface UIParticipant {

@@ -118,9 +118,10 @@ class BreadcrumbBar<T> : JComponent() {
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         g ?: return
-        val ySep = (height - breadcrumbLayout.separatorSize.height) / 2
-        val wSep = breadcrumbLayout.separatorSize.width
+        // Give some extra room to avoid the text being cut off.
+        val wSep = breadcrumbLayout.separatorSize.width + 1
         val hSep = breadcrumbLayout.separatorSize.height
+        val ySep = (height - hSep) / 2
         for (i in breadCrumbs.indices) {
             val item = breadCrumbs[i]
             val rect = breadcrumbLayout.layoutRects[i]

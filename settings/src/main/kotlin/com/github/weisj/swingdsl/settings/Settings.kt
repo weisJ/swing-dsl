@@ -71,7 +71,21 @@ interface Element {
     val identifier: String
     val displayName: Text?
     val description: Text?
-    fun getPath(): List<Element>
+
+    // Annotating this method with @JvmDefault, will make it such
+    // that it is dispatched on the implementing class instead of a
+    // possible delegate. Hence in this context 'this' actually refers
+    // to the desired object
+    @JvmDefault
+    fun getPath(): List<Element> {
+        val path = mutableListOf(this)
+        var p: Element? = parent
+        while (p != null) {
+            path.add(0, p)
+            p = p.parent
+        }
+        return path
+    }
 
     val displayState: DisplayState
 }
@@ -109,6 +123,11 @@ interface Value<T> : ContainedElement<Group>, UIParticipant {
     val preview: ObservableMutableProperty<T>
 }
 
+fun Element.getNearestCategory(): Category? {
+    if (this is Category) return this
+    return parent?.getNearestCategory()
+}
+
 data class DefaultDisplayState(
     override var enabled: ObservableCondition = conditionOf(true),
     var originalEnabled: ObservableCondition = enabled,
@@ -116,23 +135,13 @@ data class DefaultDisplayState(
     var originalVisible: ObservableCondition = visible,
 ) : DisplayState
 
-class DefaultVisualElement<T : ContainerElement?>(
+class DefaultElement<T : ContainerElement?>(
     override val parent: T,
     override val identifier: String,
     override val displayName: Text? = null,
     override val description: Text? = null,
     override val displayState: DisplayState = DefaultDisplayState()
 ) : ContainedElement<T> {
-
-    override fun getPath(): List<Element> {
-        val path = mutableListOf<Element>(this)
-        var p: Element? = parent
-        while (p != null) {
-            path.add(0, p)
-            p = p.parent
-        }
-        return path
-    }
 
     override fun toString(): String = toString(true)
 
@@ -223,8 +232,10 @@ open class DefaultValue<T>(
         return "$element ${value.get()}"
     }
 
-    open fun createValueUI(row: Row): CellBuilder<*> {
-        return row.label("Not Implemented").applyToComponent { foreground = Color.RED }
+    open fun createValueUI(row: Row, context: UIContext): CellBuilder<*> {
+        return row.label("Not Implemented").applyToComponent {
+            foreground = Color.RED
+        }
     }
 
     open val showTitle
@@ -232,6 +243,6 @@ open class DefaultValue<T>(
     open val showDescription = true
 
     override fun createUI(row: Row, context: UIContext) {
-        row.addValue(this)
+        row.addValue(this, context)
     }
 }

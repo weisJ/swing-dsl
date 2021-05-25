@@ -62,6 +62,32 @@ class CategoryTree private constructor(
         }
     }
 
+    fun setMask(mask: Set<Category>) {
+        // We need to make sure all categories along the way are displayed too.
+        val visibleCategories = mask.flatMap { it.getPath() }
+        nodeMap.forEach { (t, u) ->
+            setNodeVisible(u, t in visibleCategories, setForcedValue = true)
+        }
+    }
+
+    fun resetMask() {
+        val currentSelection = selectionPaths
+        nodeMap.forEach { (_, u) ->
+            setNodeVisible(u, true, setForcedValue = true)
+        }
+        // This is save to do, as selected paths need to be completely visible.
+        // Either way their path won't change by making other nodes visible as well.
+        selectionPaths = currentSelection
+    }
+
+    fun isCategoryVisible(category: Category): Boolean {
+        return nodeMap[category]?.realVisible ?: false
+    }
+
+    fun getRowForCategory(category: Category): Int {
+        return nodeMap[category]?.let { getRowForPath(TreePath(it.path)) } ?: -1
+    }
+
     companion object {
         private fun HideableTreeNode<*>.addCategories(
             categories: List<Category>,
@@ -71,6 +97,9 @@ class CategoryTree private constructor(
             for (category in categories) {
                 val node = HideableTreeNode(category)
                 nodeMap[category] = node
+                // We need to apply the binding for the node alone.
+                // Coercion with parent states is handled through the nature of the
+                // tree structure alone. This way we minimize the needed modifications of the layout.
                 val visibleProp = category.displayState.let {
                     if (it is DefaultDisplayState) it.originalVisible
                     else it.visible
@@ -127,7 +156,7 @@ private class CategoryTreeCellRenderer : DefaultTreeCellRenderer() {
         hasFocus: Boolean
     ): Component {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
-        if (value is HideableTreeNode<*>) {
+        if (value is HideableTreeNode<*> && value.value is Category) {
             val category = value.value as Category
             icon = null
             disabledIcon = null

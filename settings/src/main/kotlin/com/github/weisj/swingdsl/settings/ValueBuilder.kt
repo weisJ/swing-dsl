@@ -29,10 +29,10 @@ import com.github.weisj.swingdsl.binding.MutableProperty
 import com.github.weisj.swingdsl.binding.PropertyBinding
 import com.github.weisj.swingdsl.binding.container.ObservableList
 import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.highlight.createSink
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.text.Text
 import com.github.weisj.swingdsl.text.textOf
-import javax.swing.JComponent
 import kotlin.reflect.KMutableProperty0
 
 class ValueBuilder<T>(
@@ -216,20 +216,22 @@ inline fun <reified T : Enum<T>> GroupBuilder<*, *>.choice(
     choice(value, identifier, name, description, enumValues<T>().asList(), unwrapLimit, renderer, init)
 }
 
+fun interface CustomUIBuilderScope {
+    fun build(row: Row, element: Element, uiContext: UIContext)
+}
+
 fun GroupBuilder<*, *>.custom(
     identifier: String = IDGenerator.create(),
     name: Text,
-    componentProvider: () -> JComponent,
-    init: ValueBuilder<Any?>.() -> Unit
+    description: Text? = null,
+    componentBuilder: CustomUIBuilderScope,
+    init: ValueBuilder<Any?>.() -> Unit = {}
 ) {
-    valueImpl(PropertyBinding({ null }, {}), identifier, name, init = init) { a, b, c ->
+    valueImpl(PropertyBinding({ null }, {}), identifier, name, description = description, init = init) { a, b, c ->
         object : DefaultValue<Any?>(a, b, c) {
-            private val thisRef: DefaultValue<Any?> = this
             override fun createUI(row: Row, context: UIContext) {
-                row.row {
-                    bindDisplayStatus(thisRef)
-                    component(componentProvider())
-                }
+                row.setSearchPointSink(context.createSink(this))
+                componentBuilder.build(row, this, context)
             }
         }
     }

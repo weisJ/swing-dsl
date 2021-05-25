@@ -25,6 +25,7 @@
 import com.formdev.flatlaf.extras.FlatInspector
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.DarculaTheme
+import com.github.weisj.swingdsl.binding.plus
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.settings.Category
@@ -33,10 +34,13 @@ import com.github.weisj.swingdsl.settings.boolean
 import com.github.weisj.swingdsl.settings.category
 import com.github.weisj.swingdsl.settings.choice
 import com.github.weisj.swingdsl.settings.createSettingsPanel
+import com.github.weisj.swingdsl.settings.custom
 import com.github.weisj.swingdsl.settings.int
 import com.github.weisj.swingdsl.settings.string
 import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.unaryPlus
+import java.awt.Color
 import java.awt.Dimension
 
 class TestData {
@@ -144,10 +148,24 @@ fun makeCategory(name: String): Category {
     }
 }
 
-fun SubCategoryBuilder.addNested(level: Int) {
+fun SubCategoryBuilder.addNested(identifier: String, level: Int) {
     if (level == 0) return
     category("Level $level") {
-        addNested(level - 1)
+        if (level - 1 == 0) {
+            group("Group Level $level $identifier") {
+                custom(
+                    name = +"Group Level $level $identifier",
+                    description = +"Description Level $level $identifier",
+                    componentBuilder = { row, element, _ ->
+                        row.label((+"Value ") + element.displayName!!).applyToComponent {
+                            foreground = Color.GREEN.darker()
+                        }
+                    }
+                )
+            }
+        } else {
+            addNested(identifier, level - 1)
+        }
     }
 }
 
@@ -162,8 +180,8 @@ fun main() {
                 +createSettingsPanel(
                     category("Root") {
                         ('A'..'Z').forEach {
-                            category(it.toString()) {
-                                addNested(5)
+                            category(it.toString().repeat(5)) {
+                                addNested(it.toString(), 3)
                             }
                         }
                     },

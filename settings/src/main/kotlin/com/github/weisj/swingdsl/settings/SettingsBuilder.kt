@@ -73,7 +73,7 @@ abstract class ElementBuilder<Parent : ContainerElement?, Type : ContainedElemen
             displayState.visible = displayState.visible and parent.displayState.visible
             displayState.enabled = displayState.enabled and parent.displayState.enabled
         }
-        return DefaultVisualElement(parent, identifier, displayName, description, displayState)
+        return DefaultElement(parent, identifier, displayName, description, displayState)
     }
 
     fun doBuild(parent: Parent): Type {

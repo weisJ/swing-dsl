@@ -41,14 +41,12 @@ import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.layout.observableIntValue
-import com.github.weisj.swingdsl.layout.observableSelection
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.listModelOf
 import com.github.weisj.swingdsl.observableSelection
 import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.toKeyStroke
 import java.awt.event.KeyEvent
-import java.util.*
 
 class GroceryList {
     val notes = observableListOf("A", "B", "C", "D")
