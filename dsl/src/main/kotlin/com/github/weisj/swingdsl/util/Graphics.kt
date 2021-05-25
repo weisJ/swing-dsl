@@ -24,8 +24,16 @@
  */
 package com.github.weisj.swingdsl.util
 
+import java.awt.BasicStroke
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.Rectangle
+import java.awt.RenderingHints
+import java.awt.Shape
+import java.awt.geom.Path2D
+import java.awt.geom.Rectangle2D
+import java.awt.geom.RoundRectangle2D
+import kotlin.math.absoluteValue
 
 fun Graphics.drawRect(rect: Rectangle) {
     drawRect(rect.x, rect.y, rect.width, rect.height, lineWidth = 1)
@@ -42,4 +50,88 @@ fun Graphics.drawRect(x: Int, y: Int, w: Int, h: Int, lineWidth: Int = 1) {
     fillRect(w - lineWidth, lineWidth, lineWidth, h - 2 * lineWidth)
     fillRect(0, h - lineWidth, w, lineWidth)
     translate(-x, -y)
+}
+
+private const val EPSILON = 0.0001
+
+val Graphics2D.strokeWidth: Float
+    get() {
+        val stroke = this.stroke
+        return if (stroke is BasicStroke) stroke.lineWidth else 1f
+    }
+
+private fun useQuartz(): Boolean {
+    return "true" == System.getProperty("apple.awt.graphics.UseQuartz")
+}
+
+fun Graphics2D.setupStrokePainting() {
+    setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    setRenderingHint(
+        RenderingHints.KEY_STROKE_CONTROL,
+        if (useQuartz()) RenderingHints.VALUE_STROKE_PURE else RenderingHints.VALUE_STROKE_NORMALIZE
+    )
+}
+
+fun Graphics2D.drawRoundedRectangle(
+    bounds: Rectangle,
+    arc: Float,
+    lineWidth: Float = strokeWidth,
+    inside: Boolean = true
+) {
+    drawRoundedRectangle(bounds.bounds2D, arc, lineWidth, inside)
+}
+
+fun Graphics2D.drawRoundedRectangle(
+    bounds: Rectangle2D,
+    arc: Float,
+    lineWidth: Float = strokeWidth,
+    inside: Boolean = true
+) {
+    drawRoundedRectangle(
+        bounds.x.toFloat(), bounds.y.toFloat(), bounds.width.toFloat(), bounds.height.toFloat(),
+        arc, lineWidth, inside
+    )
+}
+
+fun Graphics2D.drawRoundedRectangle(
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    arc: Float,
+    lineWidth: Float = strokeWidth,
+    inside: Boolean = true
+) {
+    setupStrokePainting()
+    fill(createRoundedLinePath(x, y, width, height, arc, lineWidth, inside))
+}
+
+fun createRoundedLinePath(
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    arc: Float,
+    lineWidth: Float,
+    inside: Boolean = true
+): Path2D {
+    val outerRect: Shape
+    val innerRect: Shape
+
+    if (arc.absoluteValue < EPSILON) {
+        outerRect = Rectangle2D.Float(x, y, width, height)
+        innerRect = Rectangle2D.Float(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth)
+    } else {
+        val outerArc = if (inside) arc else arc + lineWidth
+        val innerArc = if (inside) arc - lineWidth else arc
+        outerRect = RoundRectangle2D.Float(x, y, width, height, outerArc, outerArc)
+        innerRect = RoundRectangle2D.Float(
+            x + lineWidth, y + lineWidth,
+            width - 2 * lineWidth, height - 2 * lineWidth, innerArc, innerArc
+        )
+    }
+    val path: Path2D = Path2D.Float(Path2D.WIND_EVEN_ODD)
+    path.append(outerRect, false)
+    path.append(innerRect, false)
+    return path
 }

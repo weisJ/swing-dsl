@@ -24,22 +24,20 @@
  */
 package com.github.weisj.swingdsl.settings.panel
 
-import com.github.weisj.swingdsl.binding.Property
 import com.github.weisj.swingdsl.highlight.ComponentHighlighter
-import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.MaskedOvalPainter
 import com.github.weisj.swingdsl.highlight.SearchContext
 import com.github.weisj.swingdsl.highlight.SearchResult
 import com.github.weisj.swingdsl.highlight.SearchResultItem
 import com.github.weisj.swingdsl.highlight.Searchable
-import com.github.weisj.swingdsl.highlight.StringSearchable
 import com.github.weisj.swingdsl.highlight.search
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
+import java.awt.Color
 
 typealias SettingsSearchContext = SearchContext<Element>
-typealias SettingsSearchable = Searchable<Element>
 
 class SettingsSearchResult internal constructor(
     override val entries: List<SearchResultItem<Element>>,
@@ -51,14 +49,25 @@ class SettingsSearchResult internal constructor(
 class SearchHandler(
     private val searchContext: UIContext
 ) {
-    val highlighter: ComponentHighlighter = ComponentHighlighter()
+    val highlighter: ComponentHighlighter = ComponentHighlighter(
+        MaskedOvalPainter(
+            lineColor = Color(199, 134, 7, 170)
+        )
+    )
     var result: SettingsSearchResult? = null
         set(value) {
             field = value
             if (value == null) {
                 highlighter.targets = emptyList()
+                highlighter.isVisible = false
+            } else {
+                highlighter.isVisible = true
             }
         }
+
+    init {
+        highlighter.isVisible = false
+    }
 
     fun search(searchTerm: String): SettingsSearchResult {
         val result = searchContext.search(searchTerm)
@@ -76,8 +85,4 @@ class SearchHandler(
         }
         highlighter.targets = highlightTargets.map { it.searchable.tag }
     }
-}
-
-fun Element.createSearchTag(property: Property<String>, layoutTag: LayoutTag): SettingsSearchable {
-    return StringSearchable(property, this, layoutTag)
 }

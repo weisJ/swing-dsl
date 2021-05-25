@@ -25,6 +25,8 @@
 package com.github.weisj.swingdsl.highlight
 
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.subtract
+import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
 import java.awt.Component
 import java.awt.Rectangle
 import javax.swing.JComponent
@@ -49,8 +51,12 @@ internal sealed class ComponentLayoutTag<T : Component>(protected val anchor: T)
     }
 }
 
-internal class ComponentBoundsLayoutTag<T : Component>(anchor: T) : ComponentLayoutTag<T>(anchor) {
-    override fun getBounds(): Rectangle = Rectangle(0, 0, anchor.width, anchor.height)
+internal class ComponentBoundsLayoutTag<T : JComponent>(anchor: T) : ComponentLayoutTag<T>(anchor) {
+    override fun getBounds(): Rectangle {
+        val paddings = getVisualPaddingsForComponent(anchor)
+        val bounds = Rectangle(0, 0, anchor.width, anchor.height)
+        return if (paddings != null) bounds.subtract(paddings, inPlace = true) else bounds
+    }
 
     override fun hashCode(): Int {
         return anchor.hashCode()

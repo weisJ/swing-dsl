@@ -59,7 +59,8 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout.patched
 
-import com.github.weisj.swingdsl.laf.VisualPaddingProvider
+import com.github.weisj.swingdsl.isEmpty
+import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
 import net.miginfocom.layout.ComponentWrapper
 import net.miginfocom.layout.ContainerWrapper
 import net.miginfocom.layout.LayoutUtil
@@ -71,8 +72,6 @@ import javax.swing.JComponent
 import javax.swing.JEditorPane
 import javax.swing.JTextArea
 import javax.swing.SwingUtilities
-import javax.swing.border.Border
-import javax.swing.border.CompoundBorder
 import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
 
@@ -280,12 +279,9 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
             return null
         }
 
-        val paddings = when (val unwrapped = unwrapBorder(border)) {
-            is VisualPaddingProvider -> unwrapped.getVisualPaddings(c)
-            else -> c.getClientProperty(VisualPaddingProvider.VISUAL_PADDING_PROP) as? Insets
-        } ?: return null
+        val paddings = getVisualPaddingsForComponent(c) ?: return null
 
-        if (paddings.top == 0 && paddings.left == 0 && paddings.bottom == 0 && paddings.right == 0) {
+        if (paddings.isEmpty()) {
             return null
         }
 
@@ -351,14 +347,6 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
             c is JTextArea || c is JEditorPane || java.lang.Boolean.TRUE == c.getClientProperty("migLayout.dynamicAspectRatio") -> LayoutUtil.HORIZONTAL
             else -> -1
         }
-    }
-
-    private fun unwrapBorder(border: Border): Border {
-        var b = border
-        while (b is CompoundBorder) {
-            b = b.outsideBorder
-        }
-        return b
     }
 }
 

@@ -32,7 +32,6 @@ import com.github.weisj.swingdsl.model.CollectionListModel
 import com.github.weisj.swingdsl.model.ObservableComboBoxModel
 import com.github.weisj.swingdsl.model.ObservableListModel
 import java.awt.Component
-import java.awt.Insets
 import java.awt.KeyboardFocusManager
 import java.awt.MouseInfo
 import java.awt.Point
@@ -125,12 +124,6 @@ fun JButton.makeDefaultButton(requestFocus: Boolean = true) {
         })
     }
 }
-
-val Insets.width
-    get() = left + right
-
-val Insets.height
-    get() = top + bottom
 
 fun Component?.getWindow(): Window? {
     this ?: return null
