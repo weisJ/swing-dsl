@@ -26,7 +26,7 @@
 // Auto-generated file. DO NOT EDIT!
 @file:Suppress("unused")
 
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
 @JvmName("floatComparedToByte")
 infix fun ObservableProperty<Float>.comparedTo(other: ObservableProperty<Byte>): ObservableProperty<Int> =
@@ -753,7 +753,7 @@ operator fun ObservableProperty<Float>.unaryPlus(): ObservableProperty<Float> = 
 
 @JvmName("floatUnaryMinus")
 operator fun ObservableProperty<Float>.unaryMinus(): ObservableProperty<Float> =
-    derive { a -> -a.toFloat() }
+    derive { a -> -a }
 
 @JvmName("floatToChar")
 fun ObservableProperty<Float>.toChar(): ObservableProperty<Char> =

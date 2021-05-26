@@ -24,15 +24,15 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.ObservableMutableProperty
-import com.github.weisj.swingdsl.binding.observableProperty
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.conditionOf
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
+import com.github.weisj.swingdsl.core.binding.observableProperty
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.conditionOf
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.isConstantNullOrEmpty
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.isConstantNullOrEmpty
 import java.awt.Color
 
 @DslMarker

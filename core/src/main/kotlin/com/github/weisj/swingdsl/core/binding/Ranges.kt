@@ -22,10 +22,10 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.not
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.not
 
 @JvmName("rangeToFloat")
 operator fun ObservableProperty<Float>.rangeTo(other: ObservableProperty<Float>): ObservableProperty<ClosedFloatingPointRange<Float>> =

@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
 
 abstract class CategoryBuilder<C : Category?, T> internal constructor(
     parentBuilder: ElementBuilder<*, *>?,

@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.component
 
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.TextLabel
 import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.on
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextLabel
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.util.toHtml
 import java.awt.Color

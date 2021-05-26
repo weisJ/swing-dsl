@@ -24,6 +24,11 @@
  */
 package com.github.weisj.swingdsl.style
 
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.TextButton
+import com.github.weisj.swingdsl.core.text.TextCheckBox
+import com.github.weisj.swingdsl.core.text.TextLabel
+import com.github.weisj.swingdsl.core.text.TextRadioButton
 import com.github.weisj.swingdsl.icons.ArrowDownIcon
 import com.github.weisj.swingdsl.icons.ArrowRightIcon
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
@@ -34,11 +39,6 @@ import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.StateValue
 import com.github.weisj.swingdsl.laf.TextProperty
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.TextButton
-import com.github.weisj.swingdsl.text.TextCheckBox
-import com.github.weisj.swingdsl.text.TextLabel
-import com.github.weisj.swingdsl.text.TextRadioButton
 import com.github.weisj.swingdsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.util.mix
 import java.awt.Color

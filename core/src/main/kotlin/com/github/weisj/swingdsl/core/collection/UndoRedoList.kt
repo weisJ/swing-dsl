@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.collection
+package com.github.weisj.swingdsl.core.collection
 
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.observableProperty
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.observableProperty
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 
 class Action(val doAction: () -> Unit, val undoAction: (() -> Unit)?)
 

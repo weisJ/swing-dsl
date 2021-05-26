@@ -25,7 +25,7 @@
 package com.github.weisj.swingdsl.style
 
 import com.github.weisj.swingdsl.ObservableComponentProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import java.awt.Color
 import javax.swing.JComponent
 

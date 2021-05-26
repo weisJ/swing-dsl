@@ -24,15 +24,16 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.inc
-import com.github.weisj.swingdsl.binding.observableProperty
-import com.github.weisj.swingdsl.binding.plus
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.centered
-import com.github.weisj.swingdsl.condition.isEqualTo
-import com.github.weisj.swingdsl.condition.isTrue
 import com.github.weisj.swingdsl.config.CloseOperation
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.inc
+import com.github.weisj.swingdsl.core.binding.observableProperty
+import com.github.weisj.swingdsl.core.binding.plus
+import com.github.weisj.swingdsl.core.condition.isEqualTo
+import com.github.weisj.swingdsl.core.condition.isTrue
+import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.layout.ModifiablePanel
@@ -40,7 +41,6 @@ import com.github.weisj.swingdsl.layout.observableSelected
 import com.github.weisj.swingdsl.layout.observableText
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.text.textOf
 import com.github.weisj.swingdsl.unaryPlus
 import javax.swing.JLabel
 
@@ -67,7 +67,7 @@ fun main() {
                     }
                     modifiablePanel = center {
                         scrollPane {
-                            panel {
+                            +panel {
                                 lateinit var boolProp: ObservableProperty<Boolean>
                                 lateinit var stringProp: ObservableProperty<String>
                                 hideableRow("Row 1", startHidden = false) {

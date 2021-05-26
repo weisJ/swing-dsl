@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.layout
 
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.text.Text
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel

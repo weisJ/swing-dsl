@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.text
+package com.github.weisj.swingdsl.core.text
 
 import java.util.*
 

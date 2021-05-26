@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.component
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.onSwingThread
 import java.awt.Component
 import javax.swing.JTree

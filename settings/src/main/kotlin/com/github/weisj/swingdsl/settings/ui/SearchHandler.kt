@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
-import com.github.weisj.swingdsl.binding.ObservableMutableProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.bind
-import com.github.weisj.swingdsl.binding.observableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.binding.observableProperty
 import com.github.weisj.swingdsl.highlight.ComponentHighlighter
 import com.github.weisj.swingdsl.highlight.MaskedOvalPainter
 import com.github.weisj.swingdsl.highlight.SearchPresenter

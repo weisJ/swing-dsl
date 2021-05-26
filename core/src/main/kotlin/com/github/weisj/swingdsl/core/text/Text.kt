@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.text
+package com.github.weisj.swingdsl.core.text
 
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.Property
-import com.github.weisj.swingdsl.binding.derive
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.Property
+import com.github.weisj.swingdsl.core.binding.derive
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 

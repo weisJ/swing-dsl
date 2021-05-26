@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import javax.swing.JComponent
 
 class ClientPropertyAccessor(@PublishedApi internal val comp: JComponent) {

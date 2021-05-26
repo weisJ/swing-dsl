@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.highlight
 
-import com.github.weisj.swingdsl.binding.Property
+import com.github.weisj.swingdsl.core.binding.Property
 import me.xdrop.fuzzywuzzy.ratios.PartialRatio
 
 interface Searchable<T> {

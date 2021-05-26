@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.text
+package com.github.weisj.swingdsl.core.text
 
-import com.github.weisj.swingdsl.binding.Property
-import com.github.weisj.swingdsl.binding.PseudoObservableProperty
-import com.github.weisj.swingdsl.binding.SimpleProperty
+import com.github.weisj.swingdsl.core.binding.Property
+import com.github.weisj.swingdsl.core.binding.PseudoObservableProperty
+import com.github.weisj.swingdsl.core.binding.SimpleProperty
 import javax.swing.AbstractButton
 import javax.swing.Icon
 import javax.swing.JButton

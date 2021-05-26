@@ -27,9 +27,9 @@
 package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderMarker
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOfNullable
 import com.github.weisj.swingdsl.layout.miglayout.MigLayoutBuilder
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.Container
 import java.awt.event.ActionListener
 import javax.swing.ButtonGroup

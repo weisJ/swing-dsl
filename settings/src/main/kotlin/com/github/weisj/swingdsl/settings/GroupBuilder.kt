@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.text.Text
 
 abstract class GroupBuilder<C : ContainerElement, T> internal constructor(
     parentBuilder: ElementBuilder<*, *>?,

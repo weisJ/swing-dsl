@@ -25,7 +25,9 @@
 import com.formdev.flatlaf.extras.FlatInspector
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.DarculaTheme
-import com.github.weisj.swingdsl.binding.plus
+import com.github.weisj.swingdsl.core.binding.plus
+import com.github.weisj.swingdsl.core.text.textOf
+import com.github.weisj.swingdsl.core.text.unaryPlus
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.settings.Category
@@ -37,8 +39,6 @@ import com.github.weisj.swingdsl.settings.createSettingsPanel
 import com.github.weisj.swingdsl.settings.custom
 import com.github.weisj.swingdsl.settings.int
 import com.github.weisj.swingdsl.settings.string
-import com.github.weisj.swingdsl.text.textOf
-import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.unaryPlus
 import java.awt.Color
 import java.awt.Dimension

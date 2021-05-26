@@ -27,12 +27,12 @@
 package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.ModifiableComponent
-import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.component.DefaultJPanel
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.text.Text
 import java.awt.AWTEvent
 import java.awt.BorderLayout
 import java.awt.Component

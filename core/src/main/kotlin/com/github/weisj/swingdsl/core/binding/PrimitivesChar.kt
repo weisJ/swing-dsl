@@ -26,7 +26,7 @@
 // Auto-generated file. DO NOT EDIT!
 @file:Suppress("unused")
 
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
 @JvmName("charComparedToChar")
 infix fun ObservableProperty<Char>.comparedTo(other: ObservableProperty<Char>): ObservableProperty<Int> =

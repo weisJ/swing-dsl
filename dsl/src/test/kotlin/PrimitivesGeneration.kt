@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -32,6 +32,8 @@ enum class Operation(
     val impl: (String, String) -> String,
     val isUnary: Boolean = false,
 ) {
+    IDENTITY("identity", true, { a, _ -> a }),
+
     ADD("plus", true, { a, b -> "$a + $b" }),
     MINUS("minus", true, { a, b -> "$a - $b" }),
     TIMES("times", true, { a, b -> "$a * $b" }),
@@ -244,7 +246,8 @@ fun main() {
                             )
                         )
                         op.type.isUnary() -> {
-                            val conversionOp = getConversionTo(op.outType)
+                            val conversionOp =
+                                if (type == op.outType) Operation.IDENTITY else getConversionTo(op.outType)
                             val impl = if (op.type == Operation.UNARY_MINUS) {
                                 { a, _ -> conversionOp.impl("-$a", "") }
                             } else {

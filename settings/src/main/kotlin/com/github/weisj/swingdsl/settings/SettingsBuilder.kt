@@ -25,14 +25,14 @@
 package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.and
-import com.github.weisj.swingdsl.condition.conditionOf
-import com.github.weisj.swingdsl.condition.isFalse
-import com.github.weisj.swingdsl.condition.isTrue
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.and
+import com.github.weisj.swingdsl.core.condition.conditionOf
+import com.github.weisj.swingdsl.core.condition.isFalse
+import com.github.weisj.swingdsl.core.condition.isTrue
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
 import java.util.*
 import kotlin.reflect.KMutableProperty0
 

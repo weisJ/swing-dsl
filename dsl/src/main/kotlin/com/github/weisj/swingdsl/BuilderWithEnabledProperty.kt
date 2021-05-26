@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 
 interface BuilderWithEnabledProperty<out T> {
     fun visible(isVisible: Boolean)

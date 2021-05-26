@@ -24,15 +24,15 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.binding.KPropertyBackedProperty
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.container.ObservableList
-import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.core.binding.KPropertyBackedProperty
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.binding.container.ObservableList
+import com.github.weisj.swingdsl.core.binding.toProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.highlight.createSink
 import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
 import kotlin.reflect.KMutableProperty0
 
 class ValueBuilder<T>(

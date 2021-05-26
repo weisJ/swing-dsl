@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.condition
+package com.github.weisj.swingdsl.core.condition
 
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.combine
-import com.github.weisj.swingdsl.binding.derive
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.combine
+import com.github.weisj.swingdsl.core.binding.derive
 
 /**
  * Bound conditions promise to update their value as soon as a new invocation would return a different

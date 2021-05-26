@@ -27,8 +27,6 @@ package com.github.weisj.swingdsl.settings.ui
 import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
 import com.github.weisj.swingdsl.bindVisible
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.border.dialogSpacing
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.border.topBorder
@@ -39,8 +37,12 @@ import com.github.weisj.swingdsl.component.DefaultBreadCrumbRenderer
 import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.component.SearchField
-import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.configureBorderLayout
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.text.emptyText
+import com.github.weisj.swingdsl.core.text.unaryPlus
 import com.github.weisj.swingdsl.highlight.DefaultSearchContext
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.SearchContext
@@ -53,7 +55,6 @@ import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.on
-import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.DefaultElement
@@ -65,8 +66,6 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.backgroundColorOf
 import com.github.weisj.swingdsl.style.stripUIResource
-import com.github.weisj.swingdsl.text.emptyText
-import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.unaryPlus
 import com.github.weisj.swingdsl.wrap

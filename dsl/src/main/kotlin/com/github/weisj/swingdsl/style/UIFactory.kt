@@ -24,11 +24,11 @@
  */
 package com.github.weisj.swingdsl.style
 
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.laf.ComponentFactory
 import com.github.weisj.swingdsl.laf.ComponentFactoryDelegate
 import com.github.weisj.swingdsl.laf.DefaultComponentFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.text.Text
 import java.util.function.Supplier
 import javax.swing.JButton
 import javax.swing.JCheckBox

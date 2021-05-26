@@ -24,10 +24,10 @@
  */
 
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.not
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.not
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 

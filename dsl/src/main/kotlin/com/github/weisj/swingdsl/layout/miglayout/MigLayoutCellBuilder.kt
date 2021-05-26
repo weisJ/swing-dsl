@@ -28,13 +28,13 @@ package com.github.weisj.swingdsl.layout.miglayout
 
 import com.github.weisj.swingdsl.bindEnabled
 import com.github.weisj.swingdsl.bindVisible
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
 import com.github.weisj.swingdsl.layout.GrowPolicy
 import com.github.weisj.swingdsl.layout.ScrollPaneCellBuilder
-import com.github.weisj.swingdsl.text.Text
 import javax.swing.JComponent
 
 internal class MigLayoutCellBuilder<T : JComponent>(

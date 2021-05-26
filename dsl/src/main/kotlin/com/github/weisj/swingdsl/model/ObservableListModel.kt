@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.model
 
-import com.github.weisj.swingdsl.binding.container.ObservableList
+import com.github.weisj.swingdsl.core.binding.container.ObservableList
 import javax.swing.ListModel
 import javax.swing.event.ListDataEvent
 import javax.swing.event.ListDataListener

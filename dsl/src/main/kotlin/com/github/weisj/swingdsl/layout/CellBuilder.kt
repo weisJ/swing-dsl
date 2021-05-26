@@ -28,10 +28,12 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.addDocumentChangeListener
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.Observable
-import com.github.weisj.swingdsl.binding.ObservableMutableProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.Observable
+import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.makeDefaultButton
 import com.github.weisj.swingdsl.observableSelected
 import com.github.weisj.swingdsl.observableSelection
@@ -39,8 +41,6 @@ import com.github.weisj.swingdsl.observableText
 import com.github.weisj.swingdsl.observableValue
 import com.github.weisj.swingdsl.on
 import com.github.weisj.swingdsl.onSwingThread
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
 import java.awt.event.ActionEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton

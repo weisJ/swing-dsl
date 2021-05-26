@@ -24,14 +24,14 @@
  */
 package com.github.weisj.swingdsl.util
 
-import com.github.weisj.swingdsl.binding.Property
-import com.github.weisj.swingdsl.binding.SimpleProperty
+import com.github.weisj.swingdsl.core.binding.Property
+import com.github.weisj.swingdsl.core.binding.SimpleProperty
+import com.github.weisj.swingdsl.core.text.HasTextProperty
+import com.github.weisj.swingdsl.core.text.textProperty
 import com.github.weisj.swingdsl.getProperty
 import com.github.weisj.swingdsl.laf.VisualPaddingProvider
 import com.github.weisj.swingdsl.renderer.HasStringMapper
 import com.github.weisj.swingdsl.renderer.StringMapper
-import com.github.weisj.swingdsl.text.HasTextProperty
-import com.github.weisj.swingdsl.text.textProperty
 import java.awt.Component
 import java.awt.Insets
 import javax.swing.AbstractButton

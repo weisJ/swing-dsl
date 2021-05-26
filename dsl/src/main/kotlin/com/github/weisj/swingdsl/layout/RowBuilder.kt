@@ -28,15 +28,15 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.ModifiableContainerBuilder
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.toProperty
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.binding.toProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
+import com.github.weisj.swingdsl.core.text.textOfNullable
 import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
-import com.github.weisj.swingdsl.text.textOfNullable
 import com.github.weisj.swingdsl.unaryPlus
 import javax.swing.ButtonGroup
 import javax.swing.JComponent

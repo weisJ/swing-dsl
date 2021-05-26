@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.collection
+package com.github.weisj.swingdsl.core.collection
 
 class HistoryList<T : Any> {
     private var current: Node<T>? = null

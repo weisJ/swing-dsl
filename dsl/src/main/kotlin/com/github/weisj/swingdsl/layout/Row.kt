@@ -26,9 +26,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.observableSelected
-import com.github.weisj.swingdsl.text.Text
 import javax.swing.AbstractButton
 
 abstract class Row : Cell(), RowBuilder {

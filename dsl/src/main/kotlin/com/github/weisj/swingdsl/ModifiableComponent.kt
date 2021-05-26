@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.conditionOf
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.conditionOf
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import javax.swing.JComponent

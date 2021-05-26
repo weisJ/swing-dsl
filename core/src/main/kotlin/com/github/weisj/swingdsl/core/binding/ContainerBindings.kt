@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
-import com.github.weisj.swingdsl.condition.isEqualTo
-import com.github.weisj.swingdsl.condition.not
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.condition.isEqualTo
+import com.github.weisj.swingdsl.core.condition.not
 
 fun <T> ObservableProperty<Array<T>>.size(): ObservableProperty<Int> = derive(Array<T>::size)
 fun <T> ObservableProperty<Array<T>>.elementAt(index: Int): ObservableProperty<T> = derive { it[index] }

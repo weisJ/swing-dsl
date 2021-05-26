@@ -25,8 +25,9 @@
 package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.component.HyperlinkLabel
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.text.isConstantNullOrEmpty
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.SearchContext
 import com.github.weisj.swingdsl.highlight.SearchPresenter
@@ -38,7 +39,6 @@ import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.settings.ui.NavigationPosition
 import com.github.weisj.swingdsl.settings.ui.SettingsPanel
 import com.github.weisj.swingdsl.settings.ui.SettingsSearchResult
-import com.github.weisj.swingdsl.text.isConstantNullOrEmpty
 import javax.swing.JComponent
 
 fun createSettingsPanel(categories: List<Category>): JComponent = SettingsPanel(categories)

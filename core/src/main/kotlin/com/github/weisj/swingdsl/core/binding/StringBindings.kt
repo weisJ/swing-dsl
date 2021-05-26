@@ -22,19 +22,18 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
-fun <T> MutableList<T>.ensureMaxCapacity(maxCapacity: ObservableProperty<Int>, removeLast: Boolean = true) {
-    val updater = { it: Int ->
-        if (it == 0) clear()
-        while (size > it) {
-            if (removeLast) {
-                removeLastOrNull()
-            } else {
-                removeFirstOrNull()
-            }
-        }
-    }
-    updater(maxCapacity.get())
-    maxCapacity.onChange(updater)
-}
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+
+fun ObservableProperty<CharSequence>.length(): ObservableProperty<Int> = derive { it.length }
+fun ObservableProperty<CharSequence>.isEmpty(): ObservableCondition = derive { it.isEmpty() }
+fun ObservableProperty<CharSequence>.isNotEmpty(): ObservableCondition = derive { it.isNotEmpty() }
+fun ObservableProperty<CharSequence>.isBlank(): ObservableCondition = derive { it.isBlank() }
+fun ObservableProperty<CharSequence>.isNotBlank(): ObservableCondition = derive { it.isNotBlank() }
+
+operator fun <T> ObservableProperty<String>.plus(other: ObservableProperty<T>): ObservableProperty<String> =
+    combine(other) { a, b -> a + b }
+
+operator fun <T> ObservableProperty<String>.plus(other: String): ObservableProperty<CharSequence> =
+    derive { it + other }

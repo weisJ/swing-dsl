@@ -22,10 +22,10 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding.container
+package com.github.weisj.swingdsl.core.binding.container
 
-import com.github.weisj.swingdsl.binding.ChangeTracker
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.ChangeTracker
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import net.pearx.okservable.collection.ObservableListHandler
 import net.pearx.okservable.collection.observableList
 

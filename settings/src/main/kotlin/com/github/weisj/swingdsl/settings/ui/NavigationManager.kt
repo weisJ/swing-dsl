@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
-import com.github.weisj.swingdsl.binding.ObservableProperty
-import com.github.weisj.swingdsl.binding.observableProperty
-import com.github.weisj.swingdsl.collection.UndoRedoList
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.observableProperty
+import com.github.weisj.swingdsl.core.collection.UndoRedoList
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.util.ModificationLock

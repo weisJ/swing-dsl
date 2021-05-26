@@ -26,7 +26,7 @@
 // Auto-generated file. DO NOT EDIT!
 @file:Suppress("unused")
 
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
 @JvmName("doubleComparedToByte")
 infix fun ObservableProperty<Double>.comparedTo(other: ObservableProperty<Byte>): ObservableProperty<Int> =
@@ -753,7 +753,7 @@ operator fun ObservableProperty<Double>.unaryPlus(): ObservableProperty<Double> 
 
 @JvmName("doubleUnaryMinus")
 operator fun ObservableProperty<Double>.unaryMinus(): ObservableProperty<Double> =
-    derive { a -> -a.toDouble() }
+    derive { a -> -a }
 
 @JvmName("doubleToChar")
 fun ObservableProperty<Double>.toChar(): ObservableProperty<Char> =

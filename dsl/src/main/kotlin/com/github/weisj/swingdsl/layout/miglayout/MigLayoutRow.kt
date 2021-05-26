@@ -26,11 +26,14 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.binding.Property
-import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.component.TitledSeparator
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.binding.Property
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.text.HasTextProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textProperty
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.highlight.createLayoutTag
@@ -43,9 +46,6 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
 import com.github.weisj.swingdsl.style.asUIResource
-import com.github.weisj.swingdsl.text.HasTextProperty
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textProperty
 import com.github.weisj.swingdsl.util.getTextPropertyForComponent
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize

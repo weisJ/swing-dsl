@@ -26,10 +26,10 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout
 
-import com.github.weisj.swingdsl.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOfNullable
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOfNullable
 import javax.swing.ButtonGroup
 import javax.swing.JRadioButton
 

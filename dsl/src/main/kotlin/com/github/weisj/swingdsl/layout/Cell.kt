@@ -28,19 +28,19 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.Modifiable
 import com.github.weisj.swingdsl.ModifiableComponent
-import com.github.weisj.swingdsl.binding.MutableProperty
-import com.github.weisj.swingdsl.binding.PropertyBinding
-import com.github.weisj.swingdsl.binding.toProperty
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.core.binding.MutableProperty
+import com.github.weisj.swingdsl.core.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.binding.toProperty
+import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.core.text.textOf
+import com.github.weisj.swingdsl.core.text.textOfNullable
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.text.Text
-import com.github.weisj.swingdsl.text.textOf
-import com.github.weisj.swingdsl.text.textOfNullable
 import java.awt.Dimension
 import java.awt.event.ActionEvent
 import java.awt.event.ItemEvent

@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.model
 
-import com.github.weisj.swingdsl.binding.container.ObservableList
+import com.github.weisj.swingdsl.core.binding.container.ObservableList
 import javax.swing.ComboBoxModel
 
-class ObservableComboBoxModel<T : Any>(private val list: ObservableList<T>) :
+class ObservableComboBoxModel<T : Any>(list: ObservableList<T>) :
     ObservableListModel<T>(list),
     ComboBoxModel<T> {
     private var selected: T = list.first()
@@ -42,7 +42,7 @@ class ObservableComboBoxModel<T : Any>(private val list: ObservableList<T>) :
         selected = anItem as T
     }
 
-    override fun getSelectedItem(): Any {
+    override fun getSelectedItem(): T {
         return selected
     }
 }

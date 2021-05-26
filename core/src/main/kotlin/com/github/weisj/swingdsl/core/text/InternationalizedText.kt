@@ -22,18 +22,25 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.text
 
-import com.github.weisj.swingdsl.condition.ObservableCondition
+/**
+ * Text that delegates to a resource bundle hence changes its value based on the current locale.
+ */
+data class InternationalizedText(private val bundle: DynamicResourceBundle, private val resourceString: String) : Text {
+    /**
+     * Creates a new [InternationalizedText] which changes its value based on the current locale.
+     *
+     * @param bundleName the resource bundle name
+     * @param resourceString the resource key in the bundle
+     */
+    constructor(bundleName: String, resourceString: String) : this(DynamicResourceBundle(bundleName), resourceString)
 
-fun ObservableProperty<CharSequence>.length(): ObservableProperty<Int> = derive { it.length }
-fun ObservableProperty<CharSequence>.isEmpty(): ObservableCondition = derive { it.isEmpty() }
-fun ObservableProperty<CharSequence>.isNotEmpty(): ObservableCondition = derive { it.isNotEmpty() }
-fun ObservableProperty<CharSequence>.isBlank(): ObservableCondition = derive { it.isBlank() }
-fun ObservableProperty<CharSequence>.isNotBlank(): ObservableCondition = derive { it.isNotBlank() }
+    override fun toString(): String = get()
 
-operator fun <T> ObservableProperty<String>.plus(other: ObservableProperty<T>): ObservableProperty<String> =
-    combine(other) { a, b -> a + b }
+    override fun get(): String = bundle.bundle.getString(resourceString)
 
-operator fun <T> ObservableProperty<String>.plus(other: String): ObservableProperty<CharSequence> =
-    derive { it + other }
+    override fun onChange(callback: (String) -> Unit) {
+        Locales.registerListener { callback(get()) }
+    }
+}

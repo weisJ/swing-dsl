@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.style
 
-import com.github.weisj.swingdsl.text.Text
+import com.github.weisj.swingdsl.core.text.Text
 import java.awt.Color
 import java.awt.Component
 import java.awt.Font

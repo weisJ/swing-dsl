@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.binding.ObservableMutableProperty
-import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
+import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import javax.swing.AbstractButton
 import javax.swing.JList
 import javax.swing.JSpinner

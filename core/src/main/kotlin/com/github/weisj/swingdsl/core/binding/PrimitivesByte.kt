@@ -26,7 +26,7 @@
 // Auto-generated file. DO NOT EDIT!
 @file:Suppress("unused")
 
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
 @JvmName("byteComparedToByte")
 infix fun ObservableProperty<Byte>.comparedTo(other: ObservableProperty<Byte>): ObservableProperty<Int> =

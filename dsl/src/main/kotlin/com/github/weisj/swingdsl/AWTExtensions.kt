@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.binding.bind
-import com.github.weisj.swingdsl.binding.container.ObservableList
-import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.binding.container.ObservableList
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.model.CollectionComboBoxModel
 import com.github.weisj.swingdsl.model.CollectionListModel
 import com.github.weisj.swingdsl.model.ObservableComboBoxModel

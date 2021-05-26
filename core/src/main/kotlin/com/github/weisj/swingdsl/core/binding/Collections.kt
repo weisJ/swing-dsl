@@ -22,25 +22,19 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.text
+package com.github.weisj.swingdsl.core.binding
 
-/**
- * Text that delegates to a resource bundle hence changes its value based on the current locale.
- */
-data class InternationalizedText(private val bundle: DynamicResourceBundle, private val resourceString: String) : Text {
-    /**
-     * Creates a new [InternationalizedText] which changes its value based on the current locale.
-     *
-     * @param bundleName the resource bundle name
-     * @param resourceString the resource key in the bundle
-     */
-    constructor(bundleName: String, resourceString: String) : this(DynamicResourceBundle(bundleName), resourceString)
-
-    override fun toString(): String = get()
-
-    override fun get(): String = bundle.bundle.getString(resourceString)
-
-    override fun onChange(callback: (String) -> Unit) {
-        Locales.registerListener { callback(get()) }
+fun <T> MutableList<T>.ensureMaxCapacity(maxCapacity: ObservableProperty<Int>, removeLast: Boolean = true) {
+    val updater = { it: Int ->
+        if (it == 0) clear()
+        while (size > it) {
+            if (removeLast) {
+                removeLastOrNull()
+            } else {
+                removeFirstOrNull()
+            }
+        }
     }
+    updater(maxCapacity.get())
+    maxCapacity.onChange(updater)
 }

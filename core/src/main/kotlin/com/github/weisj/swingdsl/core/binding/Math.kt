@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.binding
+package com.github.weisj.swingdsl.core.binding
 
 @JvmName("incInt")
 operator fun ObservableMutableProperty<Int>.inc(): ObservableMutableProperty<Int> {

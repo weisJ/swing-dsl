@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl.component
 
+import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.text.Text
 import javax.swing.event.HyperlinkEvent
 import javax.swing.event.HyperlinkListener
 
