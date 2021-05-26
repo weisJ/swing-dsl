@@ -130,6 +130,16 @@ public class ComponentFactoryDelegate implements ComponentFactory {
     }
 
     @Override
+    public @NotNull Color getWarningColor() {
+        return delegate.getWarningColor();
+    }
+
+    @Override
+    public @NotNull Color getErrorColor() {
+        return delegate.getErrorColor();
+    }
+
+    @Override
     public @NotNull StateValue<Icon> getExpandedIcon() {
         return getDelegate().getExpandedIcon();
     }

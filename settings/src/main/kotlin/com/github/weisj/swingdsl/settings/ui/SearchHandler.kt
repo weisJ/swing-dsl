@@ -41,8 +41,8 @@ import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.unaryPlus
-import java.awt.Color
 import javax.swing.JComponent
 import javax.swing.JLayeredPane
 
@@ -58,9 +58,7 @@ class SearchHandler(
     private val context: UIContext
 ) : SearchPresenter<Element, SettingsSearchResult> {
     private val highlighter: ComponentHighlighter = ComponentHighlighter(
-        MaskedOvalPainter(
-            lineColor = Color(199, 134, 7, 170)
-        )
+        MaskedOvalPainter(lineColor = UIFactory.warningColor)
     )
     private val _result: ObservableMutableProperty<SettingsSearchResult?> = observableProperty(null)
     val result: ObservableProperty<SettingsSearchResult?> = _result

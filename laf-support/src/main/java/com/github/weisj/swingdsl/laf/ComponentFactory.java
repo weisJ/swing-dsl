@@ -87,6 +87,12 @@ public interface ComponentFactory {
     Color getColorBackgroundColor();
 
     @NotNull
+    Color getWarningColor();
+
+    @NotNull
+    Color getErrorColor();
+
+    @NotNull
     StateValue<Icon> getExpandedIcon();
 
     @NotNull

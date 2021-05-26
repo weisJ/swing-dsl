@@ -24,7 +24,7 @@
  */
 import com.formdev.flatlaf.extras.FlatInspector
 import com.github.weisj.darklaf.LafManager
-import com.github.weisj.darklaf.theme.DarculaTheme
+import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.swingdsl.core.binding.plus
 import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.core.text.unaryPlus
@@ -173,7 +173,7 @@ fun main() {
     invokeLater {
         // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
         // System.setProperty("darklaf.allowNativeCode", "false")
-        LafManager.install(DarculaTheme())
+        LafManager.install(IntelliJTheme())
         FlatInspector.install("ctrl shift alt X")
         frame {
             content {

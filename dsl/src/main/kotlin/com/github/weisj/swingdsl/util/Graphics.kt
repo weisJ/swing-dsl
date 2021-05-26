@@ -35,8 +35,8 @@ import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
 import kotlin.math.absoluteValue
 
-fun Graphics.drawRect(rect: Rectangle) {
-    drawRect(rect.x, rect.y, rect.width, rect.height, lineWidth = 1)
+fun Graphics.drawRect(rect: Rectangle, lineWidth: Int = 1) {
+    drawRect(rect.x, rect.y, rect.width, rect.height, lineWidth)
 }
 
 fun Graphics.fillRect(rect: Rectangle) {
@@ -112,7 +112,7 @@ fun createRoundedLinePath(
     width: Float,
     height: Float,
     arc: Float,
-    lineWidth: Float,
+    lw: Float,
     inside: Boolean = true
 ): Path2D {
     val outerRect: Shape
@@ -120,15 +120,15 @@ fun createRoundedLinePath(
 
     if (arc.absoluteValue < EPSILON) {
         outerRect = Rectangle2D.Float(x, y, width, height)
-        innerRect = Rectangle2D.Float(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth)
+        innerRect = Rectangle2D.Float(x + lw, y + lw, width - 2 * lw, height - 2 * lw)
     } else {
-        val outerArc = if (inside) arc else arc + lineWidth
-        val innerArc = if (inside) arc - lineWidth else arc
-        outerRect = RoundRectangle2D.Float(x, y, width, height, outerArc, outerArc)
-        innerRect = RoundRectangle2D.Float(
-            x + lineWidth, y + lineWidth,
-            width - 2 * lineWidth, height - 2 * lineWidth, innerArc, innerArc
-        )
+        if (inside) {
+            outerRect = RoundRectangle2D.Float(x, y, width, height, arc, arc)
+            innerRect = RoundRectangle2D.Float(x + lw, y + lw, width - 2 * lw, height - 2 * lw, arc - lw, arc - lw)
+        } else {
+            outerRect = RoundRectangle2D.Float(x - lw, y - lw, width + 2 * lw, height + 2 * lw, arc + lw, arc + lw)
+            innerRect = RoundRectangle2D.Float(x, y, width, height, arc, arc)
+        }
     }
     val path: Path2D = Path2D.Float(Path2D.WIND_EVEN_ODD)
     path.append(outerRect, false)

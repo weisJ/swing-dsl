@@ -27,6 +27,7 @@ package com.github.weisj.swingdsl.highlight
 import com.github.weisj.swingdsl.util.drawRect
 import com.github.weisj.swingdsl.util.drawRoundedRectangle
 import com.github.weisj.swingdsl.util.fillRect
+import com.github.weisj.swingdsl.util.setupStrokePainting
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -88,6 +89,7 @@ class MaskedOvalPainter(
             arc = min(min(width, height), maxArc)
             RoundRectangle2D.Float(x, y, width, height, arc, arc)
         }.toList()
+        g.setupStrokePainting()
         val area = Area(g.clipBounds)
         roundedRects.forEach { area.subtract(Area(it)) }
         g.color = maskColor

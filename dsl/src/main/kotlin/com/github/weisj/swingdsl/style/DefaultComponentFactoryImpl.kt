@@ -151,6 +151,16 @@ class DefaultComponentFactoryImpl : ComponentFactory {
             ?: SharedLazyComponents.tree.background
     }
 
+    override fun getWarningColor(): Color {
+        return UIManager.getColor("warning")
+            ?: Color(199, 134, 7)
+    }
+
+    override fun getErrorColor(): Color {
+        return UIManager.getColor("error")
+            ?: Color(199, 7, 7)
+    }
+
     override fun getExpandedIcon(): StateValue<Icon> {
         return StateValue(ArrowDownIcon(getDividerColor(true)), ArrowDownIcon(getDividerColor(false)))
     }
