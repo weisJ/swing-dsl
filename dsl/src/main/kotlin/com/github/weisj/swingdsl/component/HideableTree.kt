@@ -76,6 +76,7 @@ open class HideableTree(
 
     fun setNodeVisible(node: HideableTreeNode<*>, visible: Boolean, setForcedValue: Boolean = false) {
         val expanded = getExpandedDescendants(TreePath((node.parent!!.path)))?.asSequence()
+        val selectedPaths = selectionPaths
         if (!setForcedValue) {
             if (node.isVisible == visible) return
             node.isVisible = visible
@@ -85,6 +86,7 @@ open class HideableTree(
         }
         (model as HideableTreeModel).nodeStructureChanged(node.parent)
         expanded?.forEach { expandPath(TreePath(it.path)) }
+        selectionPaths = selectedPaths
     }
 
     fun setNodeEnabled(node: HideableTreeNode<*>, enabled: Boolean, setForcedValue: Boolean = false) {

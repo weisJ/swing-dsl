@@ -48,7 +48,8 @@ import javax.swing.JLayeredPane
 
 class SettingsSearchResult internal constructor(
     override val entries: List<SearchResultItem<Element>>,
-    val categories: Set<Category>
+    val categories: Set<Category>,
+    val bestMatch: SearchResultItem<Element>?
 ) : SearchResult<Element> {
     override fun toString(): String = "SettingsSearch[$entries]"
 }
@@ -72,6 +73,7 @@ class SearchHandler(
                 highlighter.isVisible = false
             } else {
                 highlighter.isVisible = true
+                showHighlightsOf(context.currentPosition.get().category)
             }
         }
         context.currentPosition.onChange {
@@ -96,7 +98,22 @@ class SearchHandler(
             .asSequence()
             .mapNotNull { it.searchable.data.getNearestCategory() }
             .toSet()
-        return SettingsSearchResult(result.entries, categories)
+
+        val bestMatch = if (result.entries.isEmpty()) null else {
+            val firstResult = result.entries.first()
+            var match: SearchResultItem<Element> = firstResult
+            for (entry in result.entries) {
+                if (entry.score < firstResult.score) break
+                val category = entry.searchable.data.getNearestCategory()
+                if (category == context.currentPosition.get().category) {
+                    match = entry
+                    break
+                }
+            }
+            match
+        }
+
+        return SettingsSearchResult(result.entries, categories, bestMatch)
     }
 
     private fun showHighlightsOf(category: Category) {

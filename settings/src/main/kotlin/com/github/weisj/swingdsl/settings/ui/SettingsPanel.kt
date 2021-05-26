@@ -99,12 +99,11 @@ class SettingsPanel(private val categories: List<Category>) :
     init {
         configureContentArea()
 
-        currentSearchResult.bind {
-            navigationManager.searchMode = it != null
-            it ?: return@bind
-            val firstResult = it.entries.firstOrNull()?.searchable
-            val firstCategory = firstResult?.data?.getNearestCategory()
-            reveal(firstCategory, firstResult?.tag)
+        currentSearchResult.bind { result ->
+            navigationManager.searchMode = result != null
+            result ?: return@bind
+            val target = result.bestMatch?.searchable
+            reveal(target?.data?.getNearestCategory(), target?.tag)
         }
 
         navigationManager.navigateTo(categoryTree.currentCategory, reversible = false)
