@@ -180,11 +180,6 @@ fun <T> DefaultListModel<T>.add(value: T) {
     add(size(), value)
 }
 
-inline fun <reified T> Component.getProperty(key: Any): T? {
-    if (this !is JComponent) return null
-    return getClientProperty(key) as? T
-}
-
 private class DocumentChangeListener(val onChange: (DocumentEvent?) -> Unit) : DocumentListener {
 
     override fun insertUpdate(e: DocumentEvent?) = onChange(e)
