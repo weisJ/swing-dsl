@@ -31,6 +31,7 @@ import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.DefaultDisplayState
 import com.github.weisj.swingdsl.settings.TopLevel
+import com.github.weisj.swingdsl.settings.getPath
 import com.github.weisj.swingdsl.style.stripUIResource
 import java.awt.Component
 import java.awt.Font

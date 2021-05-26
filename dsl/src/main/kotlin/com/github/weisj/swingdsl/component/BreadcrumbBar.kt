@@ -161,7 +161,7 @@ private class BreadcrumbLayout<T> : LayoutManager {
         val separatorSize = if (parent.breadCrumbs.isEmpty()) 0 else size.height
         val dimensions = getSizes(parent) { it.preferredSize }
         return Dimension(
-            dimensions.sumBy { it.width } + separatorSpace,
+            dimensions.sumOf { it.width } + separatorSpace,
             max(dimensions.maxOfOrNull { it.height } ?: 0, separatorSize)
         )
     }

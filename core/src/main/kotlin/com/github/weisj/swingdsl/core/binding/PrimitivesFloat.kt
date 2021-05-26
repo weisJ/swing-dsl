@@ -755,10 +755,6 @@ operator fun ObservableProperty<Float>.unaryPlus(): ObservableProperty<Float> = 
 operator fun ObservableProperty<Float>.unaryMinus(): ObservableProperty<Float> =
     derive { a -> -a }
 
-@JvmName("floatToChar")
-fun ObservableProperty<Float>.toChar(): ObservableProperty<Char> =
-    derive { a -> a.toChar() }
-
 @JvmName("floatToInt")
 fun ObservableProperty<Float>.toInt(): ObservableProperty<Int> =
     derive { a -> a.toInt() }

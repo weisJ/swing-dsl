@@ -807,10 +807,6 @@ operator fun Long.rangeTo(other: ObservableProperty<Long>): ObservableProperty<L
 fun ObservableProperty<Long>.toByte(): ObservableProperty<Byte> =
     derive { a -> a.toByte() }
 
-@JvmName("longToChar")
-fun ObservableProperty<Long>.toChar(): ObservableProperty<Char> =
-    derive { a -> a.toChar() }
-
 @JvmName("longToShort")
 fun ObservableProperty<Long>.toShort(): ObservableProperty<Short> =
     derive { a -> a.toShort() }

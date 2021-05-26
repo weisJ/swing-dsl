@@ -72,22 +72,20 @@ interface Element {
     val displayName: Text?
     val description: Text?
 
-    // Annotating this method with @JvmDefault, will make it such
-    // that it is dispatched on the implementing class instead of a
-    // possible delegate. Hence in this context 'this' actually refers
-    // to the desired object
-    @JvmDefault
-    fun getPath(): List<Element> {
-        val path = mutableListOf(this)
-        var p: Element? = parent
-        while (p != null) {
-            path.add(0, p)
-            p = p.parent
-        }
-        return path
-    }
-
     val displayState: DisplayState
+}
+
+// Because all implementations of Element delegate their basic properties to
+// DefaultElement we need to make this an extension function. As a default method
+// on the interface "this" would refer to the wrong object.
+fun Element.getPath(): List<Element> {
+    val path = mutableListOf(this)
+    var p: Element? = parent
+    while (p != null) {
+        path.add(0, p)
+        p = p.parent
+    }
+    return path
 }
 
 interface TopLevel

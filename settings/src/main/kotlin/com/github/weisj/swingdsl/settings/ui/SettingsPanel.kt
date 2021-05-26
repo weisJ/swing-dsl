@@ -50,11 +50,11 @@ import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.laf.focus.FocusParentHelper
 import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.on
+import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.DefaultElement
@@ -62,6 +62,7 @@ import com.github.weisj.swingdsl.settings.DefaultTopLevelCategory
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
+import com.github.weisj.swingdsl.settings.getPath
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.backgroundColorOf
@@ -197,9 +198,8 @@ class SettingsPanel(private val categories: List<Category>) :
             invokeLater {
                 requestFocusInWindow()
             }
-            // Todo: Somehow this should be possible to be done either LaF agnostic or supported fully by Darklaf alone.
-            FocusParentHelper.setFocusParent(this@apply, this@SettingsPanel) {
-                it.repaint()
+            properties {
+                client["focusParent"] = this@SettingsPanel
             }
             addCategorySelectionListener {
                 it ?: return@addCategorySelectionListener

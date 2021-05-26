@@ -172,7 +172,7 @@ fun SubCategoryBuilder.addNested(identifier: String, level: Int) {
 fun main() {
     invokeLater {
         // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-        System.setProperty("darklaf.allowNativeCode", "false")
+        // System.setProperty("darklaf.allowNativeCode", "false")
         LafManager.install(DarculaTheme())
         FlatInspector.install("ctrl shift alt X")
         frame {

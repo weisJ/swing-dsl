@@ -45,7 +45,7 @@ data class StringSearchable<T>(
 
     override fun evaluateMatch(searchQuery: String): Int {
         // Note: The #toLowerCase calls could probably be optimized away.
-        return matchingAlgorithm.apply(searchQuery.toLowerCase(), property.get().toLowerCase())
+        return matchingAlgorithm.apply(searchQuery.lowercase(), property.get().lowercase())
     }
 }
 

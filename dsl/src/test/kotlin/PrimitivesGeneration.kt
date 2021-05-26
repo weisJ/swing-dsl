@@ -24,6 +24,7 @@
  */
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import java.io.File
+import java.util.*
 import kotlin.reflect.KClass
 
 enum class Operation(
@@ -82,8 +83,13 @@ fun Operation.isUnary(): Boolean = when (this) {
 }
 
 val deprecatedOps = mapOf(
-    Float::class to listOf(Operation.TO_BYTE, Operation.TO_SHORT),
-    Double::class to listOf(Operation.TO_BYTE, Operation.TO_SHORT)
+    Float::class to listOf(Operation.TO_BYTE, Operation.TO_SHORT, Operation.TO_CHAR),
+    Double::class to listOf(Operation.TO_BYTE, Operation.TO_SHORT, Operation.TO_CHAR),
+    Int::class to listOf(Operation.TO_CHAR),
+    Byte::class to listOf(Operation.TO_CHAR),
+    Short::class to listOf(Operation.TO_CHAR),
+    Long::class to listOf(Operation.TO_CHAR),
+    Char::class to listOf(Operation.TO_CHAR),
 )
 
 data class Op(val type: Operation, val inType: KClass<*>, val outType: KClass<*>)
@@ -204,8 +210,10 @@ inline fun <reified unaryType : Number, reified intType : Number, reified longTy
 
 val defaultOperatorList = makeOpList<Int, Int, Long, Float, IntRange>()
 
-fun main() {
+fun String.toCapitalized(): String =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
+fun main() {
     val types = mapOf(
         Byte::class to defaultOperatorList,
         Short::class to defaultOperatorList,
@@ -226,7 +234,7 @@ fun main() {
         val functionImplementations = arrayListOf<String>()
         ops.forEach { op ->
             val jvmName =
-                "${type.simpleName?.toLowerCase()}${op.type.opName.capitalize()}${op.inType.let { if (it == Void::class) "" else it.simpleName }}"
+                "${type.simpleName?.lowercase()}${op.type.opName.toCapitalized()}${op.inType.let { if (it == Void::class) "" else it.simpleName }}"
             val typeName = type.simpleName!!
             val inTypeName = op.inType.simpleName!!
             val outTypeName = op.outType.simpleName!!
@@ -246,8 +254,10 @@ fun main() {
                             )
                         )
                         op.type.isUnary() -> {
-                            val conversionOp =
-                                if (type == op.outType) Operation.IDENTITY else getConversionTo(op.outType)
+                            val conversionOp = when (if (type == Char::class) Int::class else type) {
+                                op.outType -> Operation.IDENTITY
+                                else -> getConversionTo(op.outType)
+                            }
                             val impl = if (op.type == Operation.UNARY_MINUS) {
                                 { a, _ -> conversionOp.impl("-$a", "") }
                             } else {
@@ -264,16 +274,25 @@ fun main() {
                                 impl = impl
                             )
                         }
-                        else -> createMethods(
-                            name = op.type.opName,
-                            jvmName = jvmName,
-                            receiverType = typeName,
-                            inputType = inTypeName,
-                            outputType = outTypeName,
-                            isOperator = op.type.isOperator,
-                            isUnary = op.type.isUnary,
-                            impl = op.type.impl
-                        )
+                        else -> {
+                            val impl = when {
+                                op.type.isConversion() && type == Char::class && op.outType == Int::class ->
+                                    { a, _ -> "$a.code" }
+                                op.type.isConversion() && type == Char::class ->
+                                    { a, b -> op.type.impl("$a.code", b) }
+                                else -> op.type.impl
+                            }
+                            createMethods(
+                                name = op.type.opName,
+                                jvmName = jvmName,
+                                receiverType = typeName,
+                                inputType = inTypeName,
+                                outputType = outTypeName,
+                                isOperator = op.type.isOperator,
+                                isUnary = op.type.isUnary,
+                                impl = impl
+                            )
+                        }
                     }
                 )
             } else {
@@ -327,7 +346,7 @@ fun createMethods(
         createMethodImpl(name, "${jvmName}P", isOperator, receiver, primitiveParams, returnType, primitiveImpl),
         createMethodImpl(
             name,
-            "P${jvmName.capitalize()}",
+            "P${jvmName.toCapitalized()}",
             isOperator,
             receiverType,
             params,

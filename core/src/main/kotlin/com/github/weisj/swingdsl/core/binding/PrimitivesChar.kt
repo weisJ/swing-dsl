@@ -90,27 +90,24 @@ operator fun Char.rangeTo(other: ObservableProperty<Char>): ObservableProperty<C
 
 @JvmName("charToByte")
 fun ObservableProperty<Char>.toByte(): ObservableProperty<Byte> =
-    derive { a -> a.toByte() }
-
-@JvmName("charToChar")
-fun ObservableProperty<Char>.toChar(): ObservableProperty<Char> = this
+    derive { a -> a.code.toByte() }
 
 @JvmName("charToShort")
 fun ObservableProperty<Char>.toShort(): ObservableProperty<Short> =
-    derive { a -> a.toShort() }
+    derive { a -> a.code.toShort() }
 
 @JvmName("charToInt")
 fun ObservableProperty<Char>.toInt(): ObservableProperty<Int> =
-    derive { a -> a.toInt() }
+    derive { a -> a.code }
 
 @JvmName("charToLong")
 fun ObservableProperty<Char>.toLong(): ObservableProperty<Long> =
-    derive { a -> a.toLong() }
+    derive { a -> a.code.toLong() }
 
 @JvmName("charToFloat")
 fun ObservableProperty<Char>.toFloat(): ObservableProperty<Float> =
-    derive { a -> a.toFloat() }
+    derive { a -> a.code.toFloat() }
 
 @JvmName("charToDouble")
 fun ObservableProperty<Char>.toDouble(): ObservableProperty<Double> =
-    derive { a -> a.toDouble() }
+    derive { a -> a.code.toDouble() }

@@ -755,10 +755,6 @@ operator fun ObservableProperty<Double>.unaryPlus(): ObservableProperty<Double> 
 operator fun ObservableProperty<Double>.unaryMinus(): ObservableProperty<Double> =
     derive { a -> -a }
 
-@JvmName("doubleToChar")
-fun ObservableProperty<Double>.toChar(): ObservableProperty<Char> =
-    derive { a -> a.toChar() }
-
 @JvmName("doubleToInt")
 fun ObservableProperty<Double>.toInt(): ObservableProperty<Int> =
     derive { a -> a.toInt() }

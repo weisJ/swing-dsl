@@ -176,8 +176,8 @@ allprojects {
         kotlinOptions {
             jvmTarget = "9"
             freeCompilerArgs = listOf(
-                "-Xjvm-default=enable",
-                "-Xopt-in=kotlin.RequiresOptIn"
+                "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xjvm-default=all"
             )
         }
     }
