@@ -65,7 +65,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     override fun getComponent(): JPanel = this
     override fun getContainer(): JComponent = this
 
-    val modifiedCondition: ObservableCondition = ModifiedCondition(this)
+    override val modifiedCondition: ObservableCondition = ModifiedCondition(this)
 
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()

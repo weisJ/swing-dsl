@@ -22,53 +22,52 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings.panel
+package com.github.weisj.swingdsl.settings.ui
 
+import com.github.weisj.swingdsl.binding.ObservableProperty
+import com.github.weisj.swingdsl.binding.observableProperty
 import com.github.weisj.swingdsl.collection.UndoRedoList
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.util.ModificationLock
 
-internal data class NavigationPosition(
+data class NavigationPosition(
     val category: Category,
     val tag: LayoutTag?
 )
 
 class NavigationManager(
     private val defaultCategory: Category,
-    private val navigationImplementation: (Category, LayoutTag?) -> Unit,
     private val createTagForCurrentPosition: () -> LayoutTag
 ) {
+    private var navigationLock = ModificationLock()
+
+    private var _currentPosition = observableProperty(NavigationPosition(defaultCategory, null))
+    val currentPosition: ObservableProperty<NavigationPosition> = _currentPosition
+
+    private var unsavedNavigationMode = false
+    private var savedPosition: NavigationPosition = currentPosition.get()
+
     private val defaultHistory = UndoRedoList()
     private val searchModeHistory = UndoRedoList()
     private var context = defaultHistory
-
-    private var navigationLock = ModificationLock()
-
-    private var currentPosition: NavigationPosition = NavigationPosition(defaultCategory, null)
-    val currentCategory: Category
-        get() = currentPosition.category
-
-    private var unsavedNavigationMode = false
-    private var savedPosition: NavigationPosition = currentPosition
 
     var searchMode: Boolean = false
         set(value) {
             if (field == value) return
             field = value
-            context = if (value) {
-                searchModeHistory
-            } else {
-                defaultHistory
+            context = if (value) searchModeHistory else defaultHistory
+            if (!value) searchModeHistory.clear()
+            if (!value && currentPosition.get().category == defaultCategory) {
+                defaultHistory.currentOrNull()?.doAction?.invoke()
             }
         }
 
     private fun createExactCurrentLocation(): NavigationPosition =
-        NavigationPosition(currentCategory, createTagForCurrentPosition())
+        NavigationPosition(currentPosition.get().category, createTagForCurrentPosition())
 
     private fun doNavigation(position: NavigationPosition) {
-        currentPosition = position
-        navigationImplementation(position.category, position.tag)
+        _currentPosition.set(position)
     }
 
     fun navigateTo(
@@ -79,13 +78,15 @@ class NavigationManager(
     ) {
         navigationLock.withLock {
             val target = category ?: defaultCategory
-            if (currentCategory == category && tag == currentPosition.tag) return
+            if (currentPosition.get().category == category && tag == currentPosition.get().tag) return
             val targetPosition = NavigationPosition(target, tag)
             val exactCurrentPosition = createExactCurrentLocation()
             if (includeInHistory) {
                 // If we have a saved position we use it instead of the current location.
                 // This is relevant if there have been navigation actions not included in the history.
-                savedPosition = targetPosition
+                if (target != defaultCategory) {
+                    savedPosition = targetPosition
+                }
                 context.add(
                     doAction = { doNavigation(targetPosition) },
                     undoAction = if (reversible) {
@@ -93,7 +94,7 @@ class NavigationManager(
                     } else null
                 )
             } else {
-                if (!unsavedNavigationMode) {
+                if (!unsavedNavigationMode && target != defaultCategory) {
                     savedPosition = exactCurrentPosition
                 }
                 doNavigation(targetPosition)
@@ -104,7 +105,7 @@ class NavigationManager(
 
     fun goBack() {
         navigationLock.withLock {
-            if (unsavedNavigationMode) {
+            if (unsavedNavigationMode || currentPosition.get() != savedPosition) {
                 // Undoing unsaved navigation should create a saved position when undone.
                 // Only do this if there are no re-doable actions.
                 unsavedNavigationMode = false

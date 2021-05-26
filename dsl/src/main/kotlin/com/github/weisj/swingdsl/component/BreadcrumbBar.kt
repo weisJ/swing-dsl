@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings.panel
+package com.github.weisj.swingdsl.component
 
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.listeners.ClickListener

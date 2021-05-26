@@ -25,29 +25,32 @@
 package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
+import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.component.HyperlinkLabel
 import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.highlight.SearchContext
+import com.github.weisj.swingdsl.highlight.SearchPresenter
 import com.github.weisj.swingdsl.highlight.createSink
-import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.RowBuilder
 import com.github.weisj.swingdsl.layout.panel
-import com.github.weisj.swingdsl.settings.panel.SettingsPanel
-import com.github.weisj.swingdsl.settings.panel.SettingsSearchContext
+import com.github.weisj.swingdsl.settings.ui.NavigationPosition
+import com.github.weisj.swingdsl.settings.ui.SettingsPanel
+import com.github.weisj.swingdsl.settings.ui.SettingsSearchResult
 import com.github.weisj.swingdsl.text.isConstantNullOrEmpty
 import javax.swing.JComponent
 
 fun createSettingsPanel(categories: List<Category>): JComponent = SettingsPanel(categories)
 fun createSettingsPanel(vararg categories: Category): JComponent = SettingsPanel(listOf(*categories))
 
-fun SettingsPanel.createCategoryPanel(category: Category): WrappedComponent<ModifiablePanel> {
+fun createCategoryPanel(category: Category, context: UIContext): ModifiablePanel {
     return panel(title = category.displayName) {
         row {
             indent(false)
-            category.createUI(this, this@createCategoryPanel)
+            category.createUI(this, context)
         }
-    }.also { name = category.identifier }
+    }.also { it.component.name = category.identifier }
 }
 
 fun Row.addCategoryOverview(category: Category, context: UIContext) {
@@ -145,8 +148,9 @@ fun BuilderWithEnabledProperty<*>.bindDisplayStatus(element: Element) {
     visibleIf(element.displayState.visible)
 }
 
-interface UIContext : SettingsSearchContext {
-    fun reveal(category: Category, tag: LayoutTag? = null, includeInNavigationHistory: Boolean = true)
+interface UIContext : SearchContext<Element>, SearchPresenter<Element, SettingsSearchResult> {
+    fun reveal(category: Category?, tag: LayoutTag? = null, includeInNavigationHistory: Boolean = true)
+    val currentPosition: ObservableProperty<NavigationPosition>
 }
 
 interface UIParticipant {

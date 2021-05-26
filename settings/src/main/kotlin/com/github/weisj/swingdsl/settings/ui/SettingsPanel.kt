@@ -22,22 +22,24 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings.panel
+package com.github.weisj.swingdsl.settings.ui
 
 import com.github.weisj.swingdsl.FocusState
 import com.github.weisj.swingdsl.SplitPaneBuilder
-import com.github.weisj.swingdsl.addDocumentChangeListener
 import com.github.weisj.swingdsl.bindVisible
+import com.github.weisj.swingdsl.binding.ObservableProperty
 import com.github.weisj.swingdsl.binding.bind
 import com.github.weisj.swingdsl.border.dialogSpacing
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.border.topBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.clampSizes
+import com.github.weisj.swingdsl.component.BreadcrumbBar
+import com.github.weisj.swingdsl.component.DefaultBreadCrumbRenderer
 import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.component.HyperlinkLabel
-import com.github.weisj.swingdsl.condition.conditionOf
-import com.github.weisj.swingdsl.condition.or
+import com.github.weisj.swingdsl.component.SearchField
+import com.github.weisj.swingdsl.condition.ObservableCondition
 import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.highlight.DefaultSearchContext
 import com.github.weisj.swingdsl.highlight.LayoutTag
@@ -47,8 +49,6 @@ import com.github.weisj.swingdsl.horizontalSplit
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.laf.focus.FocusParentHelper
-import com.github.weisj.swingdsl.layered
-import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.layout.makeDefaultButton
 import com.github.weisj.swingdsl.layout.panel
@@ -60,7 +60,6 @@ import com.github.weisj.swingdsl.settings.DefaultElement
 import com.github.weisj.swingdsl.settings.DefaultTopLevelCategory
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
-import com.github.weisj.swingdsl.settings.createCategoryPanel
 import com.github.weisj.swingdsl.settings.getNearestCategory
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
@@ -71,49 +70,44 @@ import com.github.weisj.swingdsl.text.unaryPlus
 import com.github.weisj.swingdsl.toKeyStroke
 import com.github.weisj.swingdsl.unaryPlus
 import com.github.weisj.swingdsl.wrap
-import com.github.weisj.swingdsl.yieldFocus
-import java.awt.CardLayout
-import java.awt.Color
-import java.awt.Container
-import java.awt.Dimension
 import java.awt.event.KeyEvent
 import javax.swing.JComponent
-import javax.swing.JLayeredPane
 import javax.swing.JPanel
-import javax.swing.JTextField
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 import kotlin.math.abs
 
 class SettingsPanel(private val categories: List<Category>) :
-    DefaultJPanel(),
-    UIContext,
-    SearchContext<Element> by DefaultSearchContext() {
+    DefaultJPanel(), UIContext, SearchContext<Element> by DefaultSearchContext() {
 
-    private val categoryPanels = mutableMapOf<Category, WrappedComponent<ModifiablePanel>>()
+    private val fallbackCategory = DefaultTopLevelCategory(DefaultElement(null, "Empty fallback page"), emptyText())
+    private val navigationManager = NavigationManager(fallbackCategory) {
+        categoriesPanel.createLayoutTag(categoriesPanel.visibleRect)
+    }
+    override val currentPosition: ObservableProperty<NavigationPosition>
+        get() = navigationManager.currentPosition
 
-    private val emptyPageCategory = DefaultTopLevelCategory(
-        DefaultElement(null, "Empty fallback page"), emptyText()
-    )
+    private val searchHandler = SearchHandler(this)
+    private val currentSearchResult: ObservableProperty<SettingsSearchResult?>
+        get() = searchHandler.result
 
-    private val cardLayout = ScrollCardLayout()
-    private val categoriesCardPanel = DefaultJPanel(cardLayout).apply { addCategories(categories) }
-
+    private val categoriesPanel = CategoriesPanel(this, categories, fallbackCategory)
     private val categoryTree = createCategoryTree()
     private val breadcrumbBar = createBreadCrumbBar()
 
-    private val searchHandler = SearchHandler(this)
-    private val navigationManager = NavigationManager(emptyPageCategory, this::navigateImpl) {
-        categoriesCardPanel.createLayoutTag(categoriesCardPanel.visibleRect)
-    }
-
-    private val modifiedCondition = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
-        result or panel.component.modifiedCondition
-    }
+    private val modifiedCondition: ObservableCondition = categoriesPanel.modifiedCondition
 
     init {
-        categoryPanels[emptyPageCategory] = panel {}.also { it.component.background = Color.GREEN }
         configureContentArea()
+
+        currentSearchResult.bind {
+            navigationManager.searchMode = it != null
+            it ?: return@bind
+            val firstResult = it.entries.firstOrNull()?.searchable
+            val firstCategory = firstResult?.data?.getNearestCategory()
+            reveal(firstCategory, firstResult?.tag)
+        }
+
         navigationManager.navigateTo(categoryTree.currentCategory, reversible = false)
         on(KeyEvent.VK_LEFT.toKeyStroke(KeyEvent.ALT_DOWN_MASK), focusState = FocusState.IN_FOCUSED_WINDOW) {
             navigationManager.goBack()
@@ -138,9 +132,7 @@ class SettingsPanel(private val categories: List<Category>) :
                         }
                         center {
                             clampSizes(maxMinWidth = 500, clampBy = categoryTree) {
-                                scrollPane {
-                                    +categoryTree
-                                }
+                                scrollPane { +categoryTree }
                             }
                         }
                     }
@@ -148,15 +140,7 @@ class SettingsPanel(private val categories: List<Category>) :
                 right {
                     borderPanel {
                         north { createBanner() }
-                        center {
-                            layered {
-                                layers[JLayeredPane.DEFAULT_LAYER] = scrollPane({
-                                    verticalScrollBar.unitIncrement = 20
-                                    horizontalScrollBar.unitIncrement = 100
-                                }) { +categoriesCardPanel }
-                                layers[JLayeredPane.PALETTE_LAYER] = searchHandler.highlighter
-                            }
-                        }
+                        center { searchHandler.wrapInHighlightLayer(categoriesPanel) }
                     }
                 }
                 clampTo(SplitPaneBuilder.ClampMode.DEFAULT)
@@ -204,12 +188,13 @@ class SettingsPanel(private val categories: List<Category>) :
 
     private fun createCategoryTree(): CategoryTree {
         return CategoryTree(categories).apply {
-            DynamicUI.withDynamic(this) {
-                it.background = UIFactory.colorBackgroundColor.stripUIResource()
+            currentPosition.onChange { select(it.category) }
+            currentSearchResult.onChange {
+                if (it == null) resetMask() else setMask(it.categories)
             }
             border = dialogSpacing(left = true, right = true)
-            properties {
-                client["JTree.lineStyle"] = "none"
+            DynamicUI.withDynamic(this) {
+                it.background = UIFactory.colorBackgroundColor.stripUIResource()
             }
             invokeLater {
                 requestFocusInWindow()
@@ -221,7 +206,7 @@ class SettingsPanel(private val categories: List<Category>) :
             addCategorySelectionListener {
                 it ?: return@addCategorySelectionListener
                 val includeInHistory =
-                    abs(getRowForCategory(it) - getRowForCategory(navigationManager.currentCategory)) > 1
+                    abs(getRowForCategory(it) - getRowForCategory(navigationManager.currentPosition.get().category)) > 1
                 reveal(it, includeInNavigationHistory = includeInHistory)
             }
         }
@@ -235,6 +220,7 @@ class SettingsPanel(private val categories: List<Category>) :
                     it.displayName?.get() ?: ""
                 }
             )
+            currentPosition.bind { breadCrumbs = it.category.getPath() }
             addNavigationListener { _, item ->
                 if (item is Category) reveal(item)
             }
@@ -242,103 +228,17 @@ class SettingsPanel(private val categories: List<Category>) :
     }
 
     private fun createSearchField(): WrappedComponent<out JComponent> {
-        return +JTextField().apply {
-            columns = 10
-            minimumSize = preferredSize
-            properties {
-                client["JTextField.variant"] = "search"
-            }
-            addDocumentChangeListener {
-                val searchResult = search(text)
-                if (searchResult.entries.isEmpty() && text.length < 5) {
-                    hideSearch()
-                    return@addDocumentChangeListener
-                }
-                showSearch(searchResult)
-            }
-            on(KeyEvent.VK_F.toKeyStroke(KeyEvent.CTRL_DOWN_MASK), focusState = FocusState.IN_FOCUSED_WINDOW) {
-                requestFocus(true)
-            }
-            on(KeyEvent.VK_ESCAPE.toKeyStroke(), focusState = FocusState.FOCUSED) {
-                yieldFocus()
-            }
-        }
+        return +SearchField(searchHandler::search, this)
     }
 
-    fun search(searchTerm: String): SettingsSearchResult = searchHandler.search(searchTerm)
+    override fun hideSearch() = searchHandler.hideSearch()
 
-    fun hideSearch() {
-        if (!navigationManager.searchMode) return
-        navigationManager.searchMode = false
-        categoryTree.resetMask()
-        searchHandler.result = null
-    }
+    override fun displaySearchResult(result: SettingsSearchResult) = searchHandler.displaySearchResult(result)
 
-    fun showSearch(result: SettingsSearchResult) {
-        navigationManager.searchMode = true
-        searchHandler.result = result
-        categoryTree.setMask(result.categories)
-        val firstResult = result.entries.firstOrNull()?.searchable
-        val firstCategory = firstResult?.data?.getNearestCategory()
-        if (firstResult == null || firstCategory == null) {
-            reveal(emptyPageCategory)
-        } else {
-            reveal(firstCategory, firstResult.tag)
-        }
-        searchHandler.showHighlightsOf(navigationManager.currentCategory)
-    }
+    private fun reset(): Unit = categoriesPanel.reset()
 
-    private fun reset() {
-        categoryPanels.forEach { (_, panel) -> panel.component.reset() }
-    }
+    private fun apply(): Unit = categoriesPanel.apply()
 
-    private fun apply() {
-        categoryPanels.forEach { (_, panel) -> panel.component.apply() }
-    }
-
-    private fun navigateImpl(category: Category, tag: LayoutTag?) {
-        cardLayout.showCard(categoriesCardPanel, category.layoutIdentifier(), categoryPanels[category]?.container)
-        categoryTree.select(category)
-        breadcrumbBar.breadCrumbs = category.getPath()
-        searchHandler.showHighlightsOf(category)
-        if (tag != null) {
-            invokeLater {
-                val targetBounds = tag.getBoundsIn(categoriesCardPanel)
-                categoriesCardPanel.scrollRectToVisible(targetBounds)
-            }
-        }
-    }
-
-    override fun reveal(category: Category, tag: LayoutTag?, includeInNavigationHistory: Boolean) =
+    override fun reveal(category: Category?, tag: LayoutTag?, includeInNavigationHistory: Boolean) =
         navigationManager.navigateTo(category, tag, includeInHistory = includeInNavigationHistory)
-
-    private fun JPanel.addCategories(categories: List<Category>) {
-        for (category in categories) {
-            add(
-                categoryPanels.getOrPut(category) { createCategoryPanel(category) }.container,
-                category.layoutIdentifier()
-            )
-            addCategories(category.subCategories)
-        }
-    }
-
-    private fun Category.layoutIdentifier(): String = "$identifier${hashCode()}"
-}
-
-private class ScrollCardLayout : CardLayout() {
-
-    private var current: JComponent? = null
-
-    fun showCard(parent: Container, identifier: String, comp: JComponent?) {
-        super.show(parent, identifier)
-        current = comp
-    }
-
-    override fun preferredLayoutSize(parent: Container?): Dimension {
-        return if (current != null) current!!.preferredSize else super.preferredLayoutSize(parent)
-    }
-
-    override fun minimumLayoutSize(parent: Container?): Dimension {
-        return if (current != null) current!!.minimumSize else super.minimumLayoutSize(parent)
-    }
 }

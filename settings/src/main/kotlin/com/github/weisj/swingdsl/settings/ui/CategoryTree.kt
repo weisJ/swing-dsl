@@ -22,11 +22,12 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.settings.panel
+package com.github.weisj.swingdsl.settings.ui
 
 import com.github.weisj.swingdsl.component.HideableTree
 import com.github.weisj.swingdsl.component.HideableTreeModel
 import com.github.weisj.swingdsl.component.HideableTreeNode
+import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.DefaultDisplayState
 import com.github.weisj.swingdsl.settings.TopLevel
@@ -120,9 +121,12 @@ class CategoryTree private constructor(
             val tree = CategoryTree(nodeMap, model)
             root.addCategories(categories, tree, nodeMap)
             model.reload()
-            return tree.also {
-                it.setSelectionRow(0)
-                it.setCellRenderer(CategoryTreeCellRenderer())
+            return tree.apply {
+                setSelectionRow(0)
+                setCellRenderer(CategoryTreeCellRenderer())
+                properties {
+                    client["JTree.lineStyle"] = "none"
+                }
             }
         }
     }

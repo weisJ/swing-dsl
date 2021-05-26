@@ -54,6 +54,13 @@ class UndoRedoList {
         updateState()
     }
 
+    fun clear() {
+        history.clear()
+    }
+
+    fun current(): Action = history.current()
+    fun currentOrNull(): Action? = history.currentOrNull()
+
     fun undo() {
         history.current().undoAction!!()
         history.back()
@@ -76,4 +83,6 @@ class UndoRedoList {
     fun canUndo(): Boolean = history.canGoBack() && history.currentOrNull()?.undoAction != null
 
     fun canRedo(): Boolean = history.canGoForward()
+
+    override fun toString(): String = "UndoRedoList[$history]"
 }

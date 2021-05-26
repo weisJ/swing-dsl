@@ -54,6 +54,11 @@ interface SearchContext<T> {
     fun register(searchable: Searchable<T>)
 }
 
+interface SearchPresenter<T, ResultType : SearchResult<T>> {
+    fun hideSearch()
+    fun displaySearchResult(result: ResultType)
+}
+
 interface SearchPointSink<T> {
     fun onSearchPointCreated(prop: T, tag: LayoutTag)
 }

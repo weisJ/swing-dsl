@@ -36,6 +36,10 @@ class HistoryList<T : Any> {
         current = node
     }
 
+    fun clear() {
+        current = null
+    }
+
     fun isEmpty(): Boolean = current == null
 
     fun currentOrNull(): T? {
@@ -94,6 +98,26 @@ class HistoryList<T : Any> {
     }
 
     fun canGoForward(): Boolean = current?.next != null
+
+    override fun toString(): String {
+        val tail = buildString {
+            var cur = current?.next
+            while (cur != null) {
+                append(',')
+                append(cur)
+                cur = cur.next
+            }
+        }
+        val start = buildString {
+            var cur2 = current?.prev
+            while (cur2 != null) {
+                append(cur2)
+                append(',')
+                cur2 = cur2.prev
+            }
+        }
+        return "[$start**$current**$tail]"
+    }
 }
 
 class Node<T>(val item: T, var prev: Node<T>?, var next: Node<T>?)

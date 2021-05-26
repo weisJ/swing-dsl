@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
+import com.github.weisj.swingdsl.condition.ObservableCondition
+import com.github.weisj.swingdsl.condition.conditionOf
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import javax.swing.JComponent
@@ -34,6 +36,8 @@ interface Modifiable {
     fun reset()
 
     fun isModified(): Boolean
+
+    val modifiedCondition: ObservableCondition
 
     companion object {
         val NO_OP_IMPL: Modifiable = object : Modifiable {
@@ -46,6 +50,8 @@ interface Modifiable {
             }
 
             override fun isModified(): Boolean = false
+            override val modifiedCondition: ObservableCondition
+                get() = conditionOf(false)
         }
     }
 }
@@ -58,27 +64,6 @@ interface ModifiableComponent<T : JComponent> : WrappedComponent<T>, Modifiable 
                 SelfWrappedComponent<T>(component),
                 ModifiableComponent<T>,
                 Modifiable by Modifiable.NO_OP_IMPL {}
-        }
-
-        operator fun <T : JComponent> invoke(
-            component: T,
-            onApply: () -> Unit,
-            onReset: () -> Unit,
-            onIsModified: () -> Boolean
-        ): ModifiableComponent<T> {
-            return object : SelfWrappedComponent<T>(component), ModifiableComponent<T> {
-                override fun apply() {
-                    onApply()
-                }
-
-                override fun reset() {
-                    onReset()
-                }
-
-                override fun isModified(): Boolean {
-                    return onIsModified()
-                }
-            }
         }
     }
 }
