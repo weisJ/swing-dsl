@@ -36,12 +36,11 @@ import com.github.weisj.swingdsl.highlight.SearchResultItem
 import com.github.weisj.swingdsl.highlight.search
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layered
- import com.github.weisj.swingdsl.settings.Category
+import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.unaryPlus
 import javax.swing.JComponent
 import javax.swing.JLayeredPane
 
