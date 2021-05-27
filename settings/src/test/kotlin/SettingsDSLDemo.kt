@@ -178,7 +178,7 @@ var text5 = "true"
 
 fun main() {
     invokeLater {
-        val darklaf = false
+        val darklaf = true
         if (darklaf) {
             LafManager.install(IntelliJTheme())
         } else {
