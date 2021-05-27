@@ -46,6 +46,7 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
 import com.github.weisj.swingdsl.style.asUIResource
+import com.github.weisj.swingdsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.util.getTextPropertyForComponent
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
@@ -724,6 +725,11 @@ internal class MigLayoutRow(
             invokeLater {
                 lineWrap = true
             }
+        }
+
+        override fun updateUI() {
+            super.updateUI()
+            font = SharedLazyComponents.label.font
         }
 
         init {

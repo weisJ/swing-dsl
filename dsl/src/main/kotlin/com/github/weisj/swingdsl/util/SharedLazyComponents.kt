@@ -25,10 +25,12 @@
 package com.github.weisj.swingdsl.util
 
 import com.github.weisj.swingdsl.style.DynamicUI
+import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JTree
 
 object SharedLazyComponents {
     val tree: JTree by lazy { DynamicUI.withDynamic(JTree()) { it.updateUI() } }
     val list: JList<Any?> by lazy { DynamicUI.withDynamic(JList<Any?>()) { it.updateUI() } }
+    val label: JLabel by lazy { DynamicUI.withDynamic(JLabel()) { it.updateUI() } }
 }
