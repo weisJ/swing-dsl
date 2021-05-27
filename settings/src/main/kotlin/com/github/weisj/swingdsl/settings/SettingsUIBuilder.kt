@@ -34,7 +34,6 @@ import com.github.weisj.swingdsl.highlight.SearchPresenter
 import com.github.weisj.swingdsl.highlight.createSink
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.layout.RowBuilder
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.settings.ui.NavigationPosition
 import com.github.weisj.swingdsl.settings.ui.SettingsPanel
@@ -86,7 +85,7 @@ fun Row.addCategory(category: Category, context: UIContext) {
     }
 }
 
-fun RowBuilder.addGroup(group: Group, context: UIContext) {
+fun Row.addGroup(group: Group, context: UIContext) {
     setSearchPointSink(context.createSink(group))
     maybeTitledRow(group) {
         bindDisplayStatus(group)
@@ -118,12 +117,14 @@ fun <T> Row.addValue(value: DefaultValue<T>, context: UIContext) {
     }
 }
 
-private fun RowBuilder.maybeTitledRow(element: Element, init: Row.() -> Unit): Row {
+private fun Row.maybeTitledRow(element: Element, init: Row.() -> Unit) {
     val name = element.displayName
-    return if (!name.isConstantNullOrEmpty()) {
+    if (!name.isConstantNullOrEmpty()) {
         titledRow(name, init)
-    } else {
+    } else if (element !is TopLevel) {
         row(init)
+    } else {
+        init()
     }
 }
 
@@ -131,15 +132,7 @@ private fun <T> Row.valueRow(value: DefaultValue<T>, init: Row.() -> Unit): Row 
     return if (value.showTitle) {
         row(value.displayName, init = init)
     } else {
-        if (value.parent is TopLevel && !value.parent.displayName.isConstantNullOrEmpty()) {
-            lateinit var r: Row
-            left {
-                r = row(init)
-            }
-            r
-        } else {
-            row(init = init)
-        }
+        row(init = init)
     }
 }
 
