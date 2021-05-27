@@ -29,14 +29,14 @@ val isRelease = project.stringProperty("release").toBool()
 val snapshotName by props("")
 
 val String.v: String get() = rootProject.extra["$this.version"] as String
-val projectVersion = "swing-dsl".v
+val projectVersion = "swing-extensions".v
 
 val snapshotIdentifier = if (!isRelease && snapshotName.isNotEmpty()) "-$snapshotName" else ""
 
 releaseParams {
-    tlp.set("swing-dsl")
+    tlp.set("swing-extensions")
     organizationName.set("weisJ")
-    componentName.set("template")
+    componentName.set("Swing-Extensions")
     prefixForProperties.set("gh")
     svnDistEnabled.set(false)
     sitePreviewEnabled.set(false)
@@ -60,7 +60,7 @@ releaseParams {
 tasks.closeRepository.configure { enabled = isRelease }
 
 val buildVersion = "$projectVersion$snapshotIdentifier${releaseParams.snapshotSuffix}"
-println("Building: Swing-DSL $buildVersion")
+println("Building: Swing-Extensions $buildVersion")
 println("     JDK: " + System.getProperty("java.home"))
 
 fun BaseFormatExtension.license() {

@@ -21,7 +21,7 @@ to the description of the Bug and **does not** replace it.
 **Additional Information:**
  - OS: [e.g. macOS]
  - OS Version: [e.g. 10.14]
- - swing-dsl Version: [e.g. 2.0.2]
+ - Version of this library: [e.g. 2.0.2]
  - **Note**: If you are using the `latest.integration` version please try to replicate the issue with the latest stable release.
 
 **Additional context**
