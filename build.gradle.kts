@@ -34,7 +34,7 @@ val projectVersion = "swing-extensions".v
 val snapshotIdentifier = if (!isRelease && snapshotName.isNotEmpty()) "-$snapshotName" else ""
 
 releaseParams {
-    tlp.set("swing-extensions")
+    tlp.set("swing-dsl")
     organizationName.set("weisJ")
     componentName.set("Swing-Extensions")
     prefixForProperties.set("gh")
