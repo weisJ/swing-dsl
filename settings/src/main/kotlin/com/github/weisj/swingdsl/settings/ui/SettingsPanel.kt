@@ -131,7 +131,7 @@ class SettingsPanel(private val categories: List<Category>) :
                         }
                         center {
                             clampSizes(maxMinWidth = 500, clampBy = categoryTree) {
-                                scrollPane { +categoryTree }
+                                scrollPane({ border = emptyBorder() }) { +categoryTree }
                             }
                         }
                     }
@@ -139,7 +139,15 @@ class SettingsPanel(private val categories: List<Category>) :
                 right {
                     borderPanel {
                         north { createBanner() }
-                        center { searchHandler.wrapInHighlightLayer(categoriesPanel) }
+                        center {
+                            searchHandler.wrapInHighlightLayer(
+                                scrollPane({
+                                    border = emptyBorder()
+                                    verticalScrollBar.unitIncrement = 20
+                                    horizontalScrollBar.unitIncrement = 100
+                                }) { +categoriesPanel }
+                            )
+                        }
                     }
                 }
                 clampTo(SplitPaneBuilder.ClampMode.DEFAULT)

@@ -36,8 +36,7 @@ import com.github.weisj.swingdsl.highlight.SearchResultItem
 import com.github.weisj.swingdsl.highlight.search
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layered
-import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.settings.Category
+ import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
@@ -80,12 +79,9 @@ class SearchHandler(
         }
     }
 
-    fun wrapInHighlightLayer(comp: JComponent): WrappedComponent<out JComponent> {
+    fun <T : JComponent> wrapInHighlightLayer(comp: WrappedComponent<T>): WrappedComponent<JLayeredPane> {
         return layered {
-            layers[JLayeredPane.DEFAULT_LAYER] = scrollPane({
-                verticalScrollBar.unitIncrement = 20
-                horizontalScrollBar.unitIncrement = 100
-            }) { +comp }
+            layers[JLayeredPane.DEFAULT_LAYER] = comp
             layers[JLayeredPane.PALETTE_LAYER] = highlighter
         }
     }
