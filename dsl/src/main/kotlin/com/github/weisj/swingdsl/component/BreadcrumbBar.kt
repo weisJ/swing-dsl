@@ -107,6 +107,14 @@ class BreadcrumbBar<T> : JComponent() {
         add(rendererPane)
     }
 
+    override fun updateUI() {
+        super.updateUI()
+        separator.updateUI()
+        renderer.let {
+            if (it is JComponent) it.updateUI()
+        }
+    }
+
     fun addNavigationListener(listener: NavigationListener<T>) {
         navigationListeners.add(listener)
     }
