@@ -85,8 +85,7 @@ class BreadcrumbBar<T> : JComponent() {
                     }
                 }
                 listener.installOn(this, listenForHover = true) {
-                    if (i !in breadcrumbLayout.layoutRects.indices) false
-                    else breadcrumbLayout.layoutRects[i].contains(it)
+                    breadcrumbLayout.layoutRects.getOrNull(i)?.contains(it) ?: false
                 }
                 listener
             }
@@ -185,9 +184,13 @@ private class BreadcrumbLayout<T> : LayoutManager {
         } ?: Dimension(0, 0)
     }
 
-    override fun addLayoutComponent(name: String?, comp: Component?) {}
+    override fun addLayoutComponent(name: String?, comp: Component?) {
+        /* Nothing to do here */
+    }
 
-    override fun removeLayoutComponent(comp: Component?) {}
+    override fun removeLayoutComponent(comp: Component?) {
+        /* Nothing to do here */
+    }
 
     override fun layoutContainer(parent: Container?) {
         parent as BreadcrumbBar<T>

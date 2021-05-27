@@ -32,6 +32,8 @@ import java.awt.Point
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.math.abs
 
 abstract class ClickListener {
@@ -58,80 +60,95 @@ abstract class ClickListener {
         listenForHover: Boolean = false,
         hitTest: (Point) -> Boolean = { true }
     ) {
-        listener = object : MouseAdapter() {
-            private var pressPoint: Point? = null
-            private var lastClickPoint: Point? = null
-            private var lastTimeClicked: Long = -1
-            private var clickCount = 0
-            private var isHovered = false
-            private var isArmed = false
-
-            fun checkInside(e: MouseEvent) {
-                if (!listenForHover) return
-                val inside = hitTest(e.point)
-                if (isHovered != inside) onHover(e, inside)
-                isHovered = inside
-            }
-
-            override fun mouseEntered(e: MouseEvent) {
-                checkInside(e)
-            }
-
-            override fun mouseMoved(e: MouseEvent) {
-                checkInside(e)
-            }
-
-            override fun mouseExited(e: MouseEvent) {
-                if (!listenForHover) return
-                isHovered = false
-                onHover(e, false)
-            }
-
-            override fun mousePressed(e: MouseEvent) {
-                val point: Point = e.point
-                if (!hitTest(point)) return
-                SwingUtilities.convertPointToScreen(point, e.component)
-                if (abs(lastTimeClicked - e.getWhen()) > getMultiClickInterval() ||
-                    lastClickPoint != null && !isWithinEps(lastClickPoint!!, point)
-                ) {
-                    clickCount = 0
-                    lastClickPoint = null
-                }
-                clickCount++
-                lastTimeClicked = e.getWhen()
-                if (!e.isPopupTrigger) {
-                    pressPoint = point
-                    isArmed = true
-                    onArmed(e, isArmed)
-                }
-            }
-
-            override fun mouseReleased(e: MouseEvent) {
-                val releasedAt: Point = e.point
-                if (!hitTest(releasedAt)) return
-                SwingUtilities.convertPointToScreen(releasedAt, e.component)
-                val clickedAt: Point? = pressPoint
-                lastClickPoint = clickedAt
-                pressPoint = null
-                isArmed = false
-                onArmed(e, isArmed)
-                if (e.isConsumed || clickedAt == null || e.isPopupTrigger || !e.component.contains(e.point)) {
-                    return
-                }
-                if ((allowDragWhileClicking || isWithinEps(releasedAt, clickedAt)) && onClick(e, clickCount)) {
-                    e.consume()
-                }
-            }
-        }
+        listener = ClickListenerImpl(this, allowDragWhileClicking, listenForHover, hitTest)
         if (listenForHover) c.addMouseMotionListener(listener)
         c.addMouseListener(listener)
     }
 
-    private fun isWithinEps(releasedAt: Point, clickedAt: Point): Boolean {
-        return abs(clickedAt.x - releasedAt.x) < EPS && abs(clickedAt.y - releasedAt.y) < EPS
-    }
-
     fun uninstall(c: Component) {
         c.removeMouseListener(listener)
+    }
+}
+
+private fun isWithinEps(releasedAt: Point, clickedAt: Point): Boolean {
+    return abs(clickedAt.x - releasedAt.x) < ClickListener.EPS &&
+        abs(clickedAt.y - releasedAt.y) < ClickListener.EPS
+}
+
+internal class ClickListenerImpl(
+    private val listener: ClickListener,
+    private val allowDragWhileClicking: Boolean = false,
+    private val listenForHover: Boolean = false,
+    private val hitTest: (Point) -> Boolean = { true }
+) : MouseAdapter() {
+    private var pressPoint: Point? = null
+    private var lastClickPoint: Point? = null
+    private var lastTimeClicked: Long = -1
+    private var clickCount = 0
+    private var isHovered = false
+    private var isArmed = false
+
+    fun checkInside(e: MouseEvent) {
+        if (!listenForHover) return
+        val inside = hitTest(e.point)
+        if (isHovered != inside) listener.onHover(e, inside)
+        isHovered = inside
+    }
+
+    override fun mouseEntered(e: MouseEvent) {
+        checkInside(e)
+    }
+
+    override fun mouseMoved(e: MouseEvent) {
+        checkInside(e)
+    }
+
+    override fun mouseExited(e: MouseEvent) {
+        if (!listenForHover) return
+        isHovered = false
+        listener.onHover(e, false)
+    }
+
+    override fun mousePressed(e: MouseEvent) {
+        val point: Point = e.point
+        if (!hitTest(point)) return
+        SwingUtilities.convertPointToScreen(point, e.component)
+        if (abs(lastTimeClicked - e.getWhen()) > getMultiClickInterval() ||
+            lastClickPoint != null && !isWithinEps(lastClickPoint!!, point)
+        ) {
+            clickCount = 0
+            lastClickPoint = null
+        }
+        clickCount++
+        lastTimeClicked = e.getWhen()
+        if (!e.isPopupTrigger) {
+            pressPoint = point
+            isArmed = true
+            listener.onArmed(e, isArmed)
+        }
+    }
+
+    override fun mouseReleased(e: MouseEvent) {
+        val releasedAt: Point = e.point
+        if (!hitTest(releasedAt)) return
+        SwingUtilities.convertPointToScreen(releasedAt, e.component)
+        val clickedAt: Point? = pressPoint
+        lastClickPoint = pressPoint
+        pressPoint = null
+        isArmed = false
+        listener.onArmed(e, isArmed)
+        if (shouldIgnoreEvent(e, clickedAt)) return
+        if (shouldConsume(releasedAt, clickedAt) && listener.onClick(e, clickCount)) e.consume()
+    }
+
+    private fun shouldConsume(releasedAt: Point, clickedAt: Point) =
+        (allowDragWhileClicking || isWithinEps(releasedAt, clickedAt))
+
+    @OptIn(ExperimentalContracts::class)
+    private fun shouldIgnoreEvent(e: MouseEvent, clickedAt: Point?): Boolean {
+        contract {
+            returns(false) implies (clickedAt != null)
+        }
+        return e.isConsumed || clickedAt == null || e.isPopupTrigger || !e.component.contains(e.point)
     }
 }

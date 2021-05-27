@@ -111,30 +111,32 @@ class HideableTreeSelectionModel(
         val currentSelectionRow = leadSelectionRow
         val newRow = tree.getRowForPath(path)
         when (currentSelectionRow) {
-            newRow - 1 -> {
-                // Tried to move up
-                val max = tree.rowCount
-                if (currentSelectionRow > max - 3) return
-                var i = currentSelectionRow + 2
-                var p = tree.getPathForRow(i)
-                while (i < max && !p.enabled) {
-                    i++
-                    if (i < max) p = tree.getPathForRow(i)
-                }
-                if (p.enabled) tree.selectionPath = p
-            }
-            newRow + 1 -> {
-                // Tried to move down
-                if (currentSelectionRow < 2) return
-                var i = currentSelectionRow - 2
-                var p = tree.getPathForRow(i)
-                while (i >= 0 && !p.enabled) {
-                    i++
-                    if (i >= 0) p = tree.getPathForRow(i)
-                }
-                if (p.enabled) tree.selectionPath = p
-            }
+            newRow - 1 -> navigateUp(currentSelectionRow)
+            newRow + 1 -> navigateDown(currentSelectionRow)
         }
+    }
+
+    private fun navigateUp(currentSelectionRow: Int) {
+        val max = tree.rowCount
+        if (currentSelectionRow > max - 3) return
+        var i = currentSelectionRow + 2
+        var p = tree.getPathForRow(i)
+        while (i < max && !p.enabled) {
+            i++
+            if (i < max) p = tree.getPathForRow(i)
+        }
+        if (p.enabled) tree.selectionPath = p
+    }
+
+    private fun navigateDown(currentSelectionRow: Int) {
+        if (currentSelectionRow < 2) return
+        var i = currentSelectionRow - 2
+        var p = tree.getPathForRow(i)
+        while (i >= 0 && !p.enabled) {
+            i++
+            if (i >= 0) p = tree.getPathForRow(i)
+        }
+        if (p.enabled) tree.selectionPath = p
     }
 
     override fun setSelectionPath(path: TreePath?) {
@@ -173,19 +175,15 @@ class HideableTreeModel(
 ) : DefaultTreeModel(root, asksAllowsChildren) {
 
     override fun getChild(parent: Any, index: Int): Any {
-        if (isActivatedFilter) {
-            if (parent is HideableTreeNode<*>) {
-                return parent.getChildAt(index, isActivatedFilter)
-            }
+        if (isActivatedFilter && parent is HideableTreeNode<*>) {
+            return parent.getChildAt(index, isActivatedFilter)
         }
         return (parent as TreeNode).getChildAt(index)
     }
 
     override fun getChildCount(parent: Any): Int {
-        if (isActivatedFilter) {
-            if (parent is HideableTreeNode<*>) {
-                return parent.getChildCount(isActivatedFilter)
-            }
+        if (isActivatedFilter && parent is HideableTreeNode<*>) {
+            return parent.getChildCount(isActivatedFilter)
         }
         return (parent as TreeNode).childCount
     }

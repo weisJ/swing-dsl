@@ -74,6 +74,8 @@ internal class TextWrapper(internal val textProp: TextProperty) : Text {
 fun Text.asTextProperty(): TextProperty = if (this is TextWrapper) this.textProp else TextPropertyWrapper(this)
 fun TextProperty.asText(): Text = if (this is TextPropertyWrapper) this.text else TextWrapper(this)
 
+@Suppress("kotlin:S1192")
+// Extracting Strings makes no sense here, as they are conceptually independent of each other
 class DefaultComponentFactoryImpl : ComponentFactory {
 
     override fun createLabel(text: TextProperty, icon: Icon?): WrappedComponent<JLabel> {

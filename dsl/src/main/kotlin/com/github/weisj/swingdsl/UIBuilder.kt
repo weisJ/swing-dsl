@@ -113,6 +113,8 @@ fun <T : JComponent> wrap(
     return DefaultWrappedComponent(comp.component, wrapper)
 }
 
+@Suppress("kotlin:S107")
+// Most use cases won't actually make use of all parameters
 fun <T : JComponent> clampSizes(
     maxMinWidth: Int = -1,
     maxMinHeight: Int = -1,

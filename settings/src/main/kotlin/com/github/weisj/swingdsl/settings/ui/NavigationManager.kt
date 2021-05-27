@@ -82,25 +82,40 @@ class NavigationManager(
             val targetPosition = NavigationPosition(target, tag)
             val exactCurrentPosition = createExactCurrentLocation()
             if (includeInHistory) {
-                // If we have a saved position we use it instead of the current location.
-                // This is relevant if there have been navigation actions not included in the history.
-                if (target != defaultCategory) {
-                    savedPosition = targetPosition
-                }
-                context.add(
-                    doAction = { doNavigation(targetPosition) },
-                    undoAction = if (reversible) {
-                        { doNavigation(exactCurrentPosition) }
-                    } else null
-                )
+                navigateWithHistory(targetPosition, exactCurrentPosition, reversible)
             } else {
-                if (!unsavedNavigationMode && target != defaultCategory) {
-                    savedPosition = exactCurrentPosition
-                }
-                doNavigation(targetPosition)
+                navigateWithoutHistory(targetPosition, exactCurrentPosition)
             }
             unsavedNavigationMode = !includeInHistory
         }
+    }
+
+    private fun navigateWithoutHistory(
+        targetPosition: NavigationPosition,
+        exactCurrentPosition: NavigationPosition
+    ) {
+        if (!unsavedNavigationMode && targetPosition.category != defaultCategory) {
+            savedPosition = exactCurrentPosition
+        }
+        doNavigation(targetPosition)
+    }
+
+    private fun navigateWithHistory(
+        targetPosition: NavigationPosition,
+        exactCurrentPosition: NavigationPosition,
+        reversible: Boolean
+    ) {
+        // If we have a saved position we use it instead of the current location.
+        // This is relevant if there have been navigation actions not included in the history.
+        if (targetPosition.category != defaultCategory) {
+            savedPosition = targetPosition
+        }
+        context.add(
+            doAction = { doNavigation(targetPosition) },
+            undoAction = if (reversible) {
+                { doNavigation(exactCurrentPosition) }
+            } else null
+        )
     }
 
     fun goBack() {

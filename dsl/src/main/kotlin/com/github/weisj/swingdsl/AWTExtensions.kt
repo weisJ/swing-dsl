@@ -118,9 +118,13 @@ fun JButton.makeDefaultButton(requestFocus: Boolean = true) {
                 if (requestFocus) this@makeDefaultButton.requestFocusInWindow()
             }
 
-            override fun ancestorRemoved(event: AncestorEvent?) {}
+            override fun ancestorRemoved(event: AncestorEvent?) {
+                /* Nothing to do here */
+            }
 
-            override fun ancestorMoved(event: AncestorEvent?) {}
+            override fun ancestorMoved(event: AncestorEvent?) {
+                /* Nothing to do here */
+            }
         })
     }
 }
