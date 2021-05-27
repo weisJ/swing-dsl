@@ -42,6 +42,7 @@ import com.github.weisj.swingdsl.settings.string
 import com.github.weisj.swingdsl.unaryPlus
 import java.awt.Color
 import java.awt.Dimension
+import javax.swing.UIManager
 
 class TestData {
 
@@ -169,23 +170,69 @@ fun SubCategoryBuilder.addNested(identifier: String, level: Int) {
     }
 }
 
+var text1 = "true"
+var text2 = "true"
+var text3 = "true"
+var text4 = "true"
+var text5 = "true"
+
 fun main() {
     invokeLater {
-        // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-        // System.setProperty("darklaf.allowNativeCode", "false")
-        LafManager.install(IntelliJTheme())
+        val darklaf = false
+        if (darklaf) {
+            LafManager.install(IntelliJTheme())
+        } else {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+        }
         FlatInspector.install("ctrl shift alt X")
         frame {
             content {
                 +createSettingsPanel(
-                    category("Root") {
-                        ('A'..'Z').forEach {
-                            category(it.toString().repeat(5)) {
-                                addNested(it.toString(), 3)
+                    listOfNotNull(
+                        category("IdentAnalysis") {
+                            group {
+                                string(::text1, name = +"Label 1")
+                                group {
+                                    string(::text2, name = +"Label 1.1")
+                                }
+                                group(name = +"Titled Row") {
+                                    string(::text3, name = +"Label 2")
+                                    group {
+                                        string(::text4, name = +"Label 2.1")
+                                        group {
+                                            string(::text4, name = +"Label 2.1.1")
+                                        }
+                                    }
+                                    group {
+                                        group {
+                                            string(::text4, name = +"Label 2.2.1")
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    },
-                    makeCategory("Demo")
+                            group {
+                                string(::text5, name = +"Label 3")
+                            }
+                        },
+                        category("Root") {
+                            ('A'..'Z').forEach {
+                                category(it.toString().repeat(5)) {
+                                    addNested(it.toString(), 3)
+                                }
+                            }
+                        },
+                        if (LafManager.isInstalled()) {
+                            category("Appearance") {
+                                group {
+                                    custom(
+                                        name = +"Darklaf Settings",
+                                        componentBuilder = { row, _, _ -> row.createDarklafSettings() }
+                                    )
+                                }
+                            }
+                        } else null,
+                        makeCategory("Demo")
+                    )
                 )
             }
             minimumSize = Dimension(600, 300)
