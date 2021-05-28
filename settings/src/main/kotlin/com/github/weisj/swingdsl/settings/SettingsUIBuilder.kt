@@ -53,18 +53,19 @@ fun createCategoryPanel(category: Category, context: UIContext): ModifiablePanel
 }
 
 fun Row.addCategoryOverview(category: Category, context: UIContext) {
-    setSearchPointSink(context.createSink(category))
-    category.description?.let {
-        left { commentRow(it) }
-    }
-    row {
-        cell(isVerticalFlow = true) {
-            category.subCategories.forEach { cat ->
-                component(
-                    HyperlinkLabel(cat.displayName).apply {
-                        addListener { context.reveal(cat) }
-                    }
-                )
+    withSearchPointSink(context.createSink(category)) {
+        category.description?.let {
+            left { commentRow(it) }
+        }
+        row {
+            cell(isVerticalFlow = true) {
+                category.subCategories.forEach { cat ->
+                    component(
+                        HyperlinkLabel(cat.displayName).apply {
+                            addListener { context.reveal(cat) }
+                        }
+                    )
+                }
             }
         }
     }
@@ -86,18 +87,19 @@ fun Row.addCategory(category: Category, context: UIContext) {
 }
 
 fun Row.addGroup(group: Group, context: UIContext) {
-    setSearchPointSink(context.createSink(group))
-    maybeTitledRow(group) {
-        bindDisplayStatus(group)
-        noIndent {
-            group.description?.let {
-                row {
-                    commentRow(it, withLeftGap = false)
+    withSearchPointSink(context.createSink(group)) {
+        maybeTitledRow(group) {
+            bindDisplayStatus(group)
+            noIndent {
+                group.description?.let {
+                    row {
+                        commentRow(it, withLeftGap = false)
+                    }
                 }
+                group.values.forEach { it.createUI(this, context) }
             }
-            group.values.forEach { it.createUI(this, context) }
+            group.subGroups.forEach { it.createUI(this, context) }
         }
-        group.subGroups.forEach { it.createUI(this, context) }
     }
 }
 

@@ -230,8 +230,10 @@ fun GroupBuilder<*, *>.custom(
     valueImpl(PropertyBinding({ null }, {}), identifier, name, description = description, init = init) { a, b, c ->
         object : DefaultValue<Any?>(a, b, c) {
             override fun createUI(row: Row, context: UIContext) {
-                row.setSearchPointSink(context.createSink(this))
-                componentBuilder.build(row, this, context)
+                val element = this
+                row.withSearchPointSink(context.createSink(element)) {
+                    componentBuilder.build(this, element, context)
+                }
             }
         }
     }

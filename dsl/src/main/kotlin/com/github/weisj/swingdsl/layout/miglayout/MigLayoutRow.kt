@@ -113,8 +113,9 @@ internal class MigLayoutRow(
                     if (title != null) row.issueSearchTag(title, it.createLayoutTag())
                 }
             } else {
-                DynamicUI.withDynamic(TitledSeparator(title)) {
-                    if (title != null) row.issueSearchTag(title, it.label.createLayoutTag())
+                val separator = TitledSeparator(title)
+                if (title != null) row.issueSearchTag(title, separator.label.createLayoutTag())
+                DynamicUI.withDynamic(separator) {
                     val dividerColor = UIFactory.dividerColor
                     it.color = dividerColor.enabled
                     it.disabledColor = dividerColor.disabled
@@ -260,21 +261,23 @@ internal class MigLayoutRow(
 
     internal var cellModeSpans = mutableListOf(CellModeSpan(start = -1, end = -1))
 
-    private var searchSink: StringSearchPointSink? = parent?.searchSink
+    private var _searchSink: StringSearchPointSink? = null
+    private val searchSink: StringSearchPointSink?
+        get() = _searchSink ?: parent?.searchSink
 
     private fun issueSearchTag(prop: Property<String>, tag: LayoutTag) {
         searchSink?.onSearchPointCreated(prop, tag)
     }
 
-    override fun setSearchPointSink(sink: StringSearchPointSink) {
-        searchSink = sink
+    override fun setSearchPointSink(sink: StringSearchPointSink?) {
+        _searchSink = sink
     }
 
     override fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit) {
-        val currentSink = searchSink
-        searchSink = sink
+        val currentSink = _searchSink
+        setSearchPointSink(sink)
         this.init()
-        searchSink = currentSink
+        setSearchPointSink(currentSink)
     }
 
     override fun createChildRow(

@@ -49,7 +49,7 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
 
     fun commitImmediately()
 
-    fun setSearchPointSink(sink: StringSearchPointSink)
+    fun setSearchPointSink(sink: StringSearchPointSink?)
     fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit)
 
     // manual JvmOverloads
