@@ -33,13 +33,13 @@ import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.listeners.registerAWTEventListener
 import java.awt.AWTEvent
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Dimension
 import java.awt.LayoutManager
-import java.awt.Toolkit
 import java.awt.event.AWTEventListener
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
@@ -108,9 +108,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
 
         private var modified = false
         private val listeners: MutableList<(Boolean) -> Unit> by lazy {
-            Toolkit.getDefaultToolkit().addAWTEventListener(
-                this, AWTEvent.KEY_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK
-            )
+            registerAWTEventListener(AWTEvent.KEY_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK, this)
             modified = panel.isModified()
             mutableListOf()
         }

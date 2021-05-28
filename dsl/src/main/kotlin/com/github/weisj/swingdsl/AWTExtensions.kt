@@ -54,6 +54,9 @@ import javax.swing.event.AncestorListener
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.JTextComponent
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 enum class FocusState(val magicValue: Int) {
     FOCUSED(JComponent.WHEN_FOCUSED),
@@ -139,7 +142,17 @@ fun Component?.getWindow(): Window? {
     return parent as? Window
 }
 
-fun invokeLater(action: () -> Unit) = SwingUtilities.invokeLater(action)
+fun invokeLater(action: () -> Unit) {
+    SwingUtilities.invokeLater(action)
+}
+
+@OptIn(ExperimentalContracts::class)
+fun invokeAndWait(action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    SwingUtilities.invokeAndWait(action)
+}
 
 fun onSwingThread(action: () -> Unit) {
     if (SwingUtilities.isEventDispatchThread()) {
