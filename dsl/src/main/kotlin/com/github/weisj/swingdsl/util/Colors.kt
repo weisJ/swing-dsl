@@ -36,3 +36,24 @@ fun Color.mix(other: Color, ratio: Float = 0.5f): Color {
         (this.alpha * ratio + inv * (other.alpha - this.alpha)).toInt().coerceIn(0, 255),
     )
 }
+
+fun Color.toHex(includeAlpha: Boolean = true): String {
+    return if (includeAlpha) {
+        String.format("%02X%02X%02X%02X", red, green, blue, alpha)
+    } else {
+        String.format("%02X%02X%02X", red, green, blue)
+    }
+}
+
+fun Color.asCSSProperty(colorTag: String = "color", opacityTag: String = "opacity"): String = buildString {
+    append(colorTag)
+    append(':')
+    append(toHex(includeAlpha = false))
+    append(';')
+    if (alpha < 255) {
+        append(opacityTag)
+        append(':')
+        append((alpha / 255f).coerceIn(0f, 1f))
+        append(';')
+    }
+}
