@@ -252,10 +252,17 @@ internal class MigLayoutRow(
             }
         }
 
+    private fun setCollapsedState(value: Boolean) {
+        collapsedRoot = value
+        collapsed = value
+    }
+
+    private var collapsedRoot = false
     private var collapsed = false
-        set(value) {
+        set(v) {
+            val value = v || collapsedRoot
             if (field == value) return
-            field = value
+            field = v
 
             val visible = !value
             for ((index, c) in components.withIndex()) {
@@ -466,10 +473,10 @@ internal class MigLayoutRow(
             val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
             panelRow.noIndent(init)
             separator.setCollapseCallback {
-                panelRow.collapsed = true
+                panelRow.setCollapsedState(true)
             }
             separator.setExpandCallback {
-                panelRow.collapsed = false
+                panelRow.setCollapsedState(false)
             }
             if (startHidden || !panelRow.enabled) {
                 separator.collapse()
