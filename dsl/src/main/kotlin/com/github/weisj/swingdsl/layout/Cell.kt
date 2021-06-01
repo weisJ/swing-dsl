@@ -154,7 +154,7 @@ abstract class Cell : ButtonGroupBuilder {
         return component(comment = comment)
     }
 
-    open fun radioButton(
+    fun radioButton(
         text: Text,
         getter: () -> Boolean,
         setter: (Boolean) -> Unit,
