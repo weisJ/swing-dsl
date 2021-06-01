@@ -36,6 +36,7 @@ import com.github.weisj.swingdsl.layout.Constraint
 import com.github.weisj.swingdsl.layout.GrowPolicy
 import com.github.weisj.swingdsl.layout.ScrollPaneCellBuilder
 import javax.swing.JComponent
+import javax.swing.JToggleButton
 
 internal class MigLayoutCellBuilder<T : JComponent>(
     private val builder: MigLayoutBuilder,
@@ -50,17 +51,20 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         if (commitImmediately) commitImmediately()
     }
 
+    private fun commentNeedsLeftGap(): Boolean = component is JToggleButton
+
     override fun comment(text: Text, maxLineLength: Int, forComponent: Boolean): CellBuilder<T> {
         row.addCommentRow(
             comment = text,
             maxLineLength = maxLineLength,
-            forComponent = forComponent
+            forComponent = forComponent,
+            withLeftGap = commentNeedsLeftGap()
         )
         return this
     }
 
     override fun commentComponent(component: JComponent, forComponent: Boolean): CellBuilder<T> {
-        row.addCommentRow(component, forComponent, withLeftGap = true)
+        row.addCommentRow(component, forComponent, commentNeedsLeftGap())
         return this
     }
 

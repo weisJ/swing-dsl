@@ -84,8 +84,8 @@ internal class MigLayoutRow(
             indent: Int,
             isParentRowLabeled: Boolean,
             forComponent: Boolean,
+            columnIndex: Int,
             withLeftGap: Boolean,
-            columnIndex: Int
         ) {
             val cc = CC()
             val commentRow = parent.createChildRow()
@@ -411,7 +411,7 @@ internal class MigLayoutRow(
         builder.hideableRowNestingLevel++
         try {
             val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
-            panelRow.init()
+            panelRow.noIndent(init)
             separator.setCollapseCallback {
                 panelRow.visible = false
                 panelRow.subRowsVisible = false
@@ -578,9 +578,13 @@ internal class MigLayoutRow(
         comment: Text,
         maxLineLength: Int,
         forComponent: Boolean,
-        withLeftGap: Boolean = true
+        withLeftGap: Boolean,
     ) {
-        return addCommentRow(createCommentComponent(comment, maxLineLength), forComponent, withLeftGap)
+        return addCommentRow(
+            createCommentComponent(comment, maxLineLength),
+            forComponent,
+            withLeftGap
+        )
     }
 
     override fun commentRow(text: Text, maxLineLength: Int, withLeftGap: Boolean) {
@@ -588,7 +592,22 @@ internal class MigLayoutRow(
             comment = text,
             maxLineLength,
             forComponent = false,
-            withLeftGap = withLeftGap
+            withLeftGap
+        )
+    }
+
+    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean) {
+        gapAfter = "${spacing.commentVerticalTopGap}px!"
+
+        val isParentRowLabeled = labeled
+        createCommentRow(
+            this,
+            component,
+            indentationLevel,
+            isParentRowLabeled,
+            forComponent,
+            columnIndex,
+            withLeftGap
         )
     }
 
@@ -633,21 +652,6 @@ internal class MigLayoutRow(
             it.isOpaque = false
         }
         return wrapped
-    }
-
-    fun addCommentRow(component: JComponent, forComponent: Boolean, withLeftGap: Boolean = true) {
-        gapAfter = "${spacing.commentVerticalTopGap}px!"
-
-        val isParentRowLabeled = labeled
-        createCommentRow(
-            this,
-            component,
-            indentationLevel,
-            isParentRowLabeled,
-            forComponent,
-            withLeftGap,
-            columnIndex
-        )
     }
 
     override fun alignRight() {
