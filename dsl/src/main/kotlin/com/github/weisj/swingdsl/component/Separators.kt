@@ -30,11 +30,11 @@ import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.TextLabel
 import com.github.weisj.swingdsl.core.text.emptyText
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
-import com.github.weisj.swingdsl.laf.VisualPaddingProvider
-import com.github.weisj.swingdsl.laf.VisualPaddingProvider.VISUAL_PADDING_PROP
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.toKeyStroke
+import com.github.weisj.swingdsl.visualpadding.VisualPaddingProvider
+import com.github.weisj.swingdsl.visualpadding.VisualPaddingProvider.VISUAL_PADDING_PROP
 import java.awt.Color
 import java.awt.Component
 import java.awt.Cursor

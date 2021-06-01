@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.icons
 
-import com.github.weisj.swingdsl.laf.VisualPaddingProvider
+import com.github.weisj.swingdsl.visualpadding.VisualPaddingProvider
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics

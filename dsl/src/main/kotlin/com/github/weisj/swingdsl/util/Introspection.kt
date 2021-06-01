@@ -29,9 +29,9 @@ import com.github.weisj.swingdsl.core.binding.SimpleProperty
 import com.github.weisj.swingdsl.core.text.HasTextProperty
 import com.github.weisj.swingdsl.core.text.textProperty
 import com.github.weisj.swingdsl.getProperty
-import com.github.weisj.swingdsl.laf.VisualPaddingProvider
 import com.github.weisj.swingdsl.renderer.HasStringMapper
 import com.github.weisj.swingdsl.renderer.StringMapper
+import com.github.weisj.swingdsl.visualpadding.VisualPaddingProvider
 import java.awt.Component
 import java.awt.Insets
 import javax.swing.AbstractButton

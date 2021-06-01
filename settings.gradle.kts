@@ -22,7 +22,8 @@ include(
     "core",
     "laf-support",
     "dsl",
-    "settings"
+    "settings",
+    "visual-padding"
 )
 
 for (p in rootProject.children) {

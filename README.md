@@ -20,7 +20,7 @@ content (although 'String' is still supported). To support content localization 
 manually update all components one can make use of the [`InternationalizedText`](https://github.com/weisJ/swing-dsl/blob/master/core/src/main/kotlin/com/github/weisj/swingdsl/text/InternationalizedText.kt).
 
 Currently, the produced layout is only tested with [Darklaf](https://github.com/weisJ/darklaf) however it should also work with almost
-all other LaFs. For better layout results LaFs can implement [`VisualPaddingProvider`](https://github.com/weisJ/swing-dsl/blob/master/laf-support/src/main/java/com/github/weisj/swingdsl/laf/VisualPaddingProvider.java) for
+all other LaFs. For better layout results LaFs can implement [`VisualPaddingProvider`](https://github.com/weisJ/swing-dsl/blob/master/visual-padding/src/main/java/com/github/weisj/swingdsl/visualPadding/VisualPaddingProvider.java) for
 their borders.
 
 To provide more flexibility with the kind of components used for the UI one can specify a custom [`ComponentFactory`](https://github.com/weisJ/swing-dsl/blob/master/laf-support/src/main/java/com/github/weisj/swingdsl/laf/ComponentFactory.java).

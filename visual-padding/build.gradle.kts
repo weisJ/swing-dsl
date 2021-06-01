@@ -4,5 +4,4 @@ plugins {
 
 dependencies {
     implementation(libs.nullabilityAnnotations)
-    api(projects.swingExtensionsVisualPadding)
 }

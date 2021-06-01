@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.laf;
+package com.github.weisj.swingdsl.visualpadding;
 
 import java.awt.*;
 
