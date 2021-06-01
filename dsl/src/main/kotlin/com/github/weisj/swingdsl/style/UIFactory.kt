@@ -29,6 +29,8 @@ import com.github.weisj.swingdsl.laf.ComponentFactory
 import com.github.weisj.swingdsl.laf.ComponentFactoryDelegate
 import com.github.weisj.swingdsl.laf.DefaultComponentFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.util.SharedLazyComponents
+import java.awt.Color
 import java.util.function.Supplier
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -64,6 +66,9 @@ object UIFactory : ComponentFactoryDelegate(DefaultComponentFactory.setDefaultIm
     fun setFactory(factory: ComponentFactory) {
         effectiveDelegate = factory
     }
+
+    val textForeground: Color
+        get() = SharedLazyComponents.label.foreground
 
     fun createLabel(text: Text): WrappedComponent<JLabel> = createLabel(text.asTextProperty(), null)
     fun createButton(text: Text): WrappedComponent<JButton> = createButton(text.asTextProperty(), null)
