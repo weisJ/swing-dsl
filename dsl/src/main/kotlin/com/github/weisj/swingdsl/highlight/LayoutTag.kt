@@ -28,15 +28,23 @@ import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.subtract
 import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
 import java.awt.Component
+import java.awt.Point
 import java.awt.Rectangle
 import javax.swing.JComponent
+import javax.swing.JList
+import javax.swing.JTable
+import javax.swing.JTree
 import javax.swing.SwingUtilities
 
 interface LayoutTag {
     fun getBoundsIn(comp: Component): Rectangle
 }
 
-internal sealed class ComponentLayoutTag<T : Component>(protected val anchor: T) : LayoutTag {
+interface AnchoredLayoutTag<T : Component> : LayoutTag {
+    val anchor: T
+}
+
+internal sealed class ComponentLayoutTag<T : Component>(override val anchor: T) : AnchoredLayoutTag<T> {
 
     abstract fun getBounds(): Rectangle
 
@@ -51,9 +59,9 @@ internal sealed class ComponentLayoutTag<T : Component>(protected val anchor: T)
     }
 }
 
-internal class ComponentBoundsLayoutTag<T : JComponent>(anchor: T) : ComponentLayoutTag<T>(anchor) {
+internal class ComponentBoundsLayoutTag<T : Component>(anchor: T) : ComponentLayoutTag<T>(anchor) {
     override fun getBounds(): Rectangle {
-        val paddings = getVisualPaddingsForComponent(anchor)
+        val paddings = if (anchor is JComponent) getVisualPaddingsForComponent(anchor) else null
         val bounds = Rectangle(0, 0, anchor.width, anchor.height)
         return if (paddings != null) bounds.subtract(paddings, inPlace = true) else bounds
     }
@@ -76,9 +84,9 @@ internal class ComponentRegionBoundsLayoutTag<T : Component>(
 }
 
 internal class ComponentFixedRegionBoundsLayoutTag(
-    anchor: JComponent,
+    anchor: Component,
     private val anchorBounds: Rectangle
-) : ComponentLayoutTag<JComponent>(anchor) {
+) : ComponentLayoutTag<Component>(anchor) {
     override fun getBounds(): Rectangle = anchorBounds
 
     override fun hashCode(): Int {
@@ -103,14 +111,39 @@ private object EmptyLayoutTag : LayoutTag {
 
 fun emptyLayoutTag(): LayoutTag = EmptyLayoutTag
 
-fun <T : JComponent> T.createLayoutTag(bounds: Rectangle): LayoutTag =
+fun <T : Component> T.createLayoutTag(bounds: Rectangle): LayoutTag =
     ComponentFixedRegionBoundsLayoutTag(this, bounds)
 
-fun <T : JComponent> T.createLayoutTag(regionSupplier: (T) -> Rectangle): LayoutTag =
+fun <T : Component> T.createLayoutTag(regionSupplier: (T) -> Rectangle): LayoutTag =
     ComponentRegionBoundsLayoutTag(this, regionSupplier)
 
-fun <T : JComponent> T.createLayoutTag(): LayoutTag =
+fun <T : Component> T.createLayoutTag(): LayoutTag =
     ComponentBoundsLayoutTag(this)
+
+fun <T : Component> T.createLayoutTag(p: Point): LayoutTag = when (this) {
+    is JTree -> {
+        val path = getPathForLocation(p.x, p.y)
+        if (path != null) {
+            createLayoutTag { getPathBounds(path) ?: Rectangle() }
+        } else createLayoutTag()
+    }
+    is JTable -> {
+        val row = rowAtPoint(p)
+        val column = columnAtPoint(p)
+        if (row != -1 && column != -1) {
+            createLayoutTag { getCellRect(row, column, true) }
+        } else createLayoutTag()
+    }
+    is JList<*> -> {
+        val row = ui.locationToIndex(this, p)
+        if (row != -1) {
+            createLayoutTag {
+                getCellBounds(row, row)
+            }
+        } else createLayoutTag()
+    }
+    else -> ComponentBoundsLayoutTag(this)
+}
 
 fun <T : JComponent> WrappedComponent<T>.createContainerLayoutTag(): LayoutTag =
     container.createLayoutTag()
