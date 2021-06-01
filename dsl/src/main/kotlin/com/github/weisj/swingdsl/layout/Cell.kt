@@ -47,6 +47,8 @@ import java.awt.event.ItemEvent
 import javax.swing.*
 import kotlin.reflect.KMutableProperty0
 
+data class Constraint(internal val flag: CCFlags)
+
 @CellMarker
 abstract class Cell : ButtonGroupBuilder {
 
@@ -59,23 +61,23 @@ abstract class Cell : ButtonGroupBuilder {
      * If this constraint is not set the grow weight is set to 0 and the component will not grow (unless some automatic rule is not applied.
      * Grow weight will only be compared against the weights for the same cell.
      */
-    val growX = CCFlags.growX
+    val growX = Constraint(CCFlags.growX)
 
     @Suppress("unused")
-    val growY = CCFlags.growY
-    val grow = CCFlags.grow
+    val growY = Constraint(CCFlags.growY)
+    val grow = Constraint(CCFlags.grow)
 
     /**
      * Makes the column that the component is residing in grow with `weight`.
      */
-    val pushX = CCFlags.pushX
+    val pushX = Constraint(CCFlags.pushX)
 
     /**
      * Makes the row that the component is residing in grow with `weight`.
      */
     @Suppress("unused")
-    val pushY = CCFlags.pushY
-    val push = CCFlags.push
+    val pushY = Constraint(CCFlags.pushY)
+    val push = Constraint(CCFlags.push)
 
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 
@@ -306,7 +308,7 @@ abstract class Cell : ButtonGroupBuilder {
     internal operator fun <T : JComponent> T.invoke(
         growPolicy: GrowPolicy? = null,
         comment: Text? = null,
-        vararg constraints: CCFlags
+        vararg constraints: Constraint
     ): CellBuilder<T> = component(this).apply {
         init(growPolicy, comment, *constraints)
     }
@@ -314,7 +316,7 @@ abstract class Cell : ButtonGroupBuilder {
     internal operator fun <T : JComponent> WrappedComponent<T>.invoke(
         growPolicy: GrowPolicy? = null,
         comment: Text? = null,
-        vararg constraints: CCFlags
+        vararg constraints: Constraint
     ): CellBuilder<T> = component(this).apply {
         init(growPolicy, comment, *constraints)
     }
@@ -322,7 +324,7 @@ abstract class Cell : ButtonGroupBuilder {
     private fun CellBuilder<*>.init(
         growPolicy: GrowPolicy? = null,
         comment: Text? = null,
-        vararg constraints: CCFlags
+        vararg constraints: Constraint
     ) {
         constraints(*constraints)
         if (comment != null) {

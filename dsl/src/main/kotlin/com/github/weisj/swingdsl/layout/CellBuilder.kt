@@ -127,7 +127,7 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
      */
     fun sizeGroup(name: String): CellBuilder<T>
     fun growPolicy(growPolicy: GrowPolicy): CellBuilder<T>
-    fun constraints(vararg constraints: CCFlags): CellBuilder<T>
+    fun constraints(vararg constraints: Constraint): CellBuilder<T>
 
     fun applyToComponent(task: T.() -> Unit): CellBuilder<T> {
         return also { task(component) }

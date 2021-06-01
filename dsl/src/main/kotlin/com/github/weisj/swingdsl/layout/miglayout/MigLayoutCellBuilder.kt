@@ -30,9 +30,9 @@ import com.github.weisj.swingdsl.bindEnabled
 import com.github.weisj.swingdsl.bindVisible
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
-import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
+import com.github.weisj.swingdsl.layout.Constraint
 import com.github.weisj.swingdsl.layout.GrowPolicy
 import com.github.weisj.swingdsl.layout.ScrollPaneCellBuilder
 import javax.swing.JComponent
@@ -126,7 +126,7 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         return this
     }
 
-    override fun constraints(vararg constraints: CCFlags): CellBuilder<T> {
+    override fun constraints(vararg constraints: Constraint): CellBuilder<T> {
         builder.updateComponentConstraints(component) {
             overrideFlags(this, constraints)
         }

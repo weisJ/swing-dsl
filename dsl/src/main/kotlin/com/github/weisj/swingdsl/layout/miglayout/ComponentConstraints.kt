@@ -29,6 +29,7 @@ package com.github.weisj.swingdsl.layout.miglayout
 import com.github.weisj.swingdsl.getProperty
 import com.github.weisj.swingdsl.layout.CCFlags
 import com.github.weisj.swingdsl.layout.ComponentPurpose
+import com.github.weisj.swingdsl.layout.Constraint
 import com.github.weisj.swingdsl.layout.GrowPolicy
 import com.github.weisj.swingdsl.layout.SpacingConfiguration
 import net.miginfocom.layout.BoundSize
@@ -40,9 +41,9 @@ import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.text.JTextComponent
 
-internal fun overrideFlags(cc: CC, flags: Array<out CCFlags>) {
+internal fun overrideFlags(cc: CC, flags: Array<out Constraint>) {
     for (flag in flags) {
-        when (flag) {
+        when (flag.flag) {
             CCFlags.grow -> cc.grow()
             CCFlags.growX -> {
                 cc.growX(1000f)
@@ -70,7 +71,7 @@ internal class DefaultComponentConstraintCreator(spacing: SpacingConfiguration) 
 
     val vertical1pxGap: BoundSize = ConstraintParser.parseBoundSize("${1}px!", true, false)
 
-    fun addGrowIfNeeded(cc: CC, component: Component) {
+    fun addGrowIfNeeded(cc: CC, component: Component, spacing: SpacingConfiguration) {
         when {
             component is JTextField && component.columns != 0 -> return
             component is JTextComponent -> {
