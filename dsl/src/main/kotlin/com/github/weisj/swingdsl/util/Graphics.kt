@@ -135,3 +135,27 @@ fun createRoundedLinePath(
     path.append(innerRect, false)
     return path
 }
+
+fun Graphics2D.drawDottedRectangle(rect: Rectangle) {
+    val dash = floatArrayOf(1f, 2f)
+    val oldStroke = stroke
+    stroke = BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f)
+    draw(rect)
+    stroke = oldStroke
+}
+
+fun Graphics2D.drawCenteredString(
+    rect: Rectangle,
+    str: String,
+    centerHorizontally: Boolean = true,
+    centerVertically: Boolean = true
+) {
+    val fm = getFontMetrics(font)
+    val textWidth = fm.stringWidth(str) - 1
+    val x = if (centerHorizontally) rect.x.coerceAtLeast(rect.x + (rect.width - textWidth) / 2) else rect.x
+    val y = if (centerVertically) rect.y.coerceAtLeast(rect.y + rect.height / 2 + fm.ascent * 2 / 5) else rect.y
+    val oldClip = clip
+    clip(rect)
+    drawString(str, x, y)
+    clip = oldClip
+}
