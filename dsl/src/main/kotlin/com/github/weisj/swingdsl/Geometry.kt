@@ -47,3 +47,10 @@ fun Rectangle.add(insets: Insets, inPlace: Boolean = false): Rectangle {
     target.setBounds(x - insets.left, y - insets.top, width + insets.width, height + insets.height)
     return target
 }
+
+fun Rectangle.xCenter(): Int = x + width / 2
+fun Rectangle.yCenter(): Int = y + height / 2
+fun Rectangle.bottom(): Int = y + height
+fun Rectangle.left(): Int = x
+fun Rectangle.right(): Int = x + width
+fun Rectangle.top(): Int = y
