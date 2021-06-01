@@ -24,18 +24,37 @@
  */
 package com.github.weisj.swingdsl.icons
 
+import com.github.weisj.swingdsl.style.UIFactory
+import com.github.weisj.swingdsl.util.drawRect
 import java.awt.Color
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.Icon
 
-class SolidColorIcon(private val color: Color) : Icon {
+class SolidColorIcon(
+    private val color: Color,
+    private val borderColor: Color = UIFactory.borderColor,
+    private val size: Dimension,
+    private val colorSize: Dimension = size
+) : Icon {
+
+    constructor(color: Color, borderColor: Color = UIFactory.borderColor, size: Int = 16, colorSize: Int = 16) :
+        this(color, borderColor, Dimension(size, size), Dimension(colorSize, colorSize))
+
     override fun paintIcon(c: Component?, g: Graphics?, x: Int, y: Int) {
-        g?.color = color
-        g?.fillRect(x, y, iconWidth, iconHeight)
+        g ?: return
+        val lineWidth = 1
+        val realX = x + (iconWidth - colorSize.width) / 2
+        val realY = y + (iconHeight - colorSize.height) / 2
+
+        g.color = color
+        g.fillRect(realX, realY, colorSize.width, colorSize.height)
+        g.color = borderColor
+        g.drawRect(realX, realY, colorSize.width, colorSize.height, lineWidth = lineWidth)
     }
 
-    override fun getIconWidth(): Int = 16
+    override fun getIconWidth(): Int = size.width
 
-    override fun getIconHeight(): Int = 16
+    override fun getIconHeight(): Int = size.height
 }
