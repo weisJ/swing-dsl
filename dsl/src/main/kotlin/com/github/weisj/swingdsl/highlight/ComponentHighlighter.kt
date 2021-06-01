@@ -33,6 +33,8 @@ import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
+import java.awt.event.HierarchyBoundsAdapter
+import java.awt.event.HierarchyEvent
 import java.awt.geom.Area
 import java.awt.geom.RoundRectangle2D
 import javax.swing.JComponent
@@ -110,16 +112,32 @@ class MaskedOvalPainter(
     }
 }
 
-class ComponentHighlighter(private val painter: RegionPainter = RectanglePainter()) : JComponent() {
+class ComponentHighlighter(
+    private val painter: RegionPainter = RectanglePainter(),
+    private val fitToParent: Boolean = false
+) : JComponent() {
 
     var targets: List<LayoutTag> = emptyList()
         set(value) {
             field = value
+            adjustBounds()
             repaint()
         }
 
     init {
         isOpaque = false
+        if (fitToParent) {
+            addHierarchyBoundsListener(object : HierarchyBoundsAdapter() {
+                override fun ancestorResized(e: HierarchyEvent?) {
+                    adjustBounds()
+                }
+            })
+        }
+    }
+
+    private fun adjustBounds() {
+        if (!fitToParent) return
+        bounds = Rectangle(parent?.width ?: 0, parent?.height ?: 0)
     }
 
     override fun paintComponent(g: Graphics) {
