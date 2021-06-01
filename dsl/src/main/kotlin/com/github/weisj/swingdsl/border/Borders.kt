@@ -26,6 +26,7 @@ package com.github.weisj.swingdsl.border
 
 import com.github.weisj.swingdsl.height
 import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
+import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.width
 import java.awt.Color
 import java.awt.Component
@@ -56,6 +57,8 @@ fun dialogSpacing(
     )
 }
 
+fun lineBorder(): Border = lineBorder(1, 1, 1, 1, UIFactory::getBorderColor)
+
 fun lineBorder(insets: Insets, colorSupplier: () -> Color): Border = LineBorder(insets, colorSupplier)
 fun lineBorder(insets: Insets, color: Color): Border = LineBorder(insets) { color }
 fun lineBorder(top: Int, left: Int, bottom: Int, right: Int, color: Color): Border =
@@ -67,13 +70,13 @@ fun lineBorder(top: Int, left: Int, bottom: Int, right: Int, colorSupplier: () -
 fun topBorder(colorSupplier: () -> Color): Border = lineBorder(1, 0, 0, 0, colorSupplier)
 fun topBorder(color: Color): Border = lineBorder(1, 0, 0, 0, color)
 
-fun bottomBorder(colorSupplier: () -> Color): Border = lineBorder(0, 0, 1, 0, colorSupplier)
+fun bottomBorder(colorSupplier: () -> Color = UIFactory::getBorderColor): Border = lineBorder(0, 0, 1, 0, colorSupplier)
 fun bottomBorder(color: Color): Border = lineBorder(0, 0, 1, 0, color)
 
-fun rightBorder(colorSupplier: () -> Color): Border = lineBorder(0, 0, 0, 1, colorSupplier)
+fun rightBorder(colorSupplier: () -> Color = UIFactory::getBorderColor): Border = lineBorder(0, 0, 0, 1, colorSupplier)
 fun rightBorder(color: Color): Border = lineBorder(0, 0, 0, 1, color)
 
-fun leftBorder(colorSupplier: () -> Color): Border = lineBorder(0, 1, 0, 0, colorSupplier)
+fun leftBorder(colorSupplier: () -> Color = UIFactory::getBorderColor): Border = lineBorder(0, 1, 0, 0, colorSupplier)
 fun leftBorder(color: Color): Border = lineBorder(0, 1, 0, 0, color)
 
 class LineBorder(private val insets: Insets, private val colorSupplier: () -> Color) : Border {
