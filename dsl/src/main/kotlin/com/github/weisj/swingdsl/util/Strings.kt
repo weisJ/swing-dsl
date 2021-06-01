@@ -30,10 +30,14 @@ private val REPLACES_DISP = listOf("<", ">", "&", "'", "\"")
 fun String.escapeXmlEntities(): String = replace(this, REPLACES_DISP, REPLACES_REFS)
 fun String.unescapeXmlEntities(): String = replace(this, REPLACES_REFS, REPLACES_DISP)
 
-fun String.toHtml(wrapperTag: String?) = if (this.startsWith("<html>")) {
-    replace(this, listOf("<html>", "</html>"), listOf("<html><$wrapperTag>", "</$wrapperTag></html>"))
-} else {
-    "<html><$wrapperTag>${this.escapeXmlEntities()}</$wrapperTag></html>"
+fun String.toHtml(wrapperTag: String? = null, tagOptions: String? = null, escapeExistingHtml: Boolean = true): String {
+    val startTag = wrapperTag?.let { "<$it ${tagOptions ?: ""}>" } ?: ""
+    val closeTag = wrapperTag?.let { "</$it>" } ?: ""
+    return if (this.startsWith("<html>")) {
+        replace(this, listOf("<html>", "</html>"), listOf("<html>$startTag", "$closeTag</html>"))
+    } else {
+        "<html>$startTag${if (escapeExistingHtml) this.escapeXmlEntities() else this}$closeTag</html>"
+    }
 }
 
 fun replace(text: String, from: List<String>, to: List<String?>): String {
