@@ -30,7 +30,10 @@ import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.TextLabel
 import com.github.weisj.swingdsl.core.text.emptyText
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
+import com.github.weisj.swingdsl.laf.VisualPaddingProvider
+import com.github.weisj.swingdsl.laf.VisualPaddingProvider.VISUAL_PADDING_PROP
 import com.github.weisj.swingdsl.layout.Row
+import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.toKeyStroke
 import java.awt.Color
 import java.awt.Component
@@ -42,7 +45,6 @@ import java.awt.Insets
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -158,6 +160,20 @@ class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), Collapsi
     private fun updateIcon(expand: Boolean) {
         label.icon = if (expand) expandedIcon else collapsedIcon
         label.disabledIcon = if (expand) disabledExpandedIcon else disabledCollapsedIcon
+        updateVisualPadding()
+    }
+
+    override fun setVisible(aFlag: Boolean) {
+        super.setVisible(aFlag)
+        updateVisualPadding()
+    }
+
+    private fun updateVisualPadding() {
+        val leftPad = when (val targetIcon = if (isEnabled) label.icon else label.disabledIcon) {
+            is VisualPaddingProvider -> targetIcon.getVisualPaddings(label).left
+            else -> targetIcon.iconWidth / 4
+        }
+        putClientProperty(VISUAL_PADDING_PROP, Insets(0, leftPad, 0, 0))
     }
 }
 

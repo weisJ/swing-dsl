@@ -24,10 +24,12 @@
  */
 package com.github.weisj.swingdsl.icons
 
+import com.github.weisj.swingdsl.laf.VisualPaddingProvider
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.Insets
 import java.awt.geom.AffineTransform
 import java.awt.geom.Path2D
 import javax.swing.Icon
@@ -52,7 +54,7 @@ class ArrowRightIcon(color: Color) : ArrowIcon(color) {
     }
 }
 
-sealed class ArrowIcon(private val color: Color) : Icon {
+sealed class ArrowIcon(private val color: Color) : Icon, VisualPaddingProvider {
     internal abstract val path: Path2D
     override fun paintIcon(c: Component, g: Graphics, x: Int, y: Int) {
         g.color = color
@@ -67,4 +69,7 @@ sealed class ArrowIcon(private val color: Color) : Icon {
     override fun getIconHeight(): Int {
         return 16
     }
+
+    override fun getVisualPaddings(component: Component): Insets =
+        Insets(5, 5, 5, 5)
 }
