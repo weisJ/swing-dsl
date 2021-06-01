@@ -99,33 +99,16 @@ internal class ObservableListImpl<T> internal constructor(
 
     override val observables by lazy {
         object : ListObservables<T> {
-            override val size: ObservableProperty<Int> = object : ObservableProperty<Int> {
-                private val changeTracker = ChangeTracker(this)
-                override fun get(): Int = this@ObservableListImpl.size
-
-                override fun onChange(callback: (Int) -> Unit) {
-                    changeTracker.registerListener(callback)
-                    onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                    onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                    onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+            override val size: ObservableProperty<Int> =
+                object : ObservableListProperty<Int>(this@ObservableListImpl) {
+                    override fun get(): Int = this@ObservableListImpl.size
                 }
-            }
 
             override fun get(index: Int): ObservableProperty<T?> {
                 check(index >= 0)
-                return object : ObservableProperty<T?> {
+                return object : ObservableListProperty<T?>(this@ObservableListImpl) {
                     override fun get(): T? =
                         if (index < this@ObservableListImpl.size) this@ObservableListImpl[index] else null
-
-                    private val changeTracker = ChangeTracker(this)
-
-                    override fun onChange(callback: (T?) -> Unit) {
-                        changeTracker.registerListener(callback)
-                        onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                        onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                        onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                        onSet { _, _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
-                    }
                 }
             }
         }
@@ -145,5 +128,23 @@ internal class ObservableListImpl<T> internal constructor(
 
     override fun onSet(block: (Int, T, T) -> Unit) {
         handler.onSetCallbacks.add(block)
+    }
+}
+
+private abstract class ObservableListProperty<T>(private val observableList: ObservableList<*>) :
+    ObservableProperty<T> {
+    @Suppress("LeakingThis")
+    private val changeTracker = ChangeTracker(get())
+
+    override fun onChange(callback: (T) -> Unit) {
+        if (!changeTracker.isInitialized) {
+            observableList.onClear { changeTracker.refresh(get()) }
+            observableList.onAdd { _, _ -> changeTracker.refresh(get()) }
+            observableList.onRemove { _, _ -> changeTracker.refresh(get()) }
+        }
+        changeTracker.registerListener(callback)
+        observableList.onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
+        observableList.onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+        observableList.onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
     }
 }

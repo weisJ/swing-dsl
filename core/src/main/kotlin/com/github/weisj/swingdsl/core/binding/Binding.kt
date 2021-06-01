@@ -83,12 +83,16 @@ operator fun <R, T> MutableProperty<T>.setValue(thisRef: R, property: KProperty<
     return set(value)
 }
 
-class ChangeTracker<T>(private val prop: Property<T>) {
-    private var current: T = prop.get()
-    private val changeStatus: MutableMap<(T) -> Unit, Boolean> by lazy { mutableMapOf() }
+class ChangeTracker<T>(initial: T) {
+    private var current: T = initial
+    val cache: T
+        get() = current
+    val isInitialized
+        get() = lazyChangeMap.isInitialized()
+    private val lazyChangeMap = lazy { mutableMapOf<(T) -> Unit, Boolean>() }
+    private val changeStatus: MutableMap<(T) -> Unit, Boolean> by lazyChangeMap
 
-    private fun refresh() {
-        val updated = prop.get()
+    fun refresh(updated: T) {
         val changed = updated != current
         current = updated
         if (changed) {
@@ -101,7 +105,6 @@ class ChangeTracker<T>(private val prop: Property<T>) {
     }
 
     fun hasChangedFor(listener: (T) -> Unit): Boolean {
-        refresh()
         return changeStatus[listener] ?: true
     }
 }
@@ -117,9 +120,14 @@ private class ObservableDerivedProperty<T, K>(
     prop: ObservableProperty<K>,
     transform: (K) -> T
 ) : DerivedProperty<T, K, ObservableProperty<K>>(prop, transform), ObservableProperty<T> {
-    private val changeTracker = ChangeTracker(this)
+    private val changeTracker = ChangeTracker(super.get())
+
+    override fun get(): T = if (!changeTracker.isInitialized) super.get() else changeTracker.cache
 
     override fun onChange(callback: (T) -> Unit) {
+        if (!changeTracker.isInitialized) {
+            prop.onChange { changeTracker.refresh(super.get()) }
+        }
         changeTracker.registerListener(callback)
         prop.onChange {
             if (changeTracker.hasChangedFor(callback)) callback(get())
@@ -132,10 +140,15 @@ private class CombinedProperty<T, K1, K2>(
     private val second: ObservableProperty<K2>,
     private val combiner: (K1, K2) -> T
 ) : ObservableProperty<T> {
-    private val changeTracker = ChangeTracker(this)
-    override fun get(): T = combiner(first.get(), second.get())
+    private val changeTracker = ChangeTracker(getImpl())
+    private fun getImpl() = combiner(first.get(), second.get())
+    override fun get(): T = changeTracker.cache
 
     override fun onChange(callback: (T) -> Unit) {
+        if (!changeTracker.isInitialized) {
+            first.onChange { changeTracker.refresh(getImpl()) }
+            second.onChange { changeTracker.refresh(getImpl()) }
+        }
         changeTracker.registerListener(callback)
         first.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
         second.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
