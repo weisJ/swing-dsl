@@ -56,6 +56,7 @@ import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LayoutUtil
 import java.awt.Dimension
+import java.awt.Insets
 import java.lang.Integer.min
 import javax.swing.*
 import javax.swing.border.LineBorder
@@ -615,6 +616,7 @@ internal class MigLayoutRow(
         val textArea = ConstrainedTextArea(text, maxLineLength)
         textArea.isEditable = false
         textArea.selectable = false
+        textArea.margin = Insets(0, 0, 0, 0)
         DynamicUI.withDynamic(textArea) {
             it.foreground = UIFactory.secondaryTextForeground.asUIResource()
             it.isOpaque = false
