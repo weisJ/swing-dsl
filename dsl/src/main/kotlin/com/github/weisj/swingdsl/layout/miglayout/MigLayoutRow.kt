@@ -387,7 +387,9 @@ internal class MigLayoutRow(
         val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
 
         val separator = if (separatorSpec.providesCustomComponent()) {
-            separatorSpec.provided!!
+            separatorSpec.provided!!.also {
+                issueSearchTag(title, it.component.createLayoutTag())
+            }
         } else {
             DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
                 val dividerColor = UIFactory.dividerColor
@@ -399,9 +401,9 @@ internal class MigLayoutRow(
                 it.collapsedIcon = collapsedIcon.enabled
                 it.disabledExpandedIcon = expandedIcon.disabled
                 it.disabledCollapsedIcon = collapsedIcon.disabled
+            }.also {
+                issueSearchTag(title, it.label.createLayoutTag())
             }
-        }.also {
-            issueSearchTag(title, it.component.createLayoutTag())
         }
 
         val separatorRow = createChildRow()
