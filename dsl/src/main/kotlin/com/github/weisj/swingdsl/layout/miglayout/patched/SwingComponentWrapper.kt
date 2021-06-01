@@ -59,6 +59,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout.patched
 
+import com.github.weisj.swingdsl.getProperty
 import com.github.weisj.swingdsl.isEmpty
 import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
 import net.miginfocom.layout.ComponentWrapper
@@ -70,10 +71,12 @@ import java.awt.geom.Point2D
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.JEditorPane
+import javax.swing.JLabel
 import javax.swing.JTextArea
 import javax.swing.SwingUtilities
 import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
+import javax.swing.text.View
 
 /** Debug color for component bounds outline.
  */
@@ -107,7 +110,14 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
         } else if (visualPaddings != null) {
             h = height + visualPaddings[0] + visualPaddings[2]
         }
-        var baseLine = c.getBaseline(if (width < 0) c.width else width, h)
+        val w = when {
+            // The default implementation of getBaseline for html content in BasicHtml will report an incorrect
+            // baseline sometimes. By using the component width we ensure the baseline actually resembles what is displayed.
+            c is JLabel && c.width > 0 && c.getProperty<View>("html") != null -> c.width
+            width < 0 -> c.width
+            else -> width
+        }
+        var baseLine = c.getBaseline(w, h)
         if (baseLine != -1 && visualPaddings != null) {
             baseLine -= visualPaddings[0]
         }
