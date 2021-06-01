@@ -30,27 +30,53 @@ import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.ModifiableContainerBuilder
 import com.github.weisj.swingdsl.core.binding.MutableProperty
 import com.github.weisj.swingdsl.core.binding.PropertyBinding
+import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.binding.toProperty
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.core.text.textOfNullable
 import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.observableSelected
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.unaryPlus
+import javax.swing.AbstractButton
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
-interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, BuilderWithEnabledProperty<Row> {
+interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, BuilderWithEnabledProperty<RowBuilder> {
 
     val doIndentSubRows: Boolean
+    var subRowsEnabled: Boolean
+    var subRowsVisible: Boolean
 
     fun commitImmediately()
 
     fun setSearchPointSink(sink: StringSearchPointSink?)
     fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit)
+
+    fun subRowsEnabledIf(condition: ObservableCondition) {
+        condition.bind {
+            subRowsEnabled = it
+        }
+    }
+
+    fun subRowsEnabledIf(component: AbstractButton) {
+        subRowsEnabledIf(component.observableSelected())
+    }
+
+    fun subRowsVisibleIf(condition: ObservableCondition) {
+        condition.bind {
+            subRowsVisible = it
+        }
+    }
+
+    fun subRowsVisibleIf(component: AbstractButton) {
+        subRowsEnabledIf(component.observableSelected())
+    }
 
     // manual JvmOverloads
     fun row(init: Row.() -> Unit): Row = row(null as Text?, init)

@@ -78,7 +78,7 @@ class RowBuilderWithButtonGroupProperty<T>
     ): CellBuilder<JRadioButton> {
         val component = UIFactory.createRadioButton(text)
         component.component.isSelected = prop.get() == value
-        attachSubRowsEnabled(component.component)
+        subRowsEnabledIf(component.component)
         return component(comment = comment).bindValue(value)
     }
 

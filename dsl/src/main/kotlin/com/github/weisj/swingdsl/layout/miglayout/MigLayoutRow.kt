@@ -497,7 +497,7 @@ internal class MigLayoutRow(
             builder.topButtonGroup?.add(component)
         }
 
-        builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component)
+        builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component, spacing)
 
         if (!noGrid && indentationLevel > 0 && components.size == 1) {
             cc.horizontal.gapBefore = gapToBoundSize(indentationLevel, true)
@@ -636,7 +636,7 @@ internal class MigLayoutRow(
 
     override fun radioButton(text: Text, comment: Text?): CellBuilder<JRadioButton> {
         val result = super.radioButton(text, comment)
-        attachSubRowsEnabled(result.component)
+        subRowsEnabledIf(result.component)
         return result
     }
 
@@ -645,21 +645,21 @@ internal class MigLayoutRow(
         prop: KMutableProperty0<Boolean>,
         comment: Text?
     ): CellBuilder<JRadioButton> {
-        return super.radioButton(text, prop, comment).also { attachSubRowsEnabled(it.component) }
+        return super.radioButton(text, prop, comment).also { subRowsEnabledIf(it.component) }
     }
 
     override fun onGlobalApply(callback: () -> Unit): Row {
-        builder.applyCallbacks.getOrPut(null, { mutableListOf() }).add(callback)
+        builder.applyCallbacks.getOrPut(null) { mutableListOf() }.add(callback)
         return this
     }
 
     override fun onGlobalReset(callback: () -> Unit): Row {
-        builder.resetCallbacks.getOrPut(null, { mutableListOf() }).add(callback)
+        builder.resetCallbacks.getOrPut(null) { mutableListOf() }.add(callback)
         return this
     }
 
     override fun onGlobalIsModified(callback: () -> Boolean): Row {
-        builder.isModifiedCallbacks.getOrPut(null, { mutableListOf() }).add(callback)
+        builder.isModifiedCallbacks.getOrPut(null) { mutableListOf() }.add(callback)
         return this
     }
 
