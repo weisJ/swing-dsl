@@ -29,6 +29,7 @@ import com.github.weisj.swingdsl.util.drawRoundedRectangle
 import com.github.weisj.swingdsl.util.fillRect
 import com.github.weisj.swingdsl.util.setupStrokePainting
 import java.awt.Color
+import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
@@ -38,10 +39,17 @@ import javax.swing.JComponent
 import kotlin.math.min
 
 interface RegionPainter {
-    fun paint(g: Graphics2D, bounds: List<Rectangle>)
+    fun paint(g: Graphics2D, comp: Component, tags: List<LayoutTag>)
 }
 
-abstract class IndividualRegionPainter : RegionPainter {
+interface BoundsPainter : RegionPainter {
+    fun paint(g: Graphics2D, bounds: List<Rectangle>)
+    override fun paint(g: Graphics2D, comp: Component, tags: List<LayoutTag>) {
+        paint(g, tags.map { it.getBoundsIn(comp) })
+    }
+}
+
+abstract class IndividualRegionPainter : BoundsPainter {
     abstract fun paint(g: Graphics2D, bounds: Rectangle)
 
     override fun paint(g: Graphics2D, bounds: List<Rectangle>) {
@@ -65,7 +73,7 @@ class MaskedOvalPainter(
     private val maskColor: Color = Color(0, 0, 0, 80),
     private val lineColor: Color,
     private val lineWidth: Float = 2f,
-) : RegionPainter {
+) : BoundsPainter {
     override fun paint(g: Graphics2D, bounds: List<Rectangle>) {
         val roundedRects = bounds.map {
             val maxArc = 25f
@@ -117,6 +125,6 @@ class ComponentHighlighter(private val painter: RegionPainter = RectanglePainter
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         if (g !is Graphics2D) return
-        painter.paint(g, targets.map { it.getBoundsIn(this) })
+        painter.paint(g, this, targets)
     }
 }
