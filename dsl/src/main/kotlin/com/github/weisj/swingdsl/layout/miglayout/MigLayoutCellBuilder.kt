@@ -26,8 +26,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.bindEnabled
-import com.github.weisj.swingdsl.bindVisible
+import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -41,7 +40,8 @@ import javax.swing.JToggleButton
 internal class MigLayoutCellBuilder<T : JComponent>(
     private val builder: MigLayoutBuilder,
     private val row: MigLayoutRow,
-    override val component: T
+    override val component: T,
+    private val componentIndex: Int,
 ) : CellBuilder<T>, CheckboxCellBuilder, ScrollPaneCellBuilder {
     private var applyIfEnabled = false
     private val bindingUpdaters = mutableListOf<() -> Unit>()
@@ -88,16 +88,18 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     }
 
     override fun visible(isVisible: Boolean) {
-        component.isVisible = isVisible
+        with(row) {
+            component.safelySetVisible(isVisible, componentIndex)
+        }
     }
 
     override fun enableIf(predicate: ObservableCondition): CellBuilder<T> {
-        component.bindEnabled(predicate)
+        predicate.bind { enabled(it) }
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): CellBuilder<T> {
-        component.bindVisible(predicate)
+        predicate.bind { visible(it) }
         return this
     }
 

@@ -140,9 +140,6 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
 
         lc.isVisualPadding = true
 
-        // if 3, invisible component will be disregarded completely and it means that if it is last component, it's "wrap" constraint will be not taken in account
-        lc.hideMode = 2
-
         val rowConstraints = AC()
 
         var isLayoutInsetsAdjusted = false
@@ -188,6 +185,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
         container: Container
     ) {
         for ((rowIndex, row) in physicalRows.withIndex()) {
+            row.rowConstraints = rowConstraints.index(rowIndex).constaints[rowIndex]
             if (row.noGrid) {
                 rowConstraints.noGrid(rowIndex)
             } else {

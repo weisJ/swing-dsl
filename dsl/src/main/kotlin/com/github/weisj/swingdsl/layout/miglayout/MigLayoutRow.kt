@@ -54,6 +54,8 @@ import com.github.weisj.swingdsl.util.getTextPropertyForComponent
 import com.github.weisj.swingdsl.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
+import net.miginfocom.layout.ConstraintParser
+import net.miginfocom.layout.DimConstraint
 import net.miginfocom.layout.LayoutUtil
 import java.awt.Dimension
 import java.awt.Insets
@@ -75,7 +77,10 @@ internal class MigLayoutRow(
 ) : Row() {
 
     companion object {
-        private const val COMPONENT_ENABLED_STATE_KEY = "MigLayoutRow.enabled"
+        private const val HIDE_MODE_ZERO_SIZE = 2
+        private const val HIDE_MODE_IGNORE_CELL = 3
+        internal const val COMPONENT_ENABLED_STATE_KEY = "MigLayoutRow.enabled"
+        internal const val COMPONENT_VISIBLE_STATE_KEY = "MigLayoutRow.visible"
 
         // as static method to ensure that members of current row are not used
         private fun createCommentRow(
@@ -160,6 +165,13 @@ internal class MigLayoutRow(
     }
 
     internal var gapAfter: String? = null
+        set(value) {
+            field = value
+            rowConstraints?.gapAfter = if (value == null) null
+            else ConstraintParser.parseBoundSize(value, true, false)
+        }
+
+    internal var rowConstraints: DimConstraint? = null
 
     private val spacing: SpacingConfiguration
         get() = builder.spacing
@@ -175,28 +187,36 @@ internal class MigLayoutRow(
         builder.withButtonGroup(buttonGroup, body)
     }
 
+    // Returns whether the state needs to be updated.
+    private fun JComponent.updateStateFlag(value: Boolean, componentValue: Boolean, key: String): Boolean {
+        // Current state of row is the opposite of value
+        if (!value) {
+            if (!componentValue) {
+                // current state of component differs from current row state
+                // - preserve current state to apply it when row state will be changed
+                putClientProperty(key, false)
+            }
+        } else {
+            if (getClientProperty(key) == false) {
+                // remove because for active row component state can be changed and we don't want to
+                // add listener to update value accordingly
+                putClientProperty(key, null)
+                // do not set to true, preserve old component state
+                return false
+            }
+        }
+        return true
+    }
+
     override var enabled = true
         set(value) {
             if (field == value) return
-
             field = value
+
             for (c in components) {
-                if (!value) {
-                    if (!c.isEnabled) {
-                        // current state of component differs from current row state
-                        // - preserve current state to apply it when row state will be changed
-                        c.putClientProperty(COMPONENT_ENABLED_STATE_KEY, false)
-                    }
-                } else {
-                    if (c.getClientProperty(COMPONENT_ENABLED_STATE_KEY) == false) {
-                        // remove because for active row component state can be changed and we don't want to
-                        // add listener to update value accordingly
-                        c.putClientProperty(COMPONENT_ENABLED_STATE_KEY, null)
-                        // do not set to true, preserve old component state
-                        continue
-                    }
+                if (c.updateStateFlag(value, c.isEnabled, COMPONENT_ENABLED_STATE_KEY)) {
+                    c.isEnabled = value
                 }
-                c.isEnabled = value
             }
             commentRows?.let {
                 for (row in it) {
@@ -205,18 +225,48 @@ internal class MigLayoutRow(
             }
         }
 
+    private fun updateHideMode(c: JComponent, index: Int, value: Boolean) {
+        builder.componentConstraints[c]?.hideMode =
+            if (index == components.size - 1 && value) HIDE_MODE_ZERO_SIZE else HIDE_MODE_IGNORE_CELL
+    }
+
+    internal fun JComponent.safelySetVisible(value: Boolean, index: Int) {
+        putClientProperty(COMPONENT_VISIBLE_STATE_KEY, value)
+        isVisible = value && !collapsed
+        updateHideMode(this, index, value)
+    }
+
     override var visible = true
         set(value) {
             if (field == value) return
 
             field = value
-            for (c in components) {
-                c.isVisible = value
+            // Only update if the row isn't hidden or if we make the row hidden anyway.
+            for ((index, c) in components.withIndex()) {
+                c.safelySetVisible(value, index)
             }
             commentRows?.let {
                 for (row in it) {
                     row.visible = value
                 }
+            }
+        }
+
+    private var collapsed = false
+        set(value) {
+            if (field == value) return
+            field = value
+
+            val visible = !value
+            for ((index, c) in components.withIndex()) {
+                if (c.updateStateFlag(visible, c.isVisible, COMPONENT_VISIBLE_STATE_KEY)) {
+                    c.isVisible = visible
+                    updateHideMode(c, index, visible)
+                }
+            }
+
+            subRows?.forEach {
+                it.collapsed = value
             }
         }
 
@@ -239,6 +289,9 @@ internal class MigLayoutRow(
             subRows?.forEach {
                 it.visible = value
                 it.subRowsVisible = value
+                if (it != subRows!!.last()) {
+                    it.gapAfter = if (value) null else "0px!"
+                }
             }
         }
 
@@ -413,14 +466,12 @@ internal class MigLayoutRow(
             val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
             panelRow.noIndent(init)
             separator.setCollapseCallback {
-                panelRow.visible = false
-                panelRow.subRowsVisible = false
+                panelRow.collapsed = true
             }
             separator.setExpandCallback {
-                panelRow.visible = true
-                panelRow.subRowsVisible = true
+                panelRow.collapsed = false
             }
-            if (startHidden) {
+            if (startHidden || !panelRow.enabled) {
                 separator.collapse()
             } else {
                 separator.expand()
@@ -457,16 +508,16 @@ internal class MigLayoutRow(
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
         addComponent(component)
-        return createAndAddCell(component)
+        return createAndAddCell(component, components.size - 1)
     }
 
     override fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T> {
         addComponent(wrappedComponent.container)
-        return createAndAddCell(wrappedComponent.component)
+        return createAndAddCell(wrappedComponent.component, components.size - 1)
     }
 
-    private fun <T : JComponent> createAndAddCell(comp: T): CellBuilder<T> {
-        return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
+    private fun <T : JComponent> createAndAddCell(comp: T, componentIndex: Int): CellBuilder<T> {
+        return MigLayoutCellBuilder(builder, this, comp, componentIndex).also { childCells.add(it) }
     }
 
     override fun setCellMode(value: Boolean, isVerticalFlow: Boolean, fullWidth: Boolean) {
@@ -532,6 +583,8 @@ internal class MigLayoutRow(
         if (!noGrid && indentationLevel > 0 && components.size == 1) {
             cc.horizontal.gapBefore = gapToBoundSize(indentationLevel, true)
         }
+
+        cc.hideMode = HIDE_MODE_IGNORE_CELL // Hidden cells shouldn't take up any cell at all
 
         // if this row is not labeled and:
         // a. some previous row is labeled and first component is a checkbox, span
@@ -723,14 +776,12 @@ internal class MigLayoutRow(
     }
 
     override fun enableIf(predicate: ObservableCondition): MigLayoutRow {
-        this.enabled = predicate.get()
-        predicate.onChange { this.enabled = it }
+        predicate.bind { this.enabled = it && (parent?.subRowsEnabled ?: true) }
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): MigLayoutRow {
-        this.visible = predicate.get()
-        predicate.onChange { this.visible = it }
+        predicate.bind { this.visible = it && (parent?.subRowsVisible ?: true) }
         return this
     }
 
