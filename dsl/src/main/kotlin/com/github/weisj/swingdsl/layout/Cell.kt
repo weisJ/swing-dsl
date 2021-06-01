@@ -141,7 +141,7 @@ abstract class Cell : ButtonGroupBuilder {
     fun checkBox(
         text: Text,
         modelBinding: MutableProperty<Boolean>,
-        comment: Text?
+        comment: Text? = null
     ): CellBuilder<JCheckBox> {
         val component = UIFactory.createCheckBox(text)
         component.component.isSelected = modelBinding.get()
