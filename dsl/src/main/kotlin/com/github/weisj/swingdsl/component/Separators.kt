@@ -121,6 +121,12 @@ class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), Collapsi
 
     override fun collapse() = update(false)
 
+    override fun setEnabled(enabled: Boolean) {
+        val collapse = !enabled && isEnabled && isExpanded
+        super.setEnabled(enabled)
+        if (collapse) collapse()
+    }
+
     init {
         isFocusable = true
         addFocusListener(object : FocusListener {
@@ -129,11 +135,13 @@ class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), Collapsi
         })
         cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         updateIcon(isExpanded)
-        addMouseListener(object : MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent) {
+        object : ClickListener() {
+            override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
+                if (!isEnabled) return false
                 update(!isExpanded)
+                return true
             }
-        })
+        }.installOn(this)
         bindEvent("toggle", KeyEvent.VK_ENTER.toKeyStroke()) {
             if (isExpanded) collapse() else expand()
         }
@@ -148,9 +156,9 @@ class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), Collapsi
     private fun update(expand: Boolean) {
         isExpanded = expand
         if (expand) {
-            expandCallback.run()
+            if (::expandCallback.isInitialized) expandCallback.run()
         } else {
-            collapseCallback.run()
+            if (::collapseCallback.isInitialized) collapseCallback.run()
         }
         updateIcon(expand)
         doLayout()
