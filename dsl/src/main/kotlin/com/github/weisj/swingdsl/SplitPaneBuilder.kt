@@ -30,10 +30,28 @@ import com.github.weisj.swingdsl.laf.WrappedComponent
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JSplitPane
+import javax.swing.event.AncestorEvent
+import javax.swing.event.AncestorListener
 
 sealed class SplitPaneBuilder constructor(internal val component: JSplitPane) :
     UIBuilder<JSplitPane>,
     JComponentConfiguration<JSplitPane> by JComponentConfigurationImpl(component) {
+
+    private var initialPosition: Double = 0.5
+    private val initialPositionListener = lazy {
+        val listener = object : AncestorListener {
+            override fun ancestorAdded(event: AncestorEvent?) {
+                component.setDividerLocation(initialPosition)
+                component.removeAncestorListener(this)
+            }
+
+            override fun ancestorRemoved(event: AncestorEvent?) = Unit
+
+            override fun ancestorMoved(event: AncestorEvent?) = Unit
+        }
+        component.addAncestorListener(listener)
+        listener
+    }
 
     init {
         component.addPropertyChangeListener {
@@ -51,6 +69,12 @@ sealed class SplitPaneBuilder constructor(internal val component: JSplitPane) :
         DEFAULT,
         MIN_LOCATION,
         MAX_LOCATION
+    }
+
+    fun initialPosition(position: Double) {
+        initialPosition = position
+        if (!initialPositionListener.isInitialized())
+            initialPositionListener.value
     }
 
     fun clampTo(mode: ClampMode) {
