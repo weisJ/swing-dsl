@@ -40,8 +40,11 @@ import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
+import com.github.weisj.swingdsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.layout.PanelBuilder
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.SpacingConfiguration
+import com.github.weisj.swingdsl.layout.createLayoutBuilder
 import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
@@ -422,6 +425,30 @@ internal class MigLayoutRow(
             return panelRow
         } finally {
             builder.hideableRowNestingLevel--
+        }
+    }
+
+    override fun nestedPanel(title: Text?, init: PanelBuilder.() -> Unit): CellBuilder<ModifiablePanel> {
+        val nestedBuilder = createLayoutBuilder()
+        nestedBuilder.init()
+
+        val panel = ModifiablePanel(title, layout = null, topLevel = false)
+        nestedBuilder.builder.build(panel, arrayOf())
+        mergeCallbacks(builder.applyCallbacks, nestedBuilder.builder.applyCallbacks)
+        mergeCallbacks(builder.resetCallbacks, nestedBuilder.builder.resetCallbacks)
+        mergeCallbacks(builder.isModifiedCallbacks, nestedBuilder.builder.isModifiedCallbacks)
+
+        lateinit var panelBuilder: CellBuilder<ModifiablePanel>
+        row {
+            @Suppress("UNCHECKED_CAST", "USELESS_CAST")
+            panelBuilder = (panel as JComponent)(constraints = arrayOf(growX)) as CellBuilder<ModifiablePanel>
+        }
+        return panelBuilder
+    }
+
+    private fun <K, V> mergeCallbacks(map: MutableMap<K, MutableList<V>>, nestedMap: Map<K, List<V>>) {
+        for ((requester, callbacks) in nestedMap) {
+            map.getOrPut(requester) { mutableListOf() }.addAll(callbacks)
         }
     }
 

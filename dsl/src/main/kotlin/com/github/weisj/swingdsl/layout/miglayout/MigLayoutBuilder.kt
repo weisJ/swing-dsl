@@ -275,6 +275,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                 (prevRowType == RowType.CHECKBOX_TALL || nextRowType == RowType.CHECKBOX_TALL)
             ) {
                 configureGapsBetweenTallCheckBoxRows(prevRow, nextRow)
+            } else if (prevRowType == RowType.NESTED_PANEL) {
+                prevRow.gapAfter = "0px!"
             }
         }
     }
@@ -316,11 +318,14 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                 } -> return RowType.CHECKBOX_TALL
             }
         }
+        if (row.components.singleOrNull() is ModifiablePanel) {
+            return RowType.NESTED_PANEL
+        }
         return RowType.GENERIC
     }
 
     private enum class RowType {
-        GENERIC, CHECKBOX, CHECKBOX_TALL;
+        GENERIC, CHECKBOX, CHECKBOX_TALL, NESTED_PANEL;
 
         val isCheckboxRow get() = this == CHECKBOX || this == CHECKBOX_TALL
     }

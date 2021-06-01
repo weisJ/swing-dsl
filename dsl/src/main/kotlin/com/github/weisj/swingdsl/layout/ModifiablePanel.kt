@@ -49,7 +49,7 @@ import javax.swing.JPanel
 import javax.swing.JWindow
 import javax.swing.SwingUtilities
 
-class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout()) :
+class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout(), topLevel: Boolean = true) :
     DefaultJPanel(layout),
     ModifiableComponent<JPanel> {
 
@@ -59,13 +59,15 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
 
     init {
         title?.bind(::setName)
-        putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
+        if (topLevel) {
+            putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
+        }
     }
 
     override fun getComponent(): JPanel = this
     override fun getContainer(): JComponent = this
 
-    override val modifiedCondition: ObservableCondition = ModifiedCondition(this)
+    override val modifiedCondition: ObservableCondition by lazy { ModifiedCondition(this) }
 
     var applyCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()
     var resetCallbacks: Map<JComponent?, List<() -> Unit>> = emptyMap()

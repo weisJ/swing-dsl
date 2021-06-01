@@ -139,6 +139,11 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
      */
     fun blockRow(init: Row.() -> Unit): Row
 
+    /**
+     * Creates a nested UI DSL panel, with a grid which is independent of this pane.
+     */
+    fun nestedPanel(title: Text? = null, init: PanelBuilder.() -> Unit): CellBuilder<ModifiablePanel>
+
     fun createCommentRow(component: JComponent): Row
     fun commentRow(
         text: Text,
