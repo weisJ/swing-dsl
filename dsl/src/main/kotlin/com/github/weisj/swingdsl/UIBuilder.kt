@@ -165,7 +165,11 @@ inline fun <T : JComponent> component(compProvider: () -> T): WrappedComponent<T
     return SelfWrappedComponent(compProvider())
 }
 
-operator fun <T : JComponent> T.unaryPlus(): WrappedComponent<T> = SelfWrappedComponent(this)
+@Suppress("UNCHECKED_CAST")
+operator fun <T : JComponent> T.unaryPlus(): WrappedComponent<T> {
+    return if (this is WrappedComponent<*> && this.component == this) this as WrappedComponent<T>
+    else SelfWrappedComponent(this)
+}
 
 fun <T : JComponent> T.configure(action: JComponentConfiguration<T>.() -> Unit) {
     JComponentConfiguration(this).action()
