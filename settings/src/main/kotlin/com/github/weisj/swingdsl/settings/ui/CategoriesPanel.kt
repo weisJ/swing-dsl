@@ -27,12 +27,14 @@ package com.github.weisj.swingdsl.settings.ui
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.centered
 import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.component.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.conditionOf
 import com.github.weisj.swingdsl.core.condition.or
 import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.laf.ScrollableView
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.createCategoryPanel
@@ -52,7 +54,7 @@ class CategoriesPanel private constructor(
     categories: List<Category>,
     fallbackCategory: Category,
     private val cardLayout: ScrollCardLayout
-) : DefaultJPanel(cardLayout) {
+) : DefaultJPanel(cardLayout), ScrollableView by DefaultScrollableView(20, 100) {
 
     private val categoryPanels = mutableMapOf<Category, ModifiableComponent<out JComponent>>()
 

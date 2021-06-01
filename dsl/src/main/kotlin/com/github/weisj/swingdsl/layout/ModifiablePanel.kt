@@ -28,11 +28,13 @@ package com.github.weisj.swingdsl.layout
 
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.component.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.laf.ScrollableView
 import com.github.weisj.swingdsl.listeners.registerAWTEventListener
 import java.awt.AWTEvent
 import java.awt.BorderLayout
@@ -51,7 +53,8 @@ import javax.swing.SwingUtilities
 
 class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLayout(), topLevel: Boolean = true) :
     DefaultJPanel(layout),
-    ModifiableComponent<JPanel> {
+    ModifiableComponent<JPanel>,
+    ScrollableView by DefaultScrollableView(20, 100) {
 
     companion object {
         internal const val DIALOG_CONTENT_PANEL_PROPERTY = "dialogContentPanel"

@@ -30,6 +30,7 @@ import com.github.weisj.swingdsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfigurationImpl
 import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
+import com.github.weisj.swingdsl.laf.ScrollableView
 import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.style.UIFactory
@@ -98,7 +99,25 @@ fun <T : JComponent> scrollPane(
 ): WrappedComponent<T> {
     val comp = componentProvider(ComponentBuilderScope)
     val scroll = UIFactory.createScrollPane(comp.container)
-    scroll.component.scrollInit()
+    val scrollable: ScrollableView? = when {
+        comp is ScrollableView -> comp
+        comp.component is ScrollableView -> comp.component as ScrollableView
+        comp.container is ScrollableView -> comp.container as ScrollableView
+        else -> null
+    }
+    val scrollPane = scroll.component
+    if (scrollable != null) {
+        scrollPane.horizontalScrollBar.apply {
+            unitIncrement = scrollable.horizontalUnitIncrement
+            blockIncrement = scrollable.horizontalBlockIncrement
+        }
+        scrollPane.verticalScrollBar.apply {
+            unitIncrement = scrollable.verticalUnitIncrement
+            blockIncrement = scrollable.verticalBlockIncrement
+        }
+    }
+
+    scrollPane.scrollInit()
     return DefaultWrappedComponent(comp.component, scroll.container)
 }
 

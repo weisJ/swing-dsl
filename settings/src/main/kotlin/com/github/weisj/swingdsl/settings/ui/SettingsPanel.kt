@@ -141,11 +141,7 @@ class SettingsPanel(private val categories: List<Category>) :
                         north { createBanner() }
                         center {
                             searchHandler.wrapInHighlightLayer(
-                                scrollPane({
-                                    border = emptyBorder()
-                                    verticalScrollBar.unitIncrement = 20
-                                    horizontalScrollBar.unitIncrement = 100
-                                }) { +categoriesPanel }
+                                scrollPane({ border = emptyBorder() }) { +categoriesPanel }
                             )
                         }
                     }
