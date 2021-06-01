@@ -94,7 +94,7 @@ internal class MigLayoutRow(
         ) {
             val cc = CC()
             val commentRow = parent.createChildRow()
-            parent.getOrCreateCommentRowsList().add(commentRow)
+            parent.getOrCreateAssociatedRows().add(commentRow)
             commentRow.isComment = true
             commentRow.addComponent(component, cc)
             when {
@@ -142,16 +142,16 @@ internal class MigLayoutRow(
     internal var subRows: MutableList<MigLayoutRow>? = null
         private set
 
-    private var commentRows: MutableList<MigLayoutRow>? = null
+    private var associatedRows: MutableList<MigLayoutRow>? = null
 
-    private fun getOrCreateCommentRowsList(): MutableList<MigLayoutRow> {
-        var commentRows = commentRows
-        if (commentRows == null) {
+    private fun getOrCreateAssociatedRows(): MutableList<MigLayoutRow> {
+        var rows = associatedRows
+        if (rows == null) {
             // commentRows in most cases == 1
-            commentRows = mutableListOf()
-            this.commentRows = commentRows
+            rows = mutableListOf()
+            this.associatedRows = rows
         }
-        return commentRows
+        return rows
     }
 
     private fun getOrCreateSubRowsList(): MutableList<MigLayoutRow> {
@@ -188,7 +188,12 @@ internal class MigLayoutRow(
     }
 
     // Returns whether the state needs to be updated.
-    private fun JComponent.updateStateFlag(value: Boolean, componentValue: Boolean, key: String): Boolean {
+    private fun JComponent.updateStateFlag(
+        value: Boolean,
+        componentValue: Boolean,
+        key: String,
+        preserve: Boolean = true
+    ): Boolean {
         // Current state of row is the opposite of value
         if (!value) {
             if (!componentValue) {
@@ -200,7 +205,7 @@ internal class MigLayoutRow(
             if (getClientProperty(key) == false) {
                 // remove because for active row component state can be changed and we don't want to
                 // add listener to update value accordingly
-                putClientProperty(key, null)
+                putClientProperty(key, if (preserve) null else true)
                 // do not set to true, preserve old component state
                 return false
             }
@@ -208,7 +213,7 @@ internal class MigLayoutRow(
         return true
     }
 
-    override var enabled = true
+    override var enabled = parent?.subRowsEnabled ?: true
         set(value) {
             if (field == value) return
             field = value
@@ -218,7 +223,7 @@ internal class MigLayoutRow(
                     c.isEnabled = value
                 }
             }
-            commentRows?.let {
+            associatedRows?.let {
                 for (row in it) {
                     row.enabled = value
                 }
@@ -233,10 +238,10 @@ internal class MigLayoutRow(
     internal fun JComponent.safelySetVisible(value: Boolean, index: Int) {
         putClientProperty(COMPONENT_VISIBLE_STATE_KEY, value)
         isVisible = value && !collapsed
-        updateHideMode(this, index, value)
+        if (index >= 0) updateHideMode(this, index, value)
     }
 
-    override var visible = true
+    override var visible = parent?.subRowsVisible ?: true
         set(value) {
             if (field == value) return
 
@@ -245,7 +250,7 @@ internal class MigLayoutRow(
             for ((index, c) in components.withIndex()) {
                 c.safelySetVisible(value, index)
             }
-            commentRows?.let {
+            associatedRows?.let {
                 for (row in it) {
                     row.visible = value
                 }
@@ -266,7 +271,7 @@ internal class MigLayoutRow(
 
             val visible = !value
             for ((index, c) in components.withIndex()) {
-                if (c.updateStateFlag(visible, c.isVisible, COMPONENT_VISIBLE_STATE_KEY)) {
+                if (c.updateStateFlag(visible, c.isVisible, COMPONENT_VISIBLE_STATE_KEY, preserve = false)) {
                     c.isVisible = visible
                     updateHideMode(c, index, visible)
                 }
@@ -436,7 +441,11 @@ internal class MigLayoutRow(
             isSeparated = isSeparated,
             incrementsIndent = isSeparated
         )
-        parentRow.init()
+        if (isSeparated) {
+            parentRow.noIndent(init)
+        } else {
+            parentRow.init()
+        }
         val result = parentRow.createChildRow()
         result.placeholder()
         result.largeGapAfter()
@@ -471,6 +480,7 @@ internal class MigLayoutRow(
         builder.hideableRowNestingLevel++
         try {
             val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
+            panelRow.getOrCreateAssociatedRows().add(separatorRow)
             panelRow.noIndent(init)
             separator.setCollapseCallback {
                 panelRow.setCollapsedState(true)
@@ -607,9 +617,7 @@ internal class MigLayoutRow(
     }
 
     private fun configureComponentState(component: JComponent) {
-        if (!visible) {
-            component.isVisible = false
-        }
+        component.safelySetVisible(visible && component.isVisible, -1)
         if (!enabled) {
             component.isEnabled = false
         }
@@ -688,7 +696,7 @@ internal class MigLayoutRow(
         cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap, false)
 
         val row = createChildRow(label = null, noGrid = true)
-        getOrCreateCommentRowsList().add(row)
+        getOrCreateAssociatedRows().add(row)
         row.addComponent(component, cc)
         return row
     }
