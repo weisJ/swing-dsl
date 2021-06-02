@@ -63,7 +63,7 @@ open class TitledSeparator(title: Text?) : JComponent() {
         isOpaque = false
         layout = GridBagLayout()
         border = emptyBorder(7, 0, 5, 0)
-        add(
+        this.add(
             label,
             GridBagConstraints(
                 0, 0, 1, 1, 0.0, 1.0,
@@ -71,7 +71,7 @@ open class TitledSeparator(title: Text?) : JComponent() {
                 Insets(0, 0, 0, 0), 0, 0
             )
         )
-        add(
+        this.add(
             separator,
             GridBagConstraints(
                 1, 0, GridBagConstraints.REMAINDER, 1, 1.0, 1.0,
@@ -80,10 +80,6 @@ open class TitledSeparator(title: Text?) : JComponent() {
             )
         )
         isEnabled = true
-    }
-
-    final override fun add(comp: Component, constraints: Any?) {
-        super.add(comp, constraints)
     }
 
     override fun setEnabled(enabled: Boolean) {
