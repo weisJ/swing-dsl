@@ -90,7 +90,7 @@ open class TitledSeparator(title: Text?) : JComponent() {
     }
 }
 
-class CollapsibleTitledSeparator(title: Text) : TitledSeparator(title), CollapsibleComponent {
+class CollapsibleTitledSeparator(title: Text?) : TitledSeparator(title), CollapsibleComponent {
 
     private var isExpanded: Boolean = true
     lateinit var row: Row
