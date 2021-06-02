@@ -49,7 +49,6 @@ import kotlin.reflect.KMutableProperty0
 
 interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, BuilderWithEnabledProperty<RowBuilder> {
 
-    val doIndentSubRows: Boolean
     var subRowsEnabled: Boolean
     var subRowsVisible: Boolean
 
@@ -83,41 +82,39 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
 
     // manual JvmOverloads
     fun row(label: Text?, init: Row.() -> Unit): Row =
-        row(label, separated = false, isIndented = doIndentSubRows, init = init)
+        row(label, separated = false, init = init)
 
     fun row(
         label: String?,
         separated: Boolean = false,
-        isIndented: Boolean = doIndentSubRows,
         init: Row.() -> Unit
     ): Row {
-        return row(textOfNullable(label), separated, isIndented, init)
+        return row(textOfNullable(label), separated, init)
     }
 
     fun row(
         label: JLabel? = null,
         separated: Boolean = false,
-        isIndented: Boolean = doIndentSubRows,
         init: Row.() -> Unit
     ): Row {
-        return createChildRow(label = label?.let { +it }, separated, isIndented).apply(init)
+        return createChildRow(label = label?.let { +it }, separated).apply(init)
     }
 
     fun row(
         label: Text?,
         separated: Boolean = false,
-        isIndented: Boolean = doIndentSubRows,
         init: Row.() -> Unit
     ): Row {
-        return createChildRow(label?.let { UIFactory.createLabel(it) }, separated, isIndented).apply(init)
+        return createChildRow(label?.let { UIFactory.createLabel(it) }, separated).apply(init)
     }
 
     fun fullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }
 
+    // If isIndented is null it means the current layout context should decide its value.
     fun createChildRow(
         label: WrappedComponent<JLabel>? = null,
         isSeparated: Boolean = false,
-        isIndented: Boolean = doIndentSubRows,
+        isIndented: IndentationPolicy = IndentationPolicy.DEFAULT,
         noGrid: Boolean = false,
         title: Text? = null
     ): Row

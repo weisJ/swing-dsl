@@ -97,3 +97,13 @@ enum class CCFlags {
 enum class GrowPolicy {
     SHORT_TEXT, MEDIUM_TEXT
 }
+
+enum class IndentationPolicy {
+    YES, NO, DEFAULT;
+
+    fun toBool(): Boolean? = when (this) {
+        YES -> true
+        NO -> false
+        DEFAULT -> null
+    }
+}

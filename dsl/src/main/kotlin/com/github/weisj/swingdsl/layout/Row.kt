@@ -38,9 +38,7 @@ abstract class Row : Cell(), RowBuilder {
      */
     abstract var subRowIndentationLevel: Int
 
-    private var indentSubRows: Boolean = true
-    override val doIndentSubRows: Boolean
-        get() = indentSubRows
+    private var subRowIndentationPolicy: IndentationPolicy = IndentationPolicy.DEFAULT
 
     internal abstract val builder: PanelBuilderImpl
 
@@ -58,15 +56,15 @@ abstract class Row : Cell(), RowBuilder {
         subRowIndentationLevel = oldIndentationLevel
     }
 
-    fun indent(enabled: Boolean) {
-        indentSubRows = enabled
+    fun indent(policy: IndentationPolicy) {
+        subRowIndentationPolicy = policy
     }
 
     fun noIndent(init: Row.() -> Unit) {
-        val oldDoIndent = doIndentSubRows
-        indent(false)
+        val oldPolicy = subRowIndentationPolicy
+        indent(IndentationPolicy.NO)
         init()
-        indent(oldDoIndent)
+        indent(oldPolicy)
     }
 
     /**

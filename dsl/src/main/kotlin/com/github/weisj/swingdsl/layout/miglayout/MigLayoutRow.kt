@@ -41,6 +41,7 @@ import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
+import com.github.weisj.swingdsl.layout.IndentationPolicy
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.PanelBuilder
 import com.github.weisj.swingdsl.layout.Row
@@ -380,7 +381,7 @@ internal class MigLayoutRow(
     override fun createChildRow(
         label: WrappedComponent<JLabel>?,
         isSeparated: Boolean,
-        isIndented: Boolean,
+        isIndented: IndentationPolicy,
         noGrid: Boolean,
         title: Text?
     ): MigLayoutRow {
@@ -391,11 +392,13 @@ internal class MigLayoutRow(
         indent: Int,
         label: WrappedComponent<JLabel>? = null,
         noGrid: Boolean = false,
-        isIndented: Boolean = true,
+        isIndented: IndentationPolicy = IndentationPolicy.DEFAULT,
         incrementsIndent: Boolean = true,
     ): MigLayoutRow {
-        val newIndent = if (!this.incrementsIndentationLevel || !isIndented) indent else indent + spacing.indentLevel
         val subRows = getOrCreateSubRowsList()
+        val newIndent =
+            if (isIndented.toBool() ?: this.incrementsIndentationLevel) indent + spacing.indentLevel else indent
+
         val row = MigLayoutRow(
             this, builder,
             labeled = label != null,
@@ -412,11 +415,6 @@ internal class MigLayoutRow(
             insertIndex--
         }
         subRows.add(insertIndex, row)
-
-        row.enabled = subRowsEnabled
-        row.subRowsEnabled = subRowsEnabled
-        row.visible = subRowsVisible
-        row.subRowsVisible = subRowsVisible
 
         if (label != null) {
             issueSearchTag(label.component.textProperty(), label.createLayoutTag())
@@ -446,27 +444,37 @@ internal class MigLayoutRow(
     }
 
     private fun createBlockRow(title: Text?, isSeparated: Boolean, init: Row.() -> Unit): Row {
-        val parentRow = if (isSeparated) {
-            val separatorRow = createChildRow(isIndented = false)
+        val separatorRow = if (isSeparated) {
+            val separatorRow = createChildRow(indent = 0, isIndented = IndentationPolicy.NO)
             configureSeparatorRow(separatorRow, title)
-            val panelRow = createChildRow(indent = indentationLevel, incrementsIndent = true)
-            panelRow.getOrCreateAssociatedRows().add(separatorRow)
-            panelRow
-        } else createChildRow(indent = indentationLevel, incrementsIndent = false)
+            separatorRow
+        } else null
+        val parentRow = createChildRow(
+            indent = indentationLevel,
+            isIndented = IndentationPolicy.YES,
+            incrementsIndent = false
+        )
+        if (separatorRow != null) {
+            parentRow.getOrCreateAssociatedRows().add(separatorRow)
+        }
         parentRow.init()
 
         val result = parentRow.createChildRow()
         result.placeholder()
         result.largeGapAfter()
-        return result
+        return parentRow
     }
 
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
-        val separatorRow = createChildRow()
-        val collapsibleSeparator = configureCollapsibleSeparatorRow(createChildRow(), title)
+        val separatorRow = createChildRow(indent = 0, isIndented = IndentationPolicy.NO)
+        val collapsibleSeparator = configureCollapsibleSeparatorRow(separatorRow, title)
         builder.hideableRowNestingLevel++
         try {
-            val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
+            val panelRow = createChildRow(
+                indent = indentationLevel,
+                isIndented = IndentationPolicy.YES,
+                incrementsIndent = false
+            )
             panelRow.getOrCreateAssociatedRows().add(separatorRow)
             panelRow.noIndent(init)
             collapsibleSeparator.setCollapseCallback {
@@ -753,8 +761,8 @@ internal class MigLayoutRow(
         return this
     }
 
-    override fun row(label: Text?, separated: Boolean, isIndented: Boolean, init: Row.() -> Unit): Row {
-        val newRow = super.row(label, separated, isIndented, init)
+    override fun row(label: Text?, separated: Boolean, init: Row.() -> Unit): Row {
+        val newRow = super.row(label, separated, init)
         if (newRow is MigLayoutRow && newRow.labeled && (newRow.components.size == 2)) {
             var rowLabel = newRow.components[0]
             if (rowLabel is JLabel) {
