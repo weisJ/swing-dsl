@@ -214,3 +214,11 @@ fun Component.yieldFocus() {
 fun returnFocusToPreviousOwner() {
     KeyboardFocusManager.getCurrentKeyboardFocusManager().permanentFocusOwner.requestFocusInWindow()
 }
+
+inline fun <reified T : Component> Component.ancestorOfType(): T? {
+    var p: Component? = this
+    while (p != null && p !is T) {
+        p = p.parent
+    }
+    return p as? T
+}

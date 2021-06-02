@@ -25,6 +25,7 @@
 package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.component.ScrollRedirector
 import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfiguration
@@ -42,7 +43,6 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 import javax.swing.JComponent
 import javax.swing.JFrame
-import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
@@ -98,7 +98,8 @@ fun <T : JComponent> scrollPane(
     componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
 ): WrappedComponent<T> {
     val comp = componentProvider(ComponentBuilderScope)
-    val scroll = UIFactory.createScrollPane(comp.container)
+    val scroll = UIFactory.createScrollPane(ScrollRedirector(comp.container))
+
     val scrollable: ScrollableView? = when {
         comp is ScrollableView -> comp
         comp.component is ScrollableView -> comp.component as ScrollableView
@@ -116,8 +117,8 @@ fun <T : JComponent> scrollPane(
             blockIncrement = scrollable.verticalBlockIncrement
         }
     }
-
     scrollPane.scrollInit()
+
     return DefaultWrappedComponent(comp.component, scroll.container)
 }
 
