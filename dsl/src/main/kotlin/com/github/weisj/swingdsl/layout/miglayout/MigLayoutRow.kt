@@ -38,6 +38,7 @@ import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.ModifiablePanel
@@ -131,6 +132,32 @@ internal class MigLayoutRow(
                 }
             }
             row.addTitleComponent(comp, isEmpty = title == null)
+        }
+
+        private fun configureCollapsibleSeparatorRow(row: MigLayoutRow, title: Text): CollapsibleComponent {
+            val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
+
+            val separator = if (separatorSpec.providesCustomComponent()) {
+                separatorSpec.provided!!.also {
+                    row.issueSearchTag(title, it.component.createLayoutTag())
+                }
+            } else {
+                DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
+                    val dividerColor = UIFactory.dividerColor
+                    val expandedIcon = UIFactory.expandedIcon
+                    val collapsedIcon = UIFactory.collapsedIcon
+                    it.color = dividerColor.enabled
+                    it.disabledColor = dividerColor.disabled
+                    it.expandedIcon = expandedIcon.enabled
+                    it.collapsedIcon = collapsedIcon.enabled
+                    it.disabledExpandedIcon = expandedIcon.disabled
+                    it.disabledCollapsedIcon = collapsedIcon.disabled
+                }.also {
+                    row.issueSearchTag(title, it.label.createLayoutTag())
+                }
+            }
+            row.addTitleComponent(separator.component, isEmpty = false)
+            return separator
         }
     }
 
@@ -239,6 +266,7 @@ internal class MigLayoutRow(
         putClientProperty(COMPONENT_VISIBLE_STATE_KEY, value)
         isVisible = value && !collapsed
         if (index >= 0) updateHideMode(this, index, value)
+        invalidate()
     }
 
     override var visible = parent?.subRowsVisible ?: true
@@ -356,15 +384,13 @@ internal class MigLayoutRow(
         noGrid: Boolean,
         title: Text?
     ): MigLayoutRow {
-        return createChildRow(indentationLevel, label, isSeparated, noGrid, title, isIndented)
+        return createChildRow(indentationLevel, label, noGrid, isIndented)
     }
 
     private fun createChildRow(
         indent: Int,
         label: WrappedComponent<JLabel>? = null,
-        isSeparated: Boolean = false,
         noGrid: Boolean = false,
-        title: Text? = null,
         isIndented: Boolean = true,
         incrementsIndent: Boolean = true,
     ): MigLayoutRow {
@@ -377,21 +403,6 @@ internal class MigLayoutRow(
             indentationLevel = if (subRowIndentationLevel >= 0) subRowIndentationLevel * spacing.indentLevel else newIndent,
             incrementsIndentationLevel = incrementsIndent
         )
-
-        if (isSeparated) {
-            val separatorRow = MigLayoutRow(
-                parent = this,
-                builder = builder,
-                indentationLevel = newIndent,
-                noGrid = true
-            )
-            configureSeparatorRow(separatorRow, title)
-            separatorRow.enabled = subRowsEnabled
-            separatorRow.subRowsEnabled = subRowsEnabled
-            separatorRow.visible = subRowsVisible
-            separatorRow.subRowsVisible = subRowsVisible
-            row.getOrCreateSubRowsList().add(separatorRow)
-        }
 
         var insertIndex = subRows.size
         if (insertIndex > 0 && subRows[insertIndex - 1].isTrailingSeparator) {
@@ -435,17 +446,15 @@ internal class MigLayoutRow(
     }
 
     private fun createBlockRow(title: Text?, isSeparated: Boolean, init: Row.() -> Unit): Row {
-        val parentRow = createChildRow(
-            indent = indentationLevel,
-            title = title,
-            isSeparated = isSeparated,
-            incrementsIndent = isSeparated
-        )
-        if (isSeparated) {
-            parentRow.noIndent(init)
-        } else {
-            parentRow.init()
-        }
+        val parentRow = if (isSeparated) {
+            val separatorRow = createChildRow(isIndented = false)
+            configureSeparatorRow(separatorRow, title)
+            val panelRow = createChildRow(indent = indentationLevel, incrementsIndent = true)
+            panelRow.getOrCreateAssociatedRows().add(separatorRow)
+            panelRow
+        } else createChildRow(indent = indentationLevel, incrementsIndent = false)
+        parentRow.init()
+
         val result = parentRow.createChildRow()
         result.placeholder()
         result.largeGapAfter()
@@ -453,45 +462,23 @@ internal class MigLayoutRow(
     }
 
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
-        val separatorSpec = UIFactory.createCollapsibleSeparatorComponent(title.asTextProperty())
-
-        val separator = if (separatorSpec.providesCustomComponent()) {
-            separatorSpec.provided!!.also {
-                issueSearchTag(title, it.component.createLayoutTag())
-            }
-        } else {
-            DynamicUI.withDynamic(CollapsibleTitledSeparator(title)) {
-                val dividerColor = UIFactory.dividerColor
-                val expandedIcon = UIFactory.expandedIcon
-                val collapsedIcon = UIFactory.collapsedIcon
-                it.color = dividerColor.enabled
-                it.disabledColor = dividerColor.disabled
-                it.expandedIcon = expandedIcon.enabled
-                it.collapsedIcon = collapsedIcon.enabled
-                it.disabledExpandedIcon = expandedIcon.disabled
-                it.disabledCollapsedIcon = collapsedIcon.disabled
-            }.also {
-                issueSearchTag(title, it.label.createLayoutTag())
-            }
-        }
-
         val separatorRow = createChildRow()
-        separatorRow.addTitleComponent(separator.component, isEmpty = false)
+        val collapsibleSeparator = configureCollapsibleSeparatorRow(createChildRow(), title)
         builder.hideableRowNestingLevel++
         try {
             val panelRow = createChildRow(indent = indentationLevel + spacing.indentLevel)
             panelRow.getOrCreateAssociatedRows().add(separatorRow)
             panelRow.noIndent(init)
-            separator.setCollapseCallback {
+            collapsibleSeparator.setCollapseCallback {
                 panelRow.setCollapsedState(true)
             }
-            separator.setExpandCallback {
+            collapsibleSeparator.setExpandCallback {
                 panelRow.setCollapsedState(false)
             }
             if (startHidden || !panelRow.enabled) {
-                separator.collapse()
+                collapsibleSeparator.collapse()
             } else {
-                separator.expand()
+                collapsibleSeparator.expand()
             }
             return panelRow
         } finally {

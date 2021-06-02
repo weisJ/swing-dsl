@@ -137,7 +137,6 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
          *
          * So, advanced layout engine, e.g. MigLayout, offers a way to compensate visual padding on the layout container level, not on component level, as a solution.
          */
-
         lc.isVisualPadding = true
 
         val rowConstraints = AC()
