@@ -78,9 +78,8 @@ class SearchHandler(
         }
     }
 
-    fun <T : JComponent> wrapInHighlightLayer(comp: WrappedComponent<T>): WrappedComponent<JLayeredPane> {
-        return layered {
-            layers[JLayeredPane.DEFAULT_LAYER] = comp
+    fun <T : JComponent> wrapInHighlightLayer(comp: WrappedComponent<T>): WrappedComponent<T> {
+        return layered(comp) {
             layers[JLayeredPane.PALETTE_LAYER] = highlighter
         }
     }

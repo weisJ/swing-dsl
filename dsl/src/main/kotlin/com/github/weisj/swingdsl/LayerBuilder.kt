@@ -33,13 +33,14 @@ import javax.swing.JComponent
 import javax.swing.JLayeredPane
 
 @BuilderMarker
-class LayerBuilder private constructor(private val component: FillingLayeredPane) :
-    UIBuilder<JLayeredPane>,
+class LayerBuilder private constructor(
+    private val component: FillingLayeredPane
+) : UIBuilder<JLayeredPane>,
     JComponentConfiguration<JLayeredPane> by JComponentConfigurationImpl(component) {
 
     val layers: LayerAccessor = LayerAccessor(component)
 
-    constructor() : this(FillingLayeredPane())
+    constructor(comp: JComponent) : this(FillingLayeredPane(comp))
 
     override fun build(): JLayeredPane = component
 }

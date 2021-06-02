@@ -24,13 +24,23 @@
  */
 package com.github.weisj.swingdsl.component
 
+import java.awt.Dimension
+import javax.swing.JComponent
 import javax.swing.JLayeredPane
 
-open class FillingLayeredPane : JLayeredPane() {
+open class FillingLayeredPane(private val content: JComponent) : JLayeredPane() {
+
+    init {
+        this.add(content, -1, DEFAULT_LAYER)
+    }
 
     override fun doLayout() {
         for (i in 0 until componentCount) {
             getComponent(i).setBounds(0, 0, width, height)
         }
     }
+
+    override fun getMinimumSize(): Dimension = content.minimumSize
+    override fun getPreferredSize(): Dimension = content.preferredSize
+    override fun getMaximumSize(): Dimension = content.maximumSize
 }

@@ -176,8 +176,8 @@ inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> W
     )
 }
 
-fun layered(init: LayerBuilder.() -> Unit): WrappedComponent<JLayeredPane> {
-    return +LayerBuilder().also(init).build()
+fun <T : JComponent> layered(comp: WrappedComponent<T>, init: LayerBuilder.() -> Unit): WrappedComponent<T> {
+    return DefaultWrappedComponent(comp.component, LayerBuilder(comp.container).also(init).build())
 }
 
 inline fun <T : JComponent> component(compProvider: () -> T): WrappedComponent<T> {
