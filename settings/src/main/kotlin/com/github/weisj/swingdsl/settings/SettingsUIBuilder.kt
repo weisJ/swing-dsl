@@ -32,6 +32,7 @@ import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.SearchContext
 import com.github.weisj.swingdsl.highlight.SearchPresenter
 import com.github.weisj.swingdsl.highlight.createSink
+import com.github.weisj.swingdsl.layout.IndentationPolicy
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.panel
@@ -45,8 +46,8 @@ fun createSettingsPanel(vararg categories: Category): JComponent = SettingsPanel
 
 fun createCategoryPanel(category: Category, context: UIContext): ModifiablePanel {
     return panel(title = category.displayName) {
+        indent(IndentationPolicy.NO)
         row {
-            indent(false)
             category.createUI(this, context)
         }
     }.also { it.component.name = category.identifier }
@@ -55,16 +56,18 @@ fun createCategoryPanel(category: Category, context: UIContext): ModifiablePanel
 fun Row.addCategoryOverview(category: Category, context: UIContext) {
     withSearchPointSink(context.createSink(category)) {
         category.description?.let {
-            left { commentRow(it) }
+            left { row { commentRow(it, withLeftGap = false) } }
         }
-        row {
-            cell(isVerticalFlow = true) {
-                category.subCategories.forEach { cat ->
-                    component(
-                        HyperlinkLabel(cat.displayName).apply {
-                            addListener { context.reveal(cat) }
-                        }
-                    )
+        noIndent {
+            row {
+                cell(isVerticalFlow = true) {
+                    category.subCategories.forEach { cat ->
+                        component(
+                            HyperlinkLabel(cat.displayName).apply {
+                                addListener { context.reveal(cat) }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -79,9 +82,7 @@ fun Row.addCategory(category: Category, context: UIContext) {
         }
     } else {
         category.groups.forEach {
-            row(isIndented = false) {
-                it.createUI(this, context)
-            }
+            it.createUI(this, context)
         }
     }
 }
@@ -90,14 +91,10 @@ fun Row.addGroup(group: Group, context: UIContext) {
     withSearchPointSink(context.createSink(group)) {
         maybeTitledRow(group) {
             bindDisplayStatus(group)
-            noIndent {
-                group.description?.let {
-                    row {
-                        commentRow(it, withLeftGap = false)
-                    }
-                }
-                group.values.forEach { it.createUI(this, context) }
+            group.description?.let {
+                commentRow(it, withLeftGap = false)
             }
+            group.values.forEach { it.createUI(this, context) }
             group.subGroups.forEach { it.createUI(this, context) }
         }
     }
@@ -130,11 +127,13 @@ private fun Row.maybeTitledRow(element: Element, init: Row.() -> Unit) {
     }
 }
 
-private fun <T> Row.valueRow(value: DefaultValue<T>, init: Row.() -> Unit): Row {
-    return if (value.showTitle) {
-        row(value.displayName, init = init)
-    } else {
-        row(init = init)
+private fun <T> Row.valueRow(value: DefaultValue<T>, init: Row.() -> Unit) {
+    noIndent {
+        if (value.showTitle) {
+            row(value.displayName, init = init)
+        } else {
+            row(init)
+        }
     }
 }
 

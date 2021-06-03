@@ -25,10 +25,13 @@
 import com.github.weisj.darklaf.settings.ThemeSettings
 import com.github.weisj.darklaf.settings.ThemeSettingsUI
 import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.layout.IndentationPolicy
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.observableUIManagerProperty
+import com.github.weisj.swingdsl.properties
 
 fun Row.createDarklafSettings() {
+    indent(IndentationPolicy.NO)
     val settings = ThemeSettings.getInstance()
     val themeSettingsUI = ThemeSettingsUI()
 
@@ -66,11 +69,15 @@ fun Row.createDarklafSettings() {
         }
     }
     row(ThemeSettingsUI.FONT_SIZE_LABEL_KEY.text()) {
-        component(themeSettingsUI.fontSlider)
+        component(themeSettingsUI.fontSlider).applyToComponent {
+            properties {
+                client["JSlider.useTrackAsBaseline"] = true
+            }
+        }
     }
 
     titledRow(ThemeSettingsUI.MONITORING_LABEL_KEY.text()) {
-        row(isIndented = false) { component(themeSettingsUI.systemPreferencesTristateCheckBox) }
+        component(themeSettingsUI.systemPreferencesTristateCheckBox)
         row {
             component(themeSettingsUI.themeFollowsSystemCheckBox)
             component(themeSettingsUI.fontSizeFollowsSystemCheckBox)

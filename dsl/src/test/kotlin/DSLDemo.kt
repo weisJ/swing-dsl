@@ -71,7 +71,6 @@ fun main() {
                                 lateinit var boolProp: ObservableProperty<Boolean>
                                 lateinit var stringProp: ObservableProperty<String>
                                 hideableRow("Row 1", startHidden = false) {
-                                    indent(false)
                                     row {
                                         val initial = 0
                                         val counter = observableProperty(initial)
