@@ -128,7 +128,8 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
         isSeparated: Boolean = false,
         isIndented: IndentationPolicy = subRowIndentationPolicy,
         noGrid: Boolean = false,
-        title: Text? = null
+        title: Text? = null,
+        insertionPosition: InsertionPosition = InsertionPosition.DEFAULT
     ): Row
 
     fun titledRow(title: Text, init: Row.() -> Unit): Row

@@ -42,6 +42,7 @@ import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.IndentationPolicy
+import com.github.weisj.swingdsl.layout.InsertionPosition
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.PanelBuilder
 import com.github.weisj.swingdsl.layout.Row
@@ -95,7 +96,7 @@ internal class MigLayoutRow(
             withLeftGap: Boolean,
         ) {
             val cc = CC()
-            val commentRow = parent.createChildRow()
+            val commentRow = parent.createChildRow(insertionPosition = InsertionPosition.COMMENT)
             parent.getOrCreateAssociatedRows().add(commentRow)
             commentRow.isComment = true
             commentRow.addComponent(component, cc)
@@ -383,17 +384,24 @@ internal class MigLayoutRow(
         isSeparated: Boolean,
         isIndented: IndentationPolicy,
         noGrid: Boolean,
-        title: Text?
+        title: Text?,
+        insertionPosition: InsertionPosition
     ): MigLayoutRow {
-        return createChildRow(indentationLevel, label, noGrid, isIndented)
+        return createChildRowImpl(
+            label = label,
+            noGrid = noGrid,
+            isIndented = isIndented,
+            insertionPosition = insertionPosition
+        )
     }
 
-    private fun createChildRow(
-        indent: Int,
+    private fun createChildRowImpl(
+        indent: Int = indentationLevel,
         label: WrappedComponent<JLabel>? = null,
         noGrid: Boolean = false,
-        isIndented: IndentationPolicy = IndentationPolicy.DEFAULT,
+        isIndented: IndentationPolicy = subRowIndentationPolicy,
         incrementsIndent: Boolean = true,
+        insertionPosition: InsertionPosition = InsertionPosition.DEFAULT
     ): MigLayoutRow {
         val subRows = getOrCreateSubRowsList()
         val newIndent =
@@ -408,12 +416,19 @@ internal class MigLayoutRow(
         )
 
         var insertIndex = subRows.size
-        if (insertIndex > 0 && subRows[insertIndex - 1].isTrailingSeparator) {
-            insertIndex--
+        if (insertionPosition < InsertionPosition.TRAILING_SPACER) {
+            if (insertionPosition < InsertionPosition.TRAILING_SEPARATOR) {
+                while (insertIndex > 0 && subRows[insertIndex - 1].isTrailingSeparator) {
+                    insertIndex--
+                }
+            }
+            if (insertionPosition < InsertionPosition.COMMENT) {
+                while (insertIndex > 0 && subRows[insertIndex - 1].isComment) {
+                    insertIndex--
+                }
+            }
         }
-        if (insertIndex > 0 && subRows[insertIndex - 1].isComment) {
-            insertIndex--
-        }
+
         subRows.add(insertIndex, row)
 
         if (label != null) {
@@ -445,11 +460,11 @@ internal class MigLayoutRow(
 
     private fun createBlockRow(title: Text?, isSeparated: Boolean, init: Row.() -> Unit): Row {
         val separatorRow = if (isSeparated) {
-            val separatorRow = createChildRow(indent = 0, isIndented = IndentationPolicy.NO)
+            val separatorRow = createChildRowImpl(indent = 0, isIndented = IndentationPolicy.NO)
             configureSeparatorRow(separatorRow, title)
             separatorRow
         } else null
-        val parentRow = createChildRow(
+        val parentRow = createChildRowImpl(
             indent = indentationLevel,
             incrementsIndent = isSeparated
         )
@@ -458,18 +473,18 @@ internal class MigLayoutRow(
         }
         parentRow.init()
 
-        val result = parentRow.createChildRow()
+        val result = parentRow.createChildRow(insertionPosition = InsertionPosition.TRAILING_SPACER)
         result.placeholder()
         result.largeGapAfter()
         return parentRow
     }
 
     override fun hideableRow(title: Text, startHidden: Boolean, init: Row.() -> Unit): Row {
-        val separatorRow = createChildRow(indent = 0, isIndented = IndentationPolicy.NO)
+        val separatorRow = createChildRowImpl(indent = 0, isIndented = IndentationPolicy.NO)
         val collapsibleSeparator = configureCollapsibleSeparatorRow(separatorRow, title)
         builder.hideableRowNestingLevel++
         try {
-            val panelRow = createChildRow(
+            val panelRow = createChildRowImpl(
                 indent = indentationLevel,
                 incrementsIndent = true
             )

@@ -107,3 +107,7 @@ enum class IndentationPolicy {
         DEFAULT -> null
     }
 }
+
+enum class InsertionPosition {
+    DEFAULT, COMMENT, TRAILING_SEPARATOR, TRAILING_SPACER;
+}
