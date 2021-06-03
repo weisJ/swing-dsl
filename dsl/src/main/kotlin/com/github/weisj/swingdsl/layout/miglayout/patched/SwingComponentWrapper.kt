@@ -81,6 +81,8 @@ import javax.swing.text.View
 /** Debug color for component bounds outline.
  */
 private val DB_COMP_OUTLINE = Color(0, 0, 200)
+private val DB_COMP_BASELINE = Color(250, 100, 50)
+private val DB_COMP_VISUAL_PADDING = Color(0, 200, 0)
 
 internal open class SwingComponentWrapper(private val c: JComponent) : ComponentWrapper {
     private var hasBaseLine = ThreeState.UNSURE
@@ -306,14 +308,21 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
 
         val g = c.graphics as? Graphics2D ?: return
 
-        g.paint = DB_COMP_OUTLINE
         g.stroke = BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10f, floatArrayOf(2f, 4f), 0f)
+
+        if (hasBaseline()) {
+            g.color = DB_COMP_BASELINE
+            val baseline = getBaseline(width, height)
+            g.drawLine(0, baseline, width, baseline)
+        }
+
+        g.color = DB_COMP_OUTLINE
         g.drawRect(0, 0, width - 1, height - 1)
 
         if (showVisualPadding) {
             val padding = visualPadding
             if (padding != null) {
-                g.color = Color.GREEN
+                g.color = DB_COMP_VISUAL_PADDING
                 g.drawRect(
                     padding[1],
                     padding[0],
