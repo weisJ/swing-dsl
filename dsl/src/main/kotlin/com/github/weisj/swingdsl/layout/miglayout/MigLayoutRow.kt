@@ -451,8 +451,7 @@ internal class MigLayoutRow(
         } else null
         val parentRow = createChildRow(
             indent = indentationLevel,
-            isIndented = IndentationPolicy.YES,
-            incrementsIndent = false
+            incrementsIndent = isSeparated
         )
         if (separatorRow != null) {
             parentRow.getOrCreateAssociatedRows().add(separatorRow)
@@ -472,11 +471,10 @@ internal class MigLayoutRow(
         try {
             val panelRow = createChildRow(
                 indent = indentationLevel,
-                isIndented = IndentationPolicy.YES,
-                incrementsIndent = false
+                incrementsIndent = true
             )
             panelRow.getOrCreateAssociatedRows().add(separatorRow)
-            panelRow.noIndent(init)
+            panelRow.init()
             collapsibleSeparator.setCollapseCallback {
                 panelRow.setCollapsedState(true)
             }
