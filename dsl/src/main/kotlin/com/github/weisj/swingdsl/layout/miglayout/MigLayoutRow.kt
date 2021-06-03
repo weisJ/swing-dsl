@@ -605,7 +605,9 @@ internal class MigLayoutRow(
 
         builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component, spacing)
 
-        if (!noGrid && indentationLevel > 0 && components.size == 1) {
+        val isVisuallyFirstComponent =
+            components.size == 1 || (currentCellSpan.isVerticalFlow && currentCellSpan.start == 0)
+        if (!noGrid && indentationLevel > 0 && isVisuallyFirstComponent) {
             cc.horizontal.gapBefore = gapToBoundSize(indentationLevel, true)
         }
 
