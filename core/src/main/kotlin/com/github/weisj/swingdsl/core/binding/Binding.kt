@@ -199,6 +199,7 @@ fun <T> ObservableProperty<T?>.withFallback(fallback: T): ObservableProperty<T> 
 
 fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == null }
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
+inline fun <reified T> ObservableProperty<*>.isInstance(): ObservableCondition = derive { it is T }
 
 fun <T> ObservableProperty<T>.bind(setter: (T) -> Unit) {
     onChange(invokeOnce = true) { setter(it) }
