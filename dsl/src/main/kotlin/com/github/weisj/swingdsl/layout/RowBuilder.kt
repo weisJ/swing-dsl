@@ -51,6 +51,19 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
 
     var subRowsEnabled: Boolean
     var subRowsVisible: Boolean
+    val subRowIndentationPolicy: IndentationPolicy
+
+    fun indent(policy: IndentationPolicy)
+
+    fun <T : RowBuilder> T.withIndentationPolicy(policy: IndentationPolicy, init: T.() -> Unit) {
+        val oldPolicy = subRowIndentationPolicy
+        indent(policy)
+        init()
+        indent(oldPolicy)
+    }
+
+    fun <T : RowBuilder> T.noIndent(init: T.() -> Unit): Unit = withIndentationPolicy(IndentationPolicy.NO, init)
+    fun <T : RowBuilder> T.forceIndent(init: T.() -> Unit): Unit = withIndentationPolicy(IndentationPolicy.YES, init)
 
     fun commitImmediately()
 
@@ -110,11 +123,10 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
 
     fun fullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }
 
-    // If isIndented is null it means the current layout context should decide its value.
     fun createChildRow(
         label: WrappedComponent<JLabel>? = null,
         isSeparated: Boolean = false,
-        isIndented: IndentationPolicy = IndentationPolicy.DEFAULT,
+        isIndented: IndentationPolicy = subRowIndentationPolicy,
         noGrid: Boolean = false,
         title: Text? = null
     ): Row

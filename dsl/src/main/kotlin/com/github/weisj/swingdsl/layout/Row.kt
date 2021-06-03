@@ -38,12 +38,18 @@ abstract class Row : Cell(), RowBuilder {
      */
     abstract var subRowIndentationLevel: Int
 
-    private var subRowIndentationPolicy: IndentationPolicy = IndentationPolicy.DEFAULT
+    private var _subRowIndentationPolicy: IndentationPolicy = IndentationPolicy.DEFAULT
+    override val subRowIndentationPolicy: IndentationPolicy
+        get() = _subRowIndentationPolicy
 
     internal abstract val builder: PanelBuilderImpl
 
     private fun alignLeft() {
         subRowIndentationLevel = 0
+    }
+
+    override fun indent(policy: IndentationPolicy) {
+        _subRowIndentationPolicy = policy
     }
 
     /**
@@ -54,17 +60,6 @@ abstract class Row : Cell(), RowBuilder {
         alignLeft()
         init()
         subRowIndentationLevel = oldIndentationLevel
-    }
-
-    fun indent(policy: IndentationPolicy) {
-        subRowIndentationPolicy = policy
-    }
-
-    fun noIndent(init: Row.() -> Unit) {
-        val oldPolicy = subRowIndentationPolicy
-        indent(IndentationPolicy.NO)
-        init()
-        indent(oldPolicy)
     }
 
     /**
