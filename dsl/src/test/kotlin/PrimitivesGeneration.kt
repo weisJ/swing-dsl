@@ -23,6 +23,7 @@
  *
  */
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.util.toCapitalized
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
@@ -209,9 +210,6 @@ inline fun <reified unaryType : Number, reified intType : Number, reified longTy
 ).flatten()
 
 val defaultOperatorList = makeOpList<Int, Int, Long, Float, IntRange>()
-
-fun String.toCapitalized(): String =
-    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
 fun main() {
     val types = mapOf(
