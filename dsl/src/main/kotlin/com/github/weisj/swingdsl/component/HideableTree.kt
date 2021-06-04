@@ -189,7 +189,7 @@ class HideableTreeModel(
     }
 }
 
-class HideableTreeNode<T>(
+open class HideableTreeNode<T>(
     val value: T,
     allowsChildren: Boolean = true,
 ) : DefaultMutableTreeNode(value, allowsChildren) {
