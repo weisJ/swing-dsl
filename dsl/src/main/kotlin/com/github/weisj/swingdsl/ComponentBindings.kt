@@ -26,11 +26,26 @@ package com.github.weisj.swingdsl
 
 import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
+import java.awt.Component
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import javax.swing.AbstractButton
 import javax.swing.JList
 import javax.swing.JSpinner
 import javax.swing.ListSelectionModel
 import javax.swing.text.JTextComponent
+
+fun Component.visibleBinding(): ObservableCondition = object : ObservableCondition {
+    override fun get(): Boolean = isVisible
+
+    override fun onChange(callback: (Boolean) -> Unit) {
+        addComponentListener(object : ComponentAdapter() {
+            override fun componentShown(e: ComponentEvent?) = callback(get())
+            override fun componentHidden(e: ComponentEvent?) = callback(get())
+        })
+    }
+}
 
 fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
     override fun get(): IntArray = selectedIndicesArray
