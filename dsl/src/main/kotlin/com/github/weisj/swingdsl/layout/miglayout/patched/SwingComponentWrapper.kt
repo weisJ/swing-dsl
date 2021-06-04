@@ -91,6 +91,7 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
     private var visualPaddings: IntArray? = null
 
     companion object {
+        private const val SAFE_BASELINE_SIZE = 8192
         private val FONT_METRICS_CACHE = IdentityHashMap<FontMetrics, Point2D.Float>(4)
         private val SUBST_FONT = Font("sansserif", Font.PLAIN, 11)
         private val isJava9orLater = try {
@@ -115,7 +116,7 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
         val w = when {
             // The default implementation of getBaseline for html content in BasicHtml will report an incorrect
             // baseline sometimes. By using the component width we ensure the baseline actually resembles what is displayed.
-            c is JLabel && c.width > 0 && c.getProperty<View>("html") != null -> c.width
+            c is JLabel && c.getProperty<View>("html") != null -> if (c.width > 0) c.width else SAFE_BASELINE_SIZE
             width < 0 -> c.width
             else -> width
         }
@@ -264,7 +265,7 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
                 // do not use component dimensions since it made some components layout themselves to the minimum size
                 // and that stuck after that. E.g. JLabel with HTML content and white spaces would be very tall.
                 // Use large number but don't risk overflow or exposing size bugs with Integer.MAX_VALUE
-                ThreeState.fromBoolean(getBaseline(8192, 8192) > -1)
+                ThreeState.fromBoolean(getBaseline(SAFE_BASELINE_SIZE, SAFE_BASELINE_SIZE) > -1)
             } catch (ignore: Throwable) {
                 ThreeState.NO
             }
