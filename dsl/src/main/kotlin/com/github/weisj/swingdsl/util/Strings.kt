@@ -24,7 +24,6 @@
  */
 package com.github.weisj.swingdsl.util
 
-import java.beans.Introspector
 import java.util.*
 
 private val REPLACES_REFS = listOf("&lt;", "&gt;", "&amp;", "&#39;", "&quot;")
@@ -63,18 +62,6 @@ fun replace(text: String, from: List<String>, to: List<String?>): String {
         i++
     }
     return result?.toString() ?: text
-}
-
-fun getPropertyName(methodName: String): String? {
-    if (methodName.startsWith("get")) {
-        return Introspector.decapitalize(methodName.substring(3))
-    }
-    if (methodName.startsWith("is")) {
-        return Introspector.decapitalize(methodName.substring(2))
-    }
-    return if (methodName.startsWith("set")) {
-        Introspector.decapitalize(methodName.substring(3))
-    } else null
 }
 
 fun String.toCapitalized(): String =
