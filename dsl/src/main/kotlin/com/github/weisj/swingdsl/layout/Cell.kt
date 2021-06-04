@@ -282,14 +282,7 @@ abstract class Cell : ButtonGroupBuilder {
     }
 
     fun placeholder(): CellBuilder<JComponent> {
-        return component(
-            DefaultJPanel().apply {
-                border = emptyBorder()
-                minimumSize = Dimension(0, 0)
-                preferredSize = Dimension(0, 0)
-                maximumSize = Dimension(0, 0)
-            }
-        )
+        return component(Placeholder())
     }
 
     fun <T : JComponent> component(component: ModifiableComponent<T>): CellBuilder<T> =
@@ -393,4 +386,13 @@ abstract class Cell : ButtonGroupBuilder {
         prop: KMutableProperty0<Boolean>,
         comment: String? = null
     ): CellBuilder<JRadioButton> = radioButton(textOf(text), prop, textOfNullable(comment))
+}
+
+private class Placeholder : DefaultJPanel() {
+    init {
+        border = emptyBorder()
+        minimumSize = Dimension(0, 0)
+        preferredSize = Dimension(0, 0)
+        maximumSize = Dimension(0, 0)
+    }
 }
