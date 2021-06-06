@@ -97,7 +97,7 @@ internal class MigLayoutRow(
         ) {
             val cc = CC()
             val commentRow = parent.createChildRow(insertionPosition = InsertionPosition.COMMENT)
-            parent.getOrCreateAssociatedRows().add(commentRow)
+            parent.addAssociatedRow(commentRow)
             commentRow.isComment = true
             commentRow.addComponent(component, cc)
             when {
@@ -173,10 +173,16 @@ internal class MigLayoutRow(
 
     private var associatedRows: MutableList<MigLayoutRow>? = null
 
+    private fun addAssociatedRow(row: MigLayoutRow) {
+        getOrCreateAssociatedRows().add(row)
+        row.visible = visible
+        row.enabled = enabled
+    }
+
     private fun getOrCreateAssociatedRows(): MutableList<MigLayoutRow> {
         var rows = associatedRows
         if (rows == null) {
-            // commentRows in most cases == 1
+            // commentRows or associated in most cases == 1
             rows = mutableListOf()
             this.associatedRows = rows
         }
@@ -469,13 +475,14 @@ internal class MigLayoutRow(
             incrementsIndent = isSeparated
         )
         if (separatorRow != null) {
-            parentRow.getOrCreateAssociatedRows().add(separatorRow)
+            parentRow.addAssociatedRow(separatorRow)
         }
         parentRow.init()
 
-        val result = parentRow.createChildRow(insertionPosition = InsertionPosition.TRAILING_SPACER)
-        result.placeholder()
-        result.largeGapAfter()
+        val spacer = parentRow.createChildRow(insertionPosition = InsertionPosition.TRAILING_SPACER)
+        spacer.placeholder()
+        spacer.largeGapAfter()
+        parentRow.addAssociatedRow(spacer)
         return parentRow
     }
 
@@ -488,7 +495,7 @@ internal class MigLayoutRow(
                 indent = indentationLevel,
                 incrementsIndent = true
             )
-            panelRow.getOrCreateAssociatedRows().add(separatorRow)
+            panelRow.addAssociatedRow(separatorRow)
             panelRow.init()
             collapsibleSeparator.setCollapseCallback {
                 panelRow.setCollapsedState(true)
@@ -706,7 +713,7 @@ internal class MigLayoutRow(
         cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap, false)
 
         val row = createChildRow(label = null, noGrid = true)
-        getOrCreateAssociatedRows().add(row)
+        addAssociatedRow(row)
         row.addComponent(component, cc)
         return row
     }
