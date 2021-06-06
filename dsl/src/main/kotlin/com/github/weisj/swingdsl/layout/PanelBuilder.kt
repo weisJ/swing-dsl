@@ -81,9 +81,10 @@ internal interface PanelBuilderImpl {
 fun panel(
     vararg constraints: LCFlags = emptyArray(),
     title: Text? = null,
+    spacingConfiguration: SpacingConfiguration? = null,
     init: PanelBuilder.() -> Unit
 ): ModifiablePanel {
-    val builder = createLayoutBuilder()
+    val builder = createLayoutBuilder(spacingConfiguration)
     builder.init()
 
     val panel = ModifiablePanel(title, layout = null)
@@ -102,8 +103,8 @@ fun panel(
 }
 
 @PublishedApi
-internal fun createLayoutBuilder(): PanelBuilder {
-    return PanelBuilder(MigLayoutBuilder(getDefaultSpacingConfiguration()))
+internal fun createLayoutBuilder(spacingConfiguration: SpacingConfiguration?): PanelBuilder {
+    return PanelBuilder(MigLayoutBuilder(spacingConfiguration ?: getDefaultSpacingConfiguration()))
 }
 
 @PublishedApi

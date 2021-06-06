@@ -515,7 +515,7 @@ internal class MigLayoutRow(
     }
 
     override fun nestedPanel(title: Text?, init: PanelBuilder.() -> Unit): CellBuilder<ModifiablePanel> {
-        val nestedBuilder = createLayoutBuilder()
+        val nestedBuilder = createLayoutBuilder(spacing)
         nestedBuilder.init()
 
         val panel = ModifiablePanel(title, layout = null, topLevel = false)
