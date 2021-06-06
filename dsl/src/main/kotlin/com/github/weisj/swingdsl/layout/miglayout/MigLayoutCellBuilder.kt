@@ -89,7 +89,7 @@ internal class MigLayoutCellBuilder<T : JComponent>(
 
     override fun visible(isVisible: Boolean) {
         with(row) {
-            component.safelySetVisible(isVisible, componentIndex)
+            component.safelySetVisible(isVisible)
         }
     }
 

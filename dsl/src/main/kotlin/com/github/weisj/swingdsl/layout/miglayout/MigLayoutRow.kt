@@ -81,7 +81,6 @@ internal class MigLayoutRow(
 
     companion object {
         private const val HIDE_MODE_ZERO_SIZE = 2
-        private const val HIDE_MODE_IGNORE_CELL = 3
         internal const val COMPONENT_ENABLED_STATE_KEY = "MigLayoutRow.enabled"
         internal const val COMPONENT_VISIBLE_STATE_KEY = "MigLayoutRow.visible"
 
@@ -201,12 +200,32 @@ internal class MigLayoutRow(
 
     internal var gapAfter: String? = null
         set(value) {
-            field = value
-            rowConstraints?.gapAfter = if (value == null) null
-            else ConstraintParser.parseBoundSize(value, true, false)
+            val effective = value ?: defaultGapAfter
+            field = effective
+            rowConstraints?.gapAfter = if (effective == null) null
+            else ConstraintParser.parseBoundSize(effective, true, false)
         }
 
     internal var rowConstraints: DimConstraint? = null
+
+    private var defaultValuesSet = false
+    private var defaultGapAfter: String? = null
+    private var defaultGapAfterBuffer: String? = null
+
+    private fun safelySetGapAfter(gap: String?) {
+        if (!defaultValuesSet) {
+            defaultGapAfterBuffer = gap
+        } else {
+            gapAfter = gap
+        }
+    }
+
+    fun saveInitialValues() {
+        defaultGapAfter = gapAfter
+        gapAfter = defaultGapAfterBuffer
+        defaultValuesSet = true
+        updateRowGapConstraints()
+    }
 
     private val spacing: SpacingConfiguration
         get() = builder.spacing
@@ -258,33 +277,31 @@ internal class MigLayoutRow(
                     c.isEnabled = value
                 }
             }
-            associatedRows?.let {
-                for (row in it) {
-                    row.enabled = value
-                }
+            associatedRows?.forEach {
+                it.enabled = value
             }
         }
 
-    private fun updateHideMode(c: JComponent, index: Int, value: Boolean) {
-        builder.componentConstraints[c]?.hideMode =
-            if (index == components.size - 1 && value) HIDE_MODE_ZERO_SIZE else HIDE_MODE_IGNORE_CELL
-    }
-
-    internal fun JComponent.safelySetVisible(value: Boolean, index: Int) {
+    // Todo: Keep count of visible components hide row if none are visible.
+    internal fun JComponent.safelySetVisible(value: Boolean) {
         putClientProperty(COMPONENT_VISIBLE_STATE_KEY, value)
         isVisible = value && !collapsed
-        if (index >= 0) updateHideMode(this, index, value)
-        invalidate()
+    }
+
+    private fun updateRowGapConstraints() {
+        val useDefaultGaps = visible && !collapsed
+        safelySetGapAfter(if (useDefaultGaps) null else "0px!")
     }
 
     override var visible = parent?.subRowsVisible ?: true
         set(value) {
             if (field == value) return
-
             field = value
-            // Only update if the row isn't hidden or if we make the row hidden anyway.
-            for ((index, c) in components.withIndex()) {
-                c.safelySetVisible(value, index)
+
+            updateRowGapConstraints()
+
+            for (c in components) {
+                c.safelySetVisible(value)
             }
             associatedRows?.forEach {
                 it.visible = value
@@ -303,12 +320,13 @@ internal class MigLayoutRow(
             val value = v || collapsedRoot
             if (field == value) return
             field = v
+            val isRowShowing = !value
 
-            val visible = !value
-            for ((index, c) in components.withIndex()) {
-                if (c.updateStateFlag(visible, c.isVisible, COMPONENT_VISIBLE_STATE_KEY, preserve = false)) {
-                    c.isVisible = visible
-                    updateHideMode(c, index, visible)
+            updateRowGapConstraints()
+
+            for (c in components) {
+                if (c.updateStateFlag(isRowShowing, c.isVisible, COMPONENT_VISIBLE_STATE_KEY, preserve = false)) {
+                    c.isVisible = isRowShowing
                 }
             }
 
@@ -321,7 +339,6 @@ internal class MigLayoutRow(
     override var subRowsEnabled = true
         set(value) {
             if (field == value) return
-
             field = value
             subRows?.forEach {
                 it.enabled = value
@@ -332,14 +349,10 @@ internal class MigLayoutRow(
     override var subRowsVisible = true
         set(value) {
             if (field == value) return
-
             field = value
             subRows?.forEach {
                 it.visible = value
                 it.subRowsVisible = value
-                if (it != subRows!!.last()) {
-                    it.gapAfter = if (value) null else "0px!"
-                }
             }
         }
 
@@ -618,7 +631,7 @@ internal class MigLayoutRow(
             cc.horizontal.gapBefore = gapToBoundSize(indentationLevel, true)
         }
 
-        cc.hideMode = HIDE_MODE_IGNORE_CELL // Hidden cells shouldn't take up any cell at all
+        cc.hideMode = HIDE_MODE_ZERO_SIZE // Hidden cells shouldn't take up any space
 
         // if this row is not labeled and:
         // a. some previous row is labeled and first component is a checkbox, span
@@ -634,7 +647,7 @@ internal class MigLayoutRow(
     }
 
     private fun configureComponentState(component: JComponent) {
-        component.safelySetVisible(visible && component.isVisible, -1)
+        component.safelySetVisible(visible && component.isVisible)
         if (!enabled) {
             component.isEnabled = false
         }
