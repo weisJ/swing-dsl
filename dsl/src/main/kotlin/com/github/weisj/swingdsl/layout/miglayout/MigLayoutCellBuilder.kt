@@ -41,7 +41,6 @@ internal class MigLayoutCellBuilder<T : JComponent>(
     private val builder: MigLayoutBuilder,
     private val row: MigLayoutRow,
     override val component: T,
-    private val componentIndex: Int,
 ) : CellBuilder<T>, CheckboxCellBuilder<T>, ScrollPaneCellBuilder<T> {
     private var applyIfEnabled = false
     private val bindingUpdaters = mutableListOf<() -> Unit>()

@@ -553,16 +553,16 @@ internal class MigLayoutRow(
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
         addComponent(component)
-        return createAndAddCell(component, components.size - 1)
+        return createAndAddCell(component)
     }
 
     override fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T> {
         addComponent(wrappedComponent.container)
-        return createAndAddCell(wrappedComponent.component, components.size - 1)
+        return createAndAddCell(wrappedComponent.component)
     }
 
-    private fun <T : JComponent> createAndAddCell(comp: T, componentIndex: Int): CellBuilder<T> {
-        return MigLayoutCellBuilder(builder, this, comp, componentIndex).also { childCells.add(it) }
+    private fun <T : JComponent> createAndAddCell(comp: T): CellBuilder<T> {
+        return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
     }
 
     override fun setCellMode(value: Boolean, isVerticalFlow: Boolean, fullWidth: Boolean) {
