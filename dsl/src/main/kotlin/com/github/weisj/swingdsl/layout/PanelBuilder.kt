@@ -65,7 +65,7 @@ internal interface PanelBuilderImpl {
     val rootRow: Row
     fun withButtonGroup(buttonGroup: ButtonGroup, body: () -> Unit)
 
-    fun build(container: Container, layoutConstraints: Array<out LCFlags>)
+    fun build(container: Container, isNested: Boolean = false, layoutConstraints: Array<out LCFlags>)
 
     val applyCallbacks: Map<JComponent?, List<() -> Unit>>
     val resetCallbacks: Map<JComponent?, List<() -> Unit>>
@@ -88,7 +88,7 @@ fun panel(
     builder.init()
 
     val panel = ModifiablePanel(title, layout = null)
-    builder.builder.build(panel, constraints)
+    builder.builder.build(panel, isNested = false, constraints)
     initPanel(builder, panel)
     return panel
 }

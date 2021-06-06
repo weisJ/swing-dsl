@@ -118,7 +118,25 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
         component.constraints.callback()
     }
 
-    override fun build(container: Container, layoutConstraints: Array<out LCFlags>) {
+    override fun build(container: Container, isNested: Boolean, layoutConstraints: Array<out LCFlags>) {
+        if (!isNested) {
+            // If a component has a specified pushY with hideMode > 1 (=HIDE_MODE_ZERO_SIZE_WITH_GAP) then
+            // it will impose the default push constraints on all components if it isn't visible. This results
+            // In invisible components being resized.
+            // See Grid#286, Grid#395, Grid#getDefaultPushWeights
+            // Forcing a final placeholder specifying pushY, which is always visible solves this issue.
+            // In this case only the specified components who specified pushY will resize with more space.
+            // If we are nested the parent panel takes the responsibility to provide the spacer.
+            rootRow.row {
+                placeholder().constraints(pushY).applyToComponent {
+                    updateComponentConstraints(this) {
+                        // Ensure other components that specify grow get the space first.
+                        growPrioY(-100)
+                    }
+                }
+            }
+        }
+
         val lc = createLayoutConstraints()
         lc.gridGapY = gapToBoundSize(spacing.verticalGap, false)
         if (layoutConstraints.isEmpty()) {
@@ -155,7 +173,6 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                         lc.setInsets(spacing.dialogTopBottom, spacing.dialogLeftRight)
                     }
                 }
-
                 super.layoutContainer(parent)
             }
         }
@@ -173,6 +190,10 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
             }
         } else {
             configureGridRowConstraints(physicalRows, rowConstraints, container)
+        }
+
+        traverseRows(rootRow) {
+            it.saveInitialValues()
         }
 
         // do not hold components
@@ -234,17 +255,26 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
 
     private fun collectPhysicalRows(rootRow: MigLayoutRow): List<MigLayoutRow> {
         val result = mutableListOf<MigLayoutRow>()
-        fun collect(subRows: List<MigLayoutRow>?) {
-            subRows?.forEach { row ->
-                // skip synthetic rows that don't have components (e.g. titled row that contains only sub rows)
-                if (row.components.isNotEmpty()) {
-                    result.add(row)
-                }
-                collect(row.subRows)
+        traverseRows(rootRow) {
+            // skip synthetic rows that don't have components (e.g. titled row that contains only sub rows)
+            if (it.components.isNotEmpty()) {
+                result.add(it)
             }
         }
-        collect(rootRow.subRows)
         return result
+    }
+
+    private fun traverseRows(
+        rootRow: MigLayoutRow,
+        action: (MigLayoutRow) -> Unit
+    ) {
+        fun traverse(subRows: List<MigLayoutRow>?) {
+            subRows?.forEach { row ->
+                action(row)
+                traverse(row.subRows)
+            }
+        }
+        traverse(rootRow.subRows)
     }
 
     private fun configureGapBetweenColumns(rootRow: MigLayoutRow) {

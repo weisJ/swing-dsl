@@ -45,9 +45,7 @@ internal fun overrideFlags(cc: CC, flags: Array<out Constraint>) {
     for (flag in flags) {
         when (flag.flag) {
             CCFlags.grow -> cc.grow()
-            CCFlags.growX -> {
-                cc.growX(1000f)
-            }
+            CCFlags.growX -> cc.growX(1000f)
             CCFlags.growY -> cc.growY(1000f)
 
             // If you have more than one component in a cell the alignment keywords will not work since the behavior would be Nondeterministic.
@@ -71,7 +69,7 @@ internal class DefaultComponentConstraintCreator(spacing: SpacingConfiguration) 
 
     val vertical1pxGap: BoundSize = ConstraintParser.parseBoundSize("${1}px!", true, false)
 
-    fun addGrowIfNeeded(cc: CC, component: Component, spacing: SpacingConfiguration) {
+    fun addGrowIfNeeded(cc: CC, component: Component) {
         when {
             component is JTextField && component.columns != 0 -> return
             component is JTextComponent -> {

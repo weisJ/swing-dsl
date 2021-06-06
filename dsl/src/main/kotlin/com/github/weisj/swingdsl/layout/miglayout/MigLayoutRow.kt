@@ -532,7 +532,7 @@ internal class MigLayoutRow(
         nestedBuilder.init()
 
         val panel = ModifiablePanel(title, layout = null, topLevel = false)
-        nestedBuilder.builder.build(panel, arrayOf())
+        nestedBuilder.builder.build(panel, isNested = true, arrayOf())
         mergeCallbacks(builder.applyCallbacks, nestedBuilder.builder.applyCallbacks)
         mergeCallbacks(builder.resetCallbacks, nestedBuilder.builder.resetCallbacks)
         mergeCallbacks(builder.isModifiedCallbacks, nestedBuilder.builder.isModifiedCallbacks)
@@ -623,7 +623,7 @@ internal class MigLayoutRow(
             builder.topButtonGroup?.add(component)
         }
 
-        builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component, spacing)
+        builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component)
 
         val isVisuallyFirstComponent =
             components.size == 1 || (currentCellSpan.isVerticalFlow && currentCellSpan.start == 0)
