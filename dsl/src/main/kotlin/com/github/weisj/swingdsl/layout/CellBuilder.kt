@@ -140,11 +140,11 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     operator fun invoke(action: CellBuilder<T>.() -> Unit): CellBuilder<T> = apply(action)
 }
 
-internal interface ScrollPaneCellBuilder {
+interface ScrollPaneCellBuilder<out T : JComponent> : CellBuilder<T> {
     fun noGrowY()
 }
 
-internal interface CheckboxCellBuilder {
+interface CheckboxCellBuilder<out T : JComponent> : CellBuilder<T> {
     fun actsAsLabel()
 }
 

@@ -103,28 +103,28 @@ abstract class Cell : ButtonGroupBuilder {
         isSelected: Boolean = false,
         comment: Text? = null,
         actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         return checkBox(text, isSelected, comment)
             .applyToComponent {
                 addActionListener { actionListener(it, this) }
-            }
+            } as CheckboxCellBuilder<JCheckBox>
     }
 
     fun checkBox(
         text: Text,
         isSelected: Boolean = false,
         comment: Text? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         val result = UIFactory.createCheckBox(text)
         result.component.isSelected = isSelected
-        return result(comment = comment)
+        return result(comment = comment) as CheckboxCellBuilder<JCheckBox>
     }
 
     fun checkBox(
         text: Text,
         prop: KMutableProperty0<Boolean>,
         comment: Text? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         return checkBox(text, prop.toProperty(), comment)
     }
 
@@ -134,7 +134,7 @@ abstract class Cell : ButtonGroupBuilder {
         getter: () -> Boolean,
         setter: (Boolean) -> Unit,
         comment: Text? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         return checkBox(text, PropertyBinding(getter, setter), comment)
     }
 
@@ -142,10 +142,10 @@ abstract class Cell : ButtonGroupBuilder {
         text: Text,
         modelBinding: MutableProperty<Boolean>,
         comment: Text? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         val component = UIFactory.createCheckBox(text)
         component.component.isSelected = modelBinding.get()
-        return component(comment = comment).withSelectedBinding(modelBinding)
+        return component(comment = comment).withSelectedBinding(modelBinding) as CheckboxCellBuilder<JCheckBox>
     }
 
     open fun radioButton(text: Text, comment: Text? = null): CellBuilder<JRadioButton> {
@@ -266,14 +266,14 @@ abstract class Cell : ButtonGroupBuilder {
         return scrollPane(UIFactory.createList(model))
     }
 
-    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): CellBuilder<T> {
+    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): ScrollPaneCellBuilder<T> {
         val scrollPane = UIFactory.createScrollPane(component.container).setPurpose(ComponentPurpose.ScrollPane)
-        return component(DefaultWrappedComponent(component.component, scrollPane.container))
+        return component(DefaultWrappedComponent(component.component, scrollPane.container)) as ScrollPaneCellBuilder<T>
     }
 
-    fun <T : JComponent> scrollPane(component: T): CellBuilder<T> {
+    fun <T : JComponent> scrollPane(component: T): ScrollPaneCellBuilder<T> {
         val scrollPane = UIFactory.createScrollPane(component).setPurpose(ComponentPurpose.ScrollPane)
-        return component(DefaultWrappedComponent(component, scrollPane.container))
+        return component(DefaultWrappedComponent(component, scrollPane.container)) as ScrollPaneCellBuilder<T>
     }
 
     private fun <T : JComponent> WrappedComponent<T>.setPurpose(purpose: ComponentPurpose): WrappedComponent<T> {
@@ -344,20 +344,20 @@ abstract class Cell : ButtonGroupBuilder {
         isSelected: Boolean = false,
         comment: String? = null,
         actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
-    ): CellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment), actionListener)
+    ): CheckboxCellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment), actionListener)
 
     @JvmOverloads
     fun checkBox(
         text: String,
         isSelected: Boolean = false,
         comment: String? = null
-    ): CellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment))
+    ): CheckboxCellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment))
 
     fun checkBox(
         text: String,
         prop: KMutableProperty0<Boolean>,
         comment: String? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         return checkBox(textOf(text), prop, textOfNullable(comment))
     }
 
@@ -367,7 +367,7 @@ abstract class Cell : ButtonGroupBuilder {
         getter: () -> Boolean,
         setter: (Boolean) -> Unit,
         comment: String? = null
-    ): CellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder<JCheckBox> {
         return checkBox(textOf(text), getter, setter, textOfNullable(comment))
     }
 
