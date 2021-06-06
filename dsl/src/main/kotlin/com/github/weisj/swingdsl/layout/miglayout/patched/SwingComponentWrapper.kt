@@ -106,6 +106,10 @@ internal open class SwingComponentWrapper(private val c: JComponent) : Component
     }
 
     override fun getBaseline(width: Int, height: Int): Int {
+        if (height == 0 && !isVisible) {
+            // Prevent hidden component from having any size.
+            return 0
+        }
         var h = height
         val visualPaddings = visualPadding
         if (h < 0) {
