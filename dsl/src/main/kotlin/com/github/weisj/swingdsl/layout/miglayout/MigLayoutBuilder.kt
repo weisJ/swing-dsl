@@ -60,6 +60,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
         setRelatedGap(spacing.horizontalGap, spacing.verticalGap)
     }
 
+    internal var parentContainer: Container? = null
+
     /**
      * Map of component to constraints shared among rows (since components are unique)
      */
@@ -176,6 +178,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
         // do not hold components
         componentConstraints.clear()
         container.doLayout()
+        parentContainer = container
     }
 
     private fun configureGridRowConstraints(

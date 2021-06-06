@@ -280,11 +280,10 @@ internal class MigLayoutRow(
             for ((index, c) in components.withIndex()) {
                 c.safelySetVisible(value, index)
             }
-            associatedRows?.let {
-                for (row in it) {
-                    row.visible = value
-                }
+            associatedRows?.forEach {
+                it.visible = value
             }
+            builder.parentContainer?.invalidate()
         }
 
     private fun setCollapsedState(value: Boolean) {
@@ -310,6 +309,7 @@ internal class MigLayoutRow(
             subRows?.forEach {
                 it.collapsed = value
             }
+            builder.parentContainer?.invalidate()
         }
 
     override var subRowsEnabled = true
