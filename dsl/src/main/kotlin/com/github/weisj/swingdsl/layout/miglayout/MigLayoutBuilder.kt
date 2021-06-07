@@ -41,7 +41,13 @@ import net.miginfocom.layout.LC
 import java.awt.Component
 import java.awt.Container
 import java.util.*
-import javax.swing.*
+import javax.swing.ButtonGroup
+import javax.swing.JCheckBox
+import javax.swing.JComboBox
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPasswordField
+import javax.swing.JTextField
 
 internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilderImpl {
     companion object {
@@ -136,6 +142,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
                         growPrioY(-100)
                     }
                 }
+                // Remove gap from row. It shouldn't take up any space if not needed.
+                (this as MigLayoutRow).gapAfter = "0px!"
             }
         }
 
