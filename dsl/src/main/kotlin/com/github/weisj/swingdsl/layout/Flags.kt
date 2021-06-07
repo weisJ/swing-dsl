@@ -28,10 +28,20 @@
 
 package com.github.weisj.swingdsl.layout
 
+import com.github.weisj.swingdsl.getProperty
+import java.awt.Component
+import javax.swing.JScrollPane
+
 // http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.pdf
 
 enum class ComponentPurpose {
     ScrollPane
+}
+
+internal fun Component.isPurpose(purpose: ComponentPurpose, pure: Boolean = false): Boolean {
+    return when (purpose) {
+        ComponentPurpose.ScrollPane -> (!pure && this is JScrollPane) || getProperty<JScrollPane>(purpose) != null
+    }
 }
 
 enum class LCFlags {
@@ -64,32 +74,32 @@ enum class LCFlags {
  */
 enum class CCFlags {
     /**
-     * Use [Row.grow] instead.
+     * Use [Cell.grow] instead.
      */
     grow,
 
     /**
-     * Use [Row.growX] instead.
+     * Use [Cell.growX] instead.
      */
     growX,
 
     /**
-     * Use [Row.growY] instead.
+     * Use [Cell.growY] instead.
      */
     growY,
 
     /**
-     * Use [Row.push] instead.
+     * Use [Cell.push] instead.
      */
     push,
 
     /**
-     * Use [Row.pushX] instead.
+     * Use [Cell.pushX] instead.
      */
     pushX,
 
     /**
-     * Use [Row.pushY] instead.
+     * Use [Cell.pushY] instead.
      */
     pushY,
 }

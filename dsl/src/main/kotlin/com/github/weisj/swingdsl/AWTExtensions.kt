@@ -216,9 +216,13 @@ fun returnFocusToPreviousOwner() {
 }
 
 inline fun <reified T : Component> Component.ancestorOfType(): T? {
+    return ancestorMatching { it is T } as? T
+}
+
+inline fun Component.ancestorMatching(selector: (Component) -> Boolean): Component? {
     var p: Component? = this
-    while (p != null && p !is T) {
+    while (p != null && !selector(p)) {
         p = p.parent
     }
-    return p as? T
+    return p
 }

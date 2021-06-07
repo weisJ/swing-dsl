@@ -29,19 +29,19 @@ package com.github.weisj.swingdsl.layout.miglayout
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
 import com.github.weisj.swingdsl.layout.CheckboxCellBuilder
 import com.github.weisj.swingdsl.layout.Constraint
 import com.github.weisj.swingdsl.layout.GrowPolicy
-import com.github.weisj.swingdsl.layout.ScrollPaneCellBuilder
 import javax.swing.JComponent
 import javax.swing.JToggleButton
 
 internal class MigLayoutCellBuilder<T : JComponent>(
     private val builder: MigLayoutBuilder,
     private val row: MigLayoutRow,
-    override val component: T,
-) : CellBuilder<T>, CheckboxCellBuilder<T>, ScrollPaneCellBuilder<T> {
+    override val wrappedComponent: WrappedComponent<out T>,
+) : CellBuilder<T> {
     private var applyIfEnabled = false
     private val bindingUpdaters = mutableListOf<() -> Unit>()
     private var commitImmediately = row.commitImmediately
@@ -84,11 +84,12 @@ internal class MigLayoutCellBuilder<T : JComponent>(
 
     override fun enabled(isEnabled: Boolean) {
         component.isEnabled = isEnabled
+        wrappedComponent.container.isEnabled = isEnabled
     }
 
     override fun visible(isVisible: Boolean) {
         with(row) {
-            component.safelySetVisible(isVisible)
+            wrappedComponent.container.safelySetVisible(isVisible)
         }
     }
 
@@ -106,47 +107,40 @@ internal class MigLayoutCellBuilder<T : JComponent>(
         return !(applyIfEnabled && !component.isEnabled)
     }
 
-    override fun actsAsLabel() {
-        builder.updateComponentConstraints(component) { spanX = 1 }
-    }
-
-    override fun noGrowY() {
-        builder.updateComponentConstraints(component) {
-            growY(0.0f)
-            pushY(0.0f)
-        }
+    override fun CheckboxCellBuilder.actsAsLabel() {
+        builder.updateComponentConstraints(wrappedComponent) { spanX = 1 }
     }
 
     override fun sizeGroup(name: String): MigLayoutCellBuilder<T> {
-        builder.updateComponentConstraints(component) {
+        builder.updateComponentConstraints(wrappedComponent) {
             sizeGroup(name)
         }
         return this
     }
 
     override fun growPolicy(growPolicy: GrowPolicy): CellBuilder<T> {
-        builder.updateComponentConstraints(component) {
+        builder.updateComponentConstraints(wrappedComponent) {
             builder.defaultComponentConstraintCreator.applyGrowPolicy(this, growPolicy)
         }
         return this
     }
 
     override fun constraints(vararg constraints: Constraint): CellBuilder<T> {
-        builder.updateComponentConstraints(component) {
+        builder.updateComponentConstraints(wrappedComponent) {
             overrideFlags(this, constraints)
         }
         return this
     }
 
     override fun withLargeLeftGap(): CellBuilder<T> {
-        builder.updateComponentConstraints(component) {
+        builder.updateComponentConstraints(wrappedComponent) {
             horizontal.gapBefore = gapToBoundSize(builder.spacing.largeHorizontalGap, true)
         }
         return this
     }
 
     override fun withLeftGap(): CellBuilder<T> {
-        builder.updateComponentConstraints(component) {
+        builder.updateComponentConstraints(wrappedComponent) {
             horizontal.gapBefore = gapToBoundSize(builder.spacing.horizontalGap, true)
         }
         return this

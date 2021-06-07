@@ -38,6 +38,8 @@ import com.github.weisj.swingdsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.highlight.StringSearchPointSink
 import com.github.weisj.swingdsl.highlight.createLayoutTag
 import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.isEnabled
+import com.github.weisj.swingdsl.isVisible
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.CellBuilder
@@ -52,6 +54,7 @@ import com.github.weisj.swingdsl.style.DynamicUI
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.style.asTextProperty
 import com.github.weisj.swingdsl.style.asUIResource
+import com.github.weisj.swingdsl.unaryPlus
 import com.github.weisj.swingdsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.util.getTextPropertyForComponent
 import com.github.weisj.swingdsl.width
@@ -98,7 +101,7 @@ internal class MigLayoutRow(
             val commentRow = parent.createChildRow(insertionPosition = InsertionPosition.COMMENT)
             parent.addAssociatedRow(commentRow)
             commentRow.isComment = true
-            commentRow.addComponent(component, cc)
+            commentRow.addComponent(+component, cc)
             when {
                 forComponent -> {
                     cc.horizontal.gapBefore = BoundSize.NULL_SIZE
@@ -452,7 +455,7 @@ internal class MigLayoutRow(
 
         if (label != null) {
             issueSearchTag(label.component.textProperty(), label.createLayoutTag())
-            row.addComponent(label.container)
+            row.addComponent(label)
         }
 
         return row
@@ -466,7 +469,7 @@ internal class MigLayoutRow(
         } else {
             cc.growX()
         }
-        addComponent(titleComponent, cc, createSearchTag = false)
+        addComponent(+titleComponent, cc, createSearchTag = false)
     }
 
     override fun titledRow(title: Text, init: Row.() -> Unit): Row {
@@ -552,16 +555,15 @@ internal class MigLayoutRow(
     }
 
     override fun <T : JComponent> component(component: T): CellBuilder<T> {
-        addComponent(component)
-        return createAndAddCell(component)
+        return createAndAddCell(+component)
     }
 
     override fun <T : JComponent> component(wrappedComponent: WrappedComponent<T>): CellBuilder<T> {
-        addComponent(wrappedComponent.container)
-        return createAndAddCell(wrappedComponent.component)
+        return createAndAddCell(wrappedComponent)
     }
 
-    private fun <T : JComponent> createAndAddCell(comp: T): CellBuilder<T> {
+    private fun <T : JComponent> createAndAddCell(comp: WrappedComponent<T>): CellBuilder<T> {
+        addComponent(comp)
         return MigLayoutCellBuilder(builder, this, comp).also { childCells.add(it) }
     }
 
@@ -599,14 +601,14 @@ internal class MigLayoutRow(
         }
     }
 
-    internal fun addComponent(component: JComponent, cc: CC = CC(), createSearchTag: Boolean = true) {
+    internal fun addComponent(component: WrappedComponent<*>, cc: CC = CC(), createSearchTag: Boolean = true) {
         if (createSearchTag) {
-            getTextPropertyForComponent(component)?.let {
+            getTextPropertyForComponent(component.component)?.let {
                 issueSearchTag(it, component.createLayoutTag())
             }
         }
-        components.add(component)
-        builder.componentConstraints[component] = cc
+        components.add(component.container)
+        builder.componentConstraints[component.container] = cc
 
         configureComponentState(component)
         val currentCellSpan = cellModeSpans.last()
@@ -614,7 +616,9 @@ internal class MigLayoutRow(
             columnIndex++
         }
 
-        if (labeled && components.size == 2 && component.border is LineBorder) {
+        if (labeled && components.size == 2 &&
+            (component.container.border is LineBorder || component.component.border is LineBorder)
+        ) {
             builder.componentConstraints[components.first()]?.vertical?.gapBefore =
                 builder.defaultComponentConstraintCreator.vertical1pxGap
         }
@@ -646,8 +650,8 @@ internal class MigLayoutRow(
         }
     }
 
-    private fun configureComponentState(component: JComponent) {
-        component.safelySetVisible(visible && component.isVisible)
+    private fun configureComponentState(component: WrappedComponent<*>) {
+        component.container.safelySetVisible(visible && component.isVisible)
         if (!enabled) {
             component.isEnabled = false
         }
@@ -727,7 +731,7 @@ internal class MigLayoutRow(
 
         val row = createChildRow(label = null, noGrid = true)
         addAssociatedRow(row)
-        row.addComponent(component, cc)
+        row.addComponent(+component, cc)
         return row
     }
 
@@ -839,8 +843,7 @@ internal class MigLayoutRow(
     }
 
     private class ConstrainedTextArea(override val textProp: Text, private val maxLineLength: Int) :
-        JTextArea(),
-        HasTextProperty {
+        JTextArea(), HasTextProperty, WrappedComponent<JTextArea> {
         private var oldHighlighter = highlighter
         var selectable: Boolean = true
             set(value) {
@@ -892,5 +895,8 @@ internal class MigLayoutRow(
                 lineWrap = oldWrap
             }
         }
+
+        override fun getComponent(): JTextArea = this
+        override fun getContainer(): JComponent = this
     }
 }

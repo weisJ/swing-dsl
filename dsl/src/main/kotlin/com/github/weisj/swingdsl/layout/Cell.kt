@@ -36,7 +36,6 @@ import com.github.weisj.swingdsl.core.binding.toProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.core.text.textOfNullable
-import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
 import com.github.weisj.swingdsl.style.DynamicUI
@@ -47,37 +46,39 @@ import java.awt.event.ItemEvent
 import javax.swing.*
 import kotlin.reflect.KMutableProperty0
 
-data class Constraint(internal val flag: CCFlags)
+data class Constraint(internal val flag: CCFlags, internal val weight: Float? = null)
+
+fun Constraint.withWeight(weight: Float?): Constraint = when (this.weight) {
+    weight -> this
+    else -> Constraint(flag, weight)
+}
 
 @CellMarker
 abstract class Cell : ButtonGroupBuilder {
 
     internal companion object {
         const val UNBOUND_RADIO_BUTTON = "unbound.radio.button"
+        /**
+         * Sets how keen the component should be to grow in relation to other component **in the same cell**. Use `push` in addition if need.
+         * If this constraint is not set the grow weight is set to 0 and the component will not grow (unless some automatic rule is not applied.
+         * Grow weight will only be compared against the weights for the same cell.
+         */
+        val growX = Constraint(CCFlags.growX)
+
+        val growY = Constraint(CCFlags.growY)
+        val grow = Constraint(CCFlags.grow)
+
+        /**
+         * Makes the column that the component is residing in grow with `weight`.
+         */
+        val pushX = Constraint(CCFlags.pushX)
+
+        /**
+         * Makes the row that the component is residing in grow with `weight`.
+         */
+        val pushY = Constraint(CCFlags.pushY)
+        val push = Constraint(CCFlags.push)
     }
-
-    /**
-     * Sets how keen the component should be to grow in relation to other component **in the same cell**. Use `push` in addition if need.
-     * If this constraint is not set the grow weight is set to 0 and the component will not grow (unless some automatic rule is not applied.
-     * Grow weight will only be compared against the weights for the same cell.
-     */
-    val growX = Constraint(CCFlags.growX)
-
-    @Suppress("unused")
-    val growY = Constraint(CCFlags.growY)
-    val grow = Constraint(CCFlags.grow)
-
-    /**
-     * Makes the column that the component is residing in grow with `weight`.
-     */
-    val pushX = Constraint(CCFlags.pushX)
-
-    /**
-     * Makes the row that the component is residing in grow with `weight`.
-     */
-    @Suppress("unused")
-    val pushY = Constraint(CCFlags.pushY)
-    val push = Constraint(CCFlags.push)
 
     fun label(text: String, bold: Boolean = false): CellBuilder<JLabel> = label(textOf(text), bold)
 
@@ -103,28 +104,28 @@ abstract class Cell : ButtonGroupBuilder {
         isSelected: Boolean = false,
         comment: Text? = null,
         actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         return checkBox(text, isSelected, comment)
             .applyToComponent {
                 addActionListener { actionListener(it, this) }
-            } as CheckboxCellBuilder<JCheckBox>
+            }
     }
 
     fun checkBox(
         text: Text,
         isSelected: Boolean = false,
         comment: Text? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         val result = UIFactory.createCheckBox(text)
         result.component.isSelected = isSelected
-        return result(comment = comment) as CheckboxCellBuilder<JCheckBox>
+        return result(comment = comment)
     }
 
     fun checkBox(
         text: Text,
         prop: KMutableProperty0<Boolean>,
         comment: Text? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         return checkBox(text, prop.toProperty(), comment)
     }
 
@@ -134,7 +135,7 @@ abstract class Cell : ButtonGroupBuilder {
         getter: () -> Boolean,
         setter: (Boolean) -> Unit,
         comment: Text? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         return checkBox(text, PropertyBinding(getter, setter), comment)
     }
 
@@ -142,10 +143,10 @@ abstract class Cell : ButtonGroupBuilder {
         text: Text,
         modelBinding: MutableProperty<Boolean>,
         comment: Text? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         val component = UIFactory.createCheckBox(text)
         component.component.isSelected = modelBinding.get()
-        return component(comment = comment).withSelectedBinding(modelBinding) as CheckboxCellBuilder<JCheckBox>
+        return component(comment = comment).withSelectedBinding(modelBinding)
     }
 
     open fun radioButton(text: Text, comment: Text? = null): CellBuilder<JRadioButton> {
@@ -262,18 +263,18 @@ abstract class Cell : ButtonGroupBuilder {
         }
     }
 
-    fun <T> list(model: ListModel<T>): CellBuilder<JList<T>> {
+    fun <T> list(model: ListModel<T>): ScrollPaneCellBuilder {
         return scrollPane(UIFactory.createList(model))
     }
 
-    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): ScrollPaneCellBuilder<T> {
+    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): ScrollPaneCellBuilder {
         val scrollPane = UIFactory.createScrollPane(component.container).setPurpose(ComponentPurpose.ScrollPane)
-        return component(DefaultWrappedComponent(component.component, scrollPane.container)) as ScrollPaneCellBuilder<T>
+        return component(scrollPane)
     }
 
-    fun <T : JComponent> scrollPane(component: T): ScrollPaneCellBuilder<T> {
+    fun <T : JComponent> scrollPane(component: T): ScrollPaneCellBuilder {
         val scrollPane = UIFactory.createScrollPane(component).setPurpose(ComponentPurpose.ScrollPane)
-        return component(DefaultWrappedComponent(component, scrollPane.container)) as ScrollPaneCellBuilder<T>
+        return component(scrollPane)
     }
 
     private fun <T : JComponent> WrappedComponent<T>.setPurpose(purpose: ComponentPurpose): WrappedComponent<T> {
@@ -344,20 +345,20 @@ abstract class Cell : ButtonGroupBuilder {
         isSelected: Boolean = false,
         comment: String? = null,
         actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
-    ): CheckboxCellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment), actionListener)
+    ): CheckboxCellBuilder = checkBox(textOf(text), isSelected, textOfNullable(comment), actionListener)
 
     @JvmOverloads
     fun checkBox(
         text: String,
         isSelected: Boolean = false,
         comment: String? = null
-    ): CheckboxCellBuilder<JCheckBox> = checkBox(textOf(text), isSelected, textOfNullable(comment))
+    ): CheckboxCellBuilder = checkBox(textOf(text), isSelected, textOfNullable(comment))
 
     fun checkBox(
         text: String,
         prop: KMutableProperty0<Boolean>,
         comment: String? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         return checkBox(textOf(text), prop, textOfNullable(comment))
     }
 
@@ -367,7 +368,7 @@ abstract class Cell : ButtonGroupBuilder {
         getter: () -> Boolean,
         setter: (Boolean) -> Unit,
         comment: String? = null
-    ): CheckboxCellBuilder<JCheckBox> {
+    ): CheckboxCellBuilder {
         return checkBox(textOf(text), getter, setter, textOfNullable(comment))
     }
 

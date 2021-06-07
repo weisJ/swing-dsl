@@ -191,6 +191,19 @@ operator fun <T : JComponent> T.unaryPlus(): WrappedComponent<T> {
     else SelfWrappedComponent(this)
 }
 
+var WrappedComponent<*>.isVisible: Boolean
+    get() = container.isVisible
+    set(value) {
+        container.isVisible = value
+    }
+
+var WrappedComponent<*>.isEnabled: Boolean
+    get() = component.isEnabled
+    set(value) {
+        component.isEnabled = value
+        container.isEnabled = value
+    }
+
 fun <T : JComponent> T.configure(action: JComponentConfiguration<T>.() -> Unit) {
     JComponentConfiguration(this).action()
 }

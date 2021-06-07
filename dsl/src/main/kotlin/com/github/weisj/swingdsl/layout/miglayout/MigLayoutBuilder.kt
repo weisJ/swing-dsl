@@ -26,7 +26,9 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.layout.Cell.Companion.UNBOUND_RADIO_BUTTON
+import com.github.weisj.swingdsl.layout.Cell.Companion.pushY
 import com.github.weisj.swingdsl.layout.LCFlags
 import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.PanelBuilderImpl
@@ -114,8 +116,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
     private val Component.constraints: CC
         get() = componentConstraints.getOrPut(this) { CC() }
 
-    fun updateComponentConstraints(component: Component, callback: CC.() -> Unit) {
-        component.constraints.callback()
+    fun updateComponentConstraints(wrapped: WrappedComponent<*>, callback: CC.() -> Unit) {
+        wrapped.container.constraints.callback()
     }
 
     override fun build(container: Container, isNested: Boolean, layoutConstraints: Array<out LCFlags>) {
@@ -128,8 +130,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : PanelBuilde
             // In this case only the specified components who specified pushY will resize with more space.
             // If we are nested the parent panel takes the responsibility to provide the spacer.
             rootRow.row {
-                placeholder().constraints(pushY).applyToComponent {
-                    updateComponentConstraints(this) {
+                placeholder().constraints(pushY)() {
+                    updateComponentConstraints(wrappedComponent) {
                         // Ensure other components that specify grow get the space first.
                         growPrioY(-100)
                     }

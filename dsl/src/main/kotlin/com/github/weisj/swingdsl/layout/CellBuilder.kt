@@ -34,6 +34,7 @@ import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
+import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.makeDefaultButton
 import com.github.weisj.swingdsl.observableSelected
 import com.github.weisj.swingdsl.observableSelection
@@ -45,8 +46,10 @@ import java.awt.event.ActionEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.AbstractButton
 import javax.swing.JButton
+import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JList
+import javax.swing.JScrollPane
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
 import javax.swing.event.ChangeEvent
@@ -57,7 +60,9 @@ import javax.swing.text.JTextComponent
 annotation class CellMarker
 
 interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuilder<T>> {
+    val wrappedComponent: WrappedComponent<out T>
     val component: T
+        get() = wrappedComponent.component
 
     fun onApply(callback: () -> Unit): CellBuilder<T>
     fun onReset(callback: () -> Unit): CellBuilder<T>
@@ -138,14 +143,15 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     }
 
     operator fun invoke(action: CellBuilder<T>.() -> Unit): CellBuilder<T> = apply(action)
+
+    fun CheckboxCellBuilder.actsAsLabel()
 }
 
-interface ScrollPaneCellBuilder<out T : JComponent> : CellBuilder<T> {
-    fun noGrowY()
-}
+typealias ScrollPaneCellBuilder = CellBuilder<JScrollPane>
+typealias CheckboxCellBuilder = CellBuilder<JCheckBox>
 
-interface CheckboxCellBuilder<out T : JComponent> : CellBuilder<T> {
-    fun actsAsLabel()
+fun ScrollPaneCellBuilder.noGrowY() {
+    constraints(Cell.growY.withWeight(0.0f), Cell.pushY.withWeight(0.0f))
 }
 
 fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: MutableProperty<Int>): CellBuilder<T> {
