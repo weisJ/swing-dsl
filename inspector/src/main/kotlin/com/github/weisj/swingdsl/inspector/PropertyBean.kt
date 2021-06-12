@@ -42,7 +42,6 @@ import javax.accessibility.Accessible
 import javax.accessibility.AccessibleComponent
 import javax.accessibility.AccessibleContext
 import javax.swing.JComponent
-import kotlin.math.abs
 
 internal data class PropertyBean(
     val name: String,
@@ -76,11 +75,6 @@ internal class ComponentClassHierarchy private constructor(val hierarchy: List<C
 }
 
 internal class Flags(val flags: List<Pair<String, Boolean>>)
-
-internal fun Float?.roughlyEqual(other: Float?): Boolean {
-    if (this == null || other == null) return this === other
-    return abs(other - this) < 0.0001f
-}
 
 internal class ComponentPropertyBeans(
     component: Component? = null,
@@ -164,7 +158,7 @@ internal class ComponentPropertyBeans(
             addProperties("accessible.", context, ACCESSIBLE_CONTEXT_PROPERTIES)
         }
         if (component is Container) {
-            addLayoutProperties(component as Container)
+            addLayoutProperties(component)
         }
         component.parent?.let {
             val layout = it.layout

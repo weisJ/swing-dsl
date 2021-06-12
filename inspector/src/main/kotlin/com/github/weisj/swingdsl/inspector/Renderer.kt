@@ -51,10 +51,16 @@ import javax.swing.border.CompoundBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.TitledBorder
 import javax.swing.plaf.UIResource
+import kotlin.math.abs
 
 internal interface Renderer<T> {
     fun render(value: T): String
     fun getIcon(value: T): Icon? = null
+}
+
+private fun Float?.roughlyEqual(other: Float?): Boolean {
+    if (this == null || other == null) return this === other
+    return abs(other - this) < 0.0001f
 }
 
 private fun Int.render(pad: Int? = null): String = when (this) {
@@ -159,10 +165,6 @@ internal class IconRenderer : Renderer<Icon> {
     }
 
     override fun getIcon(value: Icon): Icon = value
-
-    companion object {
-        const val MAX_PATH_LENGTH = 25
-    }
 }
 
 internal class BorderRenderer : Renderer<Border> {
