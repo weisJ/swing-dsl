@@ -42,7 +42,6 @@ import com.github.weisj.swingdsl.layout.ModifiablePanel
 import com.github.weisj.swingdsl.layout.Row
 import com.github.weisj.swingdsl.layout.RowBuilder
 import com.github.weisj.swingdsl.layout.miglayout.patched.PatchedMigLayout
-import com.github.weisj.swingdsl.layout.noGrowY
 import com.github.weisj.swingdsl.layout.panel
 import com.github.weisj.swingdsl.scrollPane
 import com.github.weisj.swingdsl.unaryPlus
