@@ -27,6 +27,8 @@ package com.github.weisj.swingdsl
 import java.awt.Insets
 import java.awt.Rectangle
 
+fun Insets(pad: Int) = Insets(pad, pad, pad, pad)
+
 fun Insets.isEmpty(): Boolean =
     top == 0 && bottom == 0 && left == 0 && right == 0
 
