@@ -22,13 +22,13 @@
  * SOFTWARE.
  *
  */
-import com.formdev.flatlaf.extras.FlatInspector
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.swingdsl.core.binding.plus
 import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.core.text.unaryPlus
 import com.github.weisj.swingdsl.frame
+import com.github.weisj.swingdsl.inspector.installInspector
 import com.github.weisj.swingdsl.invokeLater
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.SubCategoryBuilder
@@ -184,7 +184,7 @@ fun main() {
         } else {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
         }
-        FlatInspector.install("ctrl shift alt X")
+        installInspector()
         frame {
             content {
                 +createSettingsPanel(
