@@ -24,34 +24,40 @@
  */
 package com.github.weisj.swingdsl.icons
 
+import com.github.weisj.swingdsl.Insets
+import com.github.weisj.swingdsl.height
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.util.drawRect
+import com.github.weisj.swingdsl.width
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.Insets
 import javax.swing.Icon
 
 class SolidColorIcon(
     private val color: Color,
     private val borderColor: Color = UIFactory.borderColor,
     private val size: Dimension,
-    private val colorSize: Dimension = size
+    private val insets: Insets = Insets(0)
 ) : Icon {
 
     constructor(color: Color, borderColor: Color = UIFactory.borderColor, size: Int = 16, colorSize: Int = 16) :
-        this(color, borderColor, Dimension(size, size), Dimension(colorSize, colorSize))
+        this(color, borderColor, Dimension(size, size), Insets((size - colorSize) / 2))
 
     override fun paintIcon(c: Component?, g: Graphics?, x: Int, y: Int) {
         g ?: return
         val lineWidth = 1
-        val realX = x + (iconWidth - colorSize.width) / 2
-        val realY = y + (iconHeight - colorSize.height) / 2
+        val realX = x + insets.left
+        val realY = y + insets.top
+        val realW = size.width - insets.width
+        val realH = size.height - insets.height
 
         g.color = color
-        g.fillRect(realX, realY, colorSize.width, colorSize.height)
+        g.fillRect(realX, realY, realW, realH)
         g.color = borderColor
-        g.drawRect(realX, realY, colorSize.width, colorSize.height, lineWidth = lineWidth)
+        g.drawRect(realX, realY, realW, realH, lineWidth = lineWidth)
     }
 
     override fun getIconWidth(): Int = size.width
