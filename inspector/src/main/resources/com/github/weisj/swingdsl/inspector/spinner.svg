@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <defs id="colors">
+        <linearGradient id="fileIconBackground" fallback="fallback.inspectorBackground"
+                        opacity="fileIconOpacity" opacity-fallback="#80">
+            <stop offset="0" stop-color="#9AA7B0" stop-opacity=".8"/>
+            <stop offset="1" stop-color="#9AA7B0" stop-opacity=".8"/>
+        </linearGradient>
+        <linearGradient id="fileIconForeground" fallback="fallback.inspectorForeground"
+                        opacity="fileIconOpacity" opacity-fallback="#80">
+            <stop offset="0" stop-color="#231F20" stop-opacity=".8"/>
+            <stop offset="0" stop-color="#231F20" stop-opacity=".8"/>
+        </linearGradient>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <path fill="url(#fileIconBackground)" d="M1,3 L15,3 L15,13 L1,13 L1,3 Z M2,4 L2,12 L8,12 L8,4 L2,4 Z"/>
+        <polygon fill="url(#fileIconForeground)" points="11.5 9 14 12 9 12" transform="matrix(1 0 0 -1 0 21)"/>
+        <polygon fill="url(#fileIconForeground)" points="11.5 4 14 7 9 7"/>
+        <polygon fill="url(#fileIconBackground)" points="1.1 0 0 .531 .157 1.47 1 1.2 1 6 2 6 2 0"
+                 transform="translate(4 5)"/>
+    </g>
+</svg>

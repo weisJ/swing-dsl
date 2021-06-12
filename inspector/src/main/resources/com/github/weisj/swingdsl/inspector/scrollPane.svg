@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <defs id="colors">
+        <linearGradient id="fileIconBackground" fallback="fallback.inspectorBackground"
+                        opacity="fileIconOpacity" opacity-fallback="#80">
+            <stop offset="0" stop-color="#9AA7B0" stop-opacity=".8"/>
+            <stop offset="1" stop-color="#9AA7B0" stop-opacity=".8"/>
+        </linearGradient>
+    </defs>
+    <g fill-rule="evenodd">
+        <path fill="url(#fileIconBackground)" d="M2,2 L14,2 L14,14 L2,14 L2,2 Z M3,3 L3,13 L13,13 L13,3 L3,3 Z"/>
+        <rect fill="url(#fileIconBackground)" width="2" height="7" x="10" y="4"/>
+    </g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <defs id="colors">
+        <linearGradient id="fileIconBackground" fallback="fallback.inspectorBackground"
+                        opacity="fileIconOpacity" opacity-fallback="#80">
+            <stop offset="0" stop-color="#9AA7B0" stop-opacity=".8"/>
+            <stop offset="1" stop-color="#9AA7B0" stop-opacity=".8"/>
+        </linearGradient>
+    </defs>
+    <path fill="url(#fileIconBackground)" fill-rule="evenodd"
+          d="M6,4 L6,12 L1,12 L1,4 L6,4 Z M10,4 L15,4 L15,12 L10,12 L10,4 Z M7,1 L9,1 L9,15 L7,15 L7,1 Z"
+          transform="rotate(90 8 8)"/>
+</svg>
