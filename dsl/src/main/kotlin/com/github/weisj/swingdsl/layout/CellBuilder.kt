@@ -49,7 +49,6 @@ import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JList
-import javax.swing.JScrollPane
 import javax.swing.JSpinner
 import javax.swing.KeyStroke
 import javax.swing.event.ChangeEvent
@@ -147,11 +146,13 @@ interface CellBuilder<out T : JComponent> : BuilderWithEnabledProperty<CellBuild
     fun CheckboxCellBuilder.actsAsLabel()
 }
 
-typealias ScrollPaneCellBuilder = CellBuilder<JScrollPane>
 typealias CheckboxCellBuilder = CellBuilder<JCheckBox>
-
-fun ScrollPaneCellBuilder.noGrowY() {
-    constraints(Cell.growY.withWeight(0.0f), Cell.pushY.withWeight(0.0f))
+class ScrollPaneCellBuilder<T : JComponent> internal constructor(
+    builder: CellBuilder<T>
+) : CellBuilder<T> by builder {
+    fun noGrowY() {
+        constraints(Cell.growY.withWeight(0.0f), Cell.pushY.withWeight(0.0f))
+    }
 }
 
 fun <T : JSpinner> CellBuilder<T>.withIntBinding(modelBinding: MutableProperty<Int>): CellBuilder<T> {

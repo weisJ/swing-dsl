@@ -36,6 +36,7 @@ import com.github.weisj.swingdsl.core.binding.toProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
 import com.github.weisj.swingdsl.core.text.textOfNullable
+import com.github.weisj.swingdsl.laf.DefaultWrappedComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
 import com.github.weisj.swingdsl.style.DynamicUI
@@ -263,18 +264,18 @@ abstract class Cell : ButtonGroupBuilder {
         }
     }
 
-    fun <T> list(model: ListModel<T>): ScrollPaneCellBuilder {
+    fun <T> list(model: ListModel<T>): ScrollPaneCellBuilder<JList<T>> {
         return scrollPane(UIFactory.createList(model))
     }
 
-    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): ScrollPaneCellBuilder {
+    fun <T : JComponent> scrollPane(component: WrappedComponent<T>): ScrollPaneCellBuilder<T> {
         val scrollPane = UIFactory.createScrollPane(component.container).setPurpose(ComponentPurpose.ScrollPane)
-        return component(scrollPane)
+        return ScrollPaneCellBuilder(component(DefaultWrappedComponent(component.component, scrollPane.container)))
     }
 
-    fun <T : JComponent> scrollPane(component: T): ScrollPaneCellBuilder {
+    fun <T : JComponent> scrollPane(component: T): ScrollPaneCellBuilder<T> {
         val scrollPane = UIFactory.createScrollPane(component).setPurpose(ComponentPurpose.ScrollPane)
-        return component(scrollPane)
+        return ScrollPaneCellBuilder(component(DefaultWrappedComponent(component, scrollPane.container)))
     }
 
     private fun <T : JComponent> WrappedComponent<T>.setPurpose(purpose: ComponentPurpose): WrappedComponent<T> {
