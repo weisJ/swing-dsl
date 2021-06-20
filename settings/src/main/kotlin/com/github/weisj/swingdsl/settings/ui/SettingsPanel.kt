@@ -36,6 +36,7 @@ import com.github.weisj.swingdsl.component.BreadcrumbBar
 import com.github.weisj.swingdsl.component.DefaultBreadCrumbRenderer
 import com.github.weisj.swingdsl.component.DefaultJPanel
 import com.github.weisj.swingdsl.component.HyperlinkLabel
+import com.github.weisj.swingdsl.component.ListBreadcrumbModel
 import com.github.weisj.swingdsl.component.SearchField
 import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
@@ -214,17 +215,21 @@ class SettingsPanel(private val categories: List<Category>) :
         }
     }
 
-    private fun createBreadCrumbBar(): BreadcrumbBar<Element> {
-        return BreadcrumbBar<Element>().apply {
+    private fun createBreadCrumbBar(): BreadcrumbBar<*, Element> {
+        val model = ListBreadcrumbModel<Element>()
+        return BreadcrumbBar(model).apply {
             padding = getDefaultSpacingConfiguration().dialogLeftRight
             renderer = DynamicUI.withBoldFont(
-                DefaultBreadCrumbRenderer {
-                    it.displayName?.get() ?: ""
-                }
+                DefaultBreadCrumbRenderer(
+                    stringFunc = {
+                        it.displayName?.get() ?: ""
+                    }
+                )
             )
-            currentPosition.bind { breadCrumbs = it.category.getPath() }
-            addNavigationListener { _, item ->
+            currentPosition.bind { model.nodes = it.category.getPath() }
+            addNavigationListener { _, _, item ->
                 if (item is Category) reveal(item)
+                item is Category
             }
         }
     }
