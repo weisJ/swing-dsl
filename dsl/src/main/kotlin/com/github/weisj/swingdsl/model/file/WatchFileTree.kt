@@ -50,7 +50,10 @@ class WatchFileTree : FileTree {
     )
 
     override fun changeModel(model: FileTreeModel) {
-        if (model === model) return
+        if (model === model) {
+            super.changeModel(model)
+            return
+        }
         if (model is WatchFileTreeModel) model.stopWatching()
         if (isVisible && model is WatchFileTreeModel) model.startWatching()
         super.changeModel(model)

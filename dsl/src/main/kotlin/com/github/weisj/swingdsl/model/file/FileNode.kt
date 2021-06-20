@@ -51,14 +51,17 @@ open class FileNode internal constructor(
     val file: File?
         get() {
             if (safeFile == null) {
-                safeFile = synchronized(LOCK_COUNT) {
-                    if (LOCK_COUNT.acquire == 0) {
-                        path?.toFile()
-                    } else null
-                }
+                safeFile = getFile(true)
             }
             return safeFile
         }
+
+    private fun getFile(withLock: Boolean): File? {
+        if (safeFile != null) return safeFile
+        return if (!withLock || LOCK_COUNT.get() == 0) {
+            path?.toFile()
+        } else null
+    }
 
     init {
         safeFile = file
@@ -86,7 +89,15 @@ open class FileNode internal constructor(
         get() = if (path != null) Files.isReadable(path) else safeFile?.canRead() == true
 
     val isHidden: Boolean
-        get() = path.isHidden() || (safeFile?.isHidden == true)
+        get() = path.isHidden() || (file?.isHidden == true)
+
+    internal fun isHiddenImpl(needsLocking: Boolean = true): Boolean {
+        return if (needsLocking) {
+            path.isHidden() || (file?.isHidden == true)
+        } else {
+            path.isHidden() || (getFile(false)?.isHidden == true)
+        }
+    }
 
     fun isEmpty(showHiddenFiles: Boolean): Boolean {
         return if (path != null && validateEmptyFlag(showHiddenFiles)) {
@@ -164,6 +175,9 @@ open class NullFileNode internal constructor(name: String? = null) :
 
 private fun File?.safeToPath(): Path? = runCatching { this?.toPath() }.getOrNull()
 
-private fun Path?.isHidden(): Boolean = runCatching {
+internal fun Path?.isHidden(): Boolean = runCatching {
     if (this != null) Files.isHidden(this) else false
-}.getOrDefault(false)
+}.getOrElse { e ->
+    e.printStackTrace()
+    false
+}

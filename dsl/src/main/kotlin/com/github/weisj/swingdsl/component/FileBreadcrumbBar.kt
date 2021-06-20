@@ -47,6 +47,8 @@ fun createFileBreadcrumbBar(
                 return false
             }
             override fun onClickInPopup(node: FileTreeNode, item: FileNode) {
+                fileTree.makeVisible(node.path)
+                fileTree.scrollPathToVisible(node.path)
                 fileTree.selectionPath = node.path
             }
         })

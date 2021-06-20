@@ -35,7 +35,7 @@ import javax.swing.tree.TreeModel
 open class FileTree protected constructor(
     showHiddenFiles: Boolean,
     model: FileTreeModel
-) : JTree() {
+) : JTree(model) {
 
     constructor(showHiddenFiles: Boolean = false, vararg roots: File) : this(
         showHiddenFiles,

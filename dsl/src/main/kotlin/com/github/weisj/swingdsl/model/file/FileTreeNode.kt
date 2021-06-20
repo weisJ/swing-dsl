@@ -26,7 +26,10 @@ package com.github.weisj.swingdsl.model.file
 
 import com.github.weisj.swingdsl.BackgroundWorker
 import com.github.weisj.swingdsl.component.Hideable
+import java.nio.file.Files
 import java.nio.file.WatchKey
+import java.nio.file.attribute.FileTime
+import java.time.Instant
 import java.util.*
 import javax.swing.Timer
 import javax.swing.tree.TreeNode
@@ -139,18 +142,22 @@ open class FileTreeNode(
                 traverseChildren { s ->
                     val nodes = childList.asSequence() + s.map { with(model) { createChildNode(it) } }
                     nodes.mapNotNull {
+                        val exists = !it.fileNode.isNonExistent
+                        val recentlyCreated = exists && it.fileNode.path?.let { path ->
+                            val time = Files.getAttribute(path, "creationTime") as? FileTime ?: return@let null
+                            val timeDifference = Instant.now().toEpochMilli() - time.toMillis()
+                            timeDifference < 1500
+                        } ?: false
+                        val isVisible =
+                            exists && (model.isShowHiddenFiles || !it.fileNode.isHiddenImpl(needsLocking = recentlyCreated))
                         when {
-                            it.fileNode.isNonExistent -> {
-                                ReloadOp.remove(it, childList.removeChild(it))
+                            !isVisible -> {
+                                val index = childList.removeChild(it)
+                                if (index >= 0) ReloadOp.remove(it, index) else null
                             }
-                            model.isShowHiddenFiles && !childList.contains(it) -> {
-                                ReloadOp.add(it, childList.addChild(it))
-                            }
-                            !model.isShowHiddenFiles && it.fileNode.isHidden -> {
-                                ReloadOp.remove(it, childList.removeChild(it))
-                            }
-                            !model.isShowHiddenFiles && !childList.contains(it) -> {
-                                ReloadOp.add(it, childList.addChild(it))
+                            !childList.contains(it) -> {
+                                val index = childList.addChild(it)
+                                ReloadOp.add(it, index)
                             }
                             else -> null
                         }
