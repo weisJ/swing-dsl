@@ -98,7 +98,7 @@ fun <T : JComponent> scrollPane(
     componentProvider: ComponentBuilderScope.() -> WrappedComponent<T>
 ): WrappedComponent<T> {
     val comp = componentProvider(ComponentBuilderScope)
-    val scroll = UIFactory.createScrollPane(ScrollRedirector(comp.container))
+    val scroll = UIFactory.createScrollPane(comp.container)
 
     val scrollable: ScrollableView? = when {
         comp is ScrollableView -> comp
@@ -119,7 +119,7 @@ fun <T : JComponent> scrollPane(
     }
     scrollPane.scrollInit()
 
-    return DefaultWrappedComponent(comp.component, scroll.container)
+    return DefaultWrappedComponent(comp.component, ScrollRedirector(scroll.container))
 }
 
 fun <T : JComponent> wrap(

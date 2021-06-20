@@ -24,18 +24,20 @@
  */
 package com.github.weisj.swingdsl.component
 
-import com.github.weisj.swingdsl.ancestorOfType
+import com.github.weisj.swingdsl.ancestorMatching
 import com.github.weisj.swingdsl.laf.ScrollableView
 import com.github.weisj.swingdsl.util.ModificationLock
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Dimension
+import java.awt.Rectangle
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.JComponent
 import javax.swing.JLayer
 import javax.swing.JScrollBar
 import javax.swing.JScrollPane
+import javax.swing.Scrollable
 import javax.swing.SwingUtilities
 import javax.swing.plaf.LayerUI
 
@@ -44,7 +46,7 @@ class DefaultScrollRedirector(target: JComponent) : ScrollRedirector(target)
 class ScrollableViewScrollRedirector<T>(target: T) : ScrollRedirector(target), ScrollableView by target
         where T : JComponent, T : ScrollableView
 
-sealed class ScrollRedirector private constructor(private val target: JComponent) : JComponent() {
+sealed class ScrollRedirector private constructor(private val target: JComponent) : JComponent(), Scrollable {
 
     companion object {
         operator fun invoke(target: JComponent): ScrollRedirector = when (target) {
@@ -65,9 +67,34 @@ sealed class ScrollRedirector private constructor(private val target: JComponent
         target.setBounds(0, 0, width, height)
     }
 
+    override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
+        super.setBounds(x, y, width, height)
+        doLayout()
+    }
+
+    override fun setSize(width: Int, height: Int) {
+        super.setSize(width, height)
+        doLayout()
+    }
+
     override fun getMinimumSize(): Dimension = target.minimumSize
     override fun getPreferredSize(): Dimension = target.preferredSize
     override fun getMaximumSize(): Dimension = target.maximumSize
+
+    override fun getPreferredScrollableViewportSize(): Dimension? =
+        layer.preferredScrollableViewportSize
+
+    override fun getScrollableBlockIncrement(visibleRect: Rectangle, orientation: Int, direction: Int): Int =
+        layer.getScrollableBlockIncrement(visibleRect, orientation, direction)
+
+    override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int =
+        layer.getScrollableUnitIncrement(visibleRect, orientation, direction)
+
+    override fun getScrollableTracksViewportHeight(): Boolean =
+        layer.scrollableTracksViewportHeight
+
+    override fun getScrollableTracksViewportWidth(): Boolean =
+        layer.scrollableTracksViewportWidth
 }
 
 private class ScrollRedirectorUI : LayerUI<JComponent>() {
@@ -76,52 +103,54 @@ private class ScrollRedirectorUI : LayerUI<JComponent>() {
     override fun processMouseWheelEvent(e: MouseWheelEvent?, l: JLayer<out JComponent>?) {
         super.processMouseWheelEvent(e, l)
         e ?: return
-        if (!redirectIfNeeded(e, l)) {
-            dispatchLock.withLock {
-                var forward = e.component == l
-                if (!forward) {
-                    e.component?.dispatchEvent(e)
-                    forward = !e.isConsumed
-                }
-                if (forward) {
-                    e.component.ancestorOfType<JScrollPane>()?.dispatchEvent(e)
-                }
-            }
-        }
-    }
-
-    private fun redirectIfNeeded(e: MouseWheelEvent, l: JLayer<out JComponent>?): Boolean {
         dispatchLock.withLock {
-            val direction = if (e.wheelRotation < 0) -1 else 1
-            val toScroll = when (val comp = e.component) {
-                is JScrollBar -> comp
-                is JScrollPane -> {
-                    var bar: JScrollBar? = comp.verticalScrollBar
-                    if (bar == null || !bar.isVisible || e.isShiftDown) {
-                        bar = comp.horizontalScrollBar
-                    }
-                    bar
-                }
-                else -> null
-            } ?: return false
-            val valueModel = toScroll.model
+            val (scrollTarget, toScroll) = getScrollBar(e.component, e)
 
-            val forward = when {
+            val direction = if (e.wheelRotation < 0) -1 else 1
+            val valueModel = toScroll?.model
+
+            val canRedirect = valueModel != null && when {
                 direction > 0 -> valueModel.value + valueModel.extent == valueModel.maximum
                 direction < 0 -> valueModel.value == valueModel.minimum
                 else -> false
             }
 
-            if (forward) {
-                val target = l?.ancestorOfType<JScrollPane>() ?: return false
-                dispatch(e, target)
-                e.consume()
-                return true
+            e.component?.dispatchEvent(e)
+            if (e.isConsumed) return
+
+            scrollTarget ?: return
+            if (canRedirect) {
+                val target = when (scrollTarget) {
+                    is JScrollBar -> null
+                    is JScrollPane -> scrollTarget.parent
+                    else -> scrollTarget
+                }
+                target?.nextScrollPaneAncestor()?.let {
+                    dispatch(e, it)
+                }
+            } else {
+                dispatch(e, scrollTarget)
             }
         }
-        // If we are here then we are currently redispatching an Event. Skip in this case.
-        return true
     }
+
+    private fun getScrollBar(comp: Component?, e: MouseEvent): Pair<Component?, JScrollBar?> {
+        return when (comp) {
+            is JScrollBar -> comp to comp
+            is JScrollPane -> {
+                var bar: JScrollBar? = comp.verticalScrollBar
+                if (bar == null || !bar.isVisible || e.isShiftDown) {
+                    bar = comp.horizontalScrollBar
+                }
+                comp to bar
+            }
+            is Component -> getScrollBar(comp.nextScrollPaneAncestor(), e)
+            else -> comp to null
+        }
+    }
+
+    private fun Component.nextScrollPaneAncestor(): Component? =
+        ancestorMatching { it is JScrollPane && it !is ScrollRedirector }
 
     private fun dispatch(e: AWTEvent?, target: Component) {
         val event = if (e is MouseEvent) SwingUtilities.convertMouseEvent(e.component, e, target) else e
