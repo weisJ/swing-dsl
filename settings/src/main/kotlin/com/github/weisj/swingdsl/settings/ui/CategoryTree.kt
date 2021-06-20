@@ -83,7 +83,7 @@ class CategoryTree private constructor(
     }
 
     fun isCategoryVisible(category: Category): Boolean {
-        return nodeMap[category]?.realVisible ?: false
+        return nodeMap[category]?.isVisible ?: false
     }
 
     fun getRowForCategory(category: Category): Int {
