@@ -28,6 +28,13 @@ import com.github.weisj.swingdsl.model.file.FileNode
 import com.github.weisj.swingdsl.model.file.FileTree
 import com.github.weisj.swingdsl.model.file.FileTreeNode
 
+class FileBreadcrumbBar private constructor() {
+    companion object {
+        @JvmStatic
+        fun create(fileTree: FileTree): BreadcrumbBar<FileTreeNode, FileNode> = createFileBreadcrumbBar(fileTree)
+    }
+}
+
 fun createFileBreadcrumbBar(
     fileTree: FileTree
 ): BreadcrumbBar<FileTreeNode, FileNode> {
@@ -46,6 +53,7 @@ fun createFileBreadcrumbBar(
             override fun onClick(index: Int, node: FileTreeNode, item: FileNode): Boolean {
                 return false
             }
+
             override fun onClickInPopup(node: FileTreeNode, item: FileNode) {
                 fileTree.makeVisible(node.path)
                 fileTree.scrollPathToVisible(node.path)
