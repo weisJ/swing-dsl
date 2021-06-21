@@ -9,6 +9,7 @@ plugins {
 dependencies {
     api(projects.swingExtensionsCore)
     api(projects.swingExtensionsLafSupport)
+    implementation(libs.darklaf.propertyLoader)
     implementation(libs.miglayout)
     implementation(libs.fuzzySearch)
 

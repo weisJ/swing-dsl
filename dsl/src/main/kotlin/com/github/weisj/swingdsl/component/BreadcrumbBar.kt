@@ -24,22 +24,24 @@
  */
 package com.github.weisj.swingdsl.component
 
-import com.github.weisj.swingdsl.border.emptyBorder
+import com.github.weisj.darklaf.icons.IconLoader
 import com.github.weisj.swingdsl.bottom
+import com.github.weisj.swingdsl.height
 import com.github.weisj.swingdsl.left
 import com.github.weisj.swingdsl.listeners.ClickListener
 import com.github.weisj.swingdsl.mouseLocation
-import com.github.weisj.swingdsl.style.DynamicUI
+import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.util.toHtml
+import com.github.weisj.swingdsl.width
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.Insets
 import java.awt.LayoutManager
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
-import java.lang.Integer.max
 import java.util.*
 import java.util.Collections.emptyList
 import javax.swing.CellRendererPane
@@ -50,6 +52,7 @@ import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
+import kotlin.math.max
 
 interface BreadcrumbRenderer<in T> {
 
@@ -68,7 +71,13 @@ class BreadcrumbBar<NodeType, T>(
     model: BreadcrumbModel<NodeType, T>
 ) : JComponent() {
 
-    var padding: Int = 10
+    var margin: Insets = Insets(5, 5, 5, 5)
+        set(value) {
+            field = value
+            doLayout()
+            repaint()
+        }
+    var padding: Int = 5
         set(pad) {
             field = pad
             doLayout()
@@ -85,6 +94,9 @@ class BreadcrumbBar<NodeType, T>(
     internal var breadCrumbs: List<NodeType> = model.breadcrumbs
 
     private var popupMenu: JPopupMenu = JPopupMenu().apply {
+        properties {
+            client["maxPopupSize"] = Dimension(400, 400)
+        }
         addPopupMenuListener(object : PopupMenuListener {
             override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) {}
 
@@ -189,9 +201,8 @@ class BreadcrumbBar<NodeType, T>(
     var renderer: BreadcrumbRenderer<T> = DefaultBreadCrumbRenderer()
     var rendererPane = CellRendererPane()
     private val breadcrumbLayout = BreadcrumbLayout<T>()
-    var separator: JComponent = JLabel("\u276F").apply {
-        border = emptyBorder(top = padding / 2, padding, bottom = padding / 2, padding)
-        DynamicUI.withBoldFont(this)
+    var separator: JComponent = JLabel().apply {
+        icon = IconLoader.get(BreadcrumbBar::class.java).getIcon("separator.svg")
     }
 
     init {
@@ -230,7 +241,7 @@ class BreadcrumbBar<NodeType, T>(
             val comp = renderer.getRendererComponent(model.getValue(item), hoverStates[i])
             rendererPane.paintComponent(g, comp, this, rect.x, rect.y, rect.width, rect.height)
             if (i < breadCrumbs.size - 1) {
-                rendererPane.paintComponent(g, separator, this, rect.x + rect.width, ySep, wSep, hSep)
+                rendererPane.paintComponent(g, separator, this, rect.x + rect.width + padding, ySep, wSep, hSep)
             }
         }
         rendererPane.removeAll()
@@ -256,15 +267,15 @@ private class BreadcrumbLayout<T> : LayoutManager {
     override fun preferredLayoutSize(parent: Container?): Dimension {
         parent as BreadcrumbBar<Any?, T>
         parent.rendererPane.add(parent.separator)
-        val size = parent.separator.preferredSize
+        val separatorDim = parent.separator.preferredSize
         val separatorSpace = if (parent.breadCrumbs.isEmpty()) 0 else {
-            (parent.breadCrumbs.size - 1) * size.width
+            (parent.breadCrumbs.size - 1) * (separatorDim.width + parent.padding * 2)
         }
-        val separatorSize = if (parent.breadCrumbs.isEmpty()) 0 else size.height
+        val separatorSize = if (parent.breadCrumbs.isEmpty()) 0 else separatorDim.width
         val dimensions = getSizes(parent) { it.preferredSize }
         return Dimension(
-            dimensions.sumOf { it.width } + separatorSpace,
-            max(dimensions.maxOfOrNull { it.height } ?: 0, separatorSize)
+            dimensions.sumOf { it.width } + separatorSpace + parent.margin.width,
+            max(dimensions.maxOfOrNull { it.height } ?: 0, separatorSize) + parent.margin.height
         )
     }
 
@@ -295,7 +306,7 @@ private class BreadcrumbLayout<T> : LayoutManager {
         layoutRects = getSizes(parent) { Rectangle(it.preferredSize) }.toList()
         var x = parent.padding
         separatorSize = parent.separator.preferredSize
-        val separatorAdvance = separatorSize.width
+        val separatorAdvance = separatorSize.width + parent.padding * 2
         for (rect in layoutRects) {
             rect.x = x
             if (availableHeight < rect.height) rect.height = availableHeight
@@ -319,6 +330,7 @@ open class DefaultBreadCrumbRenderer<T>(
     private val iconFunc: (T) -> Icon? = { null },
     private val underlineOnHover: Boolean = true
 ) : JLabel(), BreadcrumbRenderer<T> {
+
     override fun getRendererComponent(value: T, hovered: Boolean): JComponent {
         text = if (hovered && underlineOnHover) stringFunc(value).toHtml("u") else stringFunc(value).toHtml()
         icon = iconFunc(value)

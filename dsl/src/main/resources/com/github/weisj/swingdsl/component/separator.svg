@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5" height="15" viewBox="0 0 5 15">
+    <defs id="colors">
+        <linearGradient id="menuIconEnabled" fallback="Label.foreground"
+                        opacity="navigationIconOpacity" opacity-fallback="#100">
+            <stop offset="0" stop-color="#7F8B91" stop-opacity=".5"/>
+            <stop offset="1" stop-color="#7F8B91" stop-opacity=".5"/>
+        </linearGradient>
+    </defs>
+    <polygon fill="url(#menuIconEnabled)" fill-rule="evenodd" points="1 0 5 7.5 1 15 0 15 4 7.5 0 0"/>
+</svg>
