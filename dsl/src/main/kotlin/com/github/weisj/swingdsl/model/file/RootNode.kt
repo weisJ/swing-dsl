@@ -69,6 +69,8 @@ class RootFileNode(
         fileNode.invalidate()
     }
 
+    override fun canPreload(): Boolean = true
+
     override fun isLeaf(): Boolean = children.isEmpty()
 
     override fun getAllowsChildren(): Boolean = true

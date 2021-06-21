@@ -34,6 +34,7 @@ open class FileTreeModel(
     roots: List<FileNode>?
 ) : DefaultTreeModel(null) {
 
+    var preloadDepth: Int = -1
     var isShowHiddenFiles: Boolean = isShowHiddenFiles
         set(value) {
             if (field != value) {

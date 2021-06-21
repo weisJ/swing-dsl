@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Stream
 import javax.swing.Icon
 import javax.swing.filechooser.FileSystemView
+import kotlin.io.path.name
 
 open class FileNode internal constructor(
     file: File?,
@@ -65,6 +66,18 @@ open class FileNode internal constructor(
 
     init {
         safeFile = file
+    }
+
+    internal fun isSafeToPreload(): Boolean {
+        /*
+         * FileNodes without a path may block the file system from
+         * listing other directories or supplying icons.
+         * This is especially common for network drives.
+         */
+        if (path == null) return false
+        // Special case iCloud for now. Listing its content causes online only files to be downloaded.
+        if (path.name == "iCloud Drive") return false
+        return true
     }
 
     private var isEmpty: Boolean = false

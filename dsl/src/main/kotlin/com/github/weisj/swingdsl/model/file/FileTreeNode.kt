@@ -84,6 +84,20 @@ open class FileTreeNode(
         return _children
     }
 
+    protected open fun canPreload(): Boolean = fileNode.isSafeToPreload() && !fileNode.isDirectory
+
+    private fun doPreload(depth: Int) {
+        if (!canPreload()) return
+        if (depth < 0) return
+        children.forEach {
+            it.doPreload(depth - 1)
+        }
+    }
+
+    internal fun preload(depth: Int = model.preloadDepth) {
+        doPreload(depth)
+    }
+
     private inline fun traverseChildren(action: (Sequence<FileNode>) -> Unit) {
         if (fileNode.isDirectory) {
             runCatching {

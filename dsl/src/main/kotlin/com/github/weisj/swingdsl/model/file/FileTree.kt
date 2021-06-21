@@ -27,8 +27,9 @@ package com.github.weisj.swingdsl.model.file
 import com.github.weisj.swingdsl.component.HideableTreeSelectionModel
 import java.io.File
 import java.nio.file.Path
-import java.util.*
 import javax.swing.JTree
+import javax.swing.event.TreeExpansionEvent
+import javax.swing.event.TreeWillExpandListener
 import javax.swing.filechooser.FileSystemView
 import javax.swing.tree.TreeModel
 
@@ -68,6 +69,11 @@ open class FileTree protected constructor(
         set(value) {
             fileModel.isShowHiddenFiles = value
         }
+    var preloadDepth: Int
+        get() = fileModel.preloadDepth
+        set(value) {
+            fileModel.preloadDepth = value
+        }
 
     val selectedFile: FileNode?
         get() = (selectionPath?.lastPathComponent as? FileTreeNode)?.fileNode
@@ -82,7 +88,10 @@ open class FileTree protected constructor(
                 .toList()
         }
 
-    override fun setModel(newModel: TreeModel) {}
+    override fun setModel(newModel: TreeModel) {
+        check(newModel is FileTreeModel) { "Model needs to be of type ${FileTreeModel::class.java}" }
+        super.setModel(newModel)
+    }
 
     fun reload() {
         fileModel.reload()
@@ -94,5 +103,15 @@ open class FileTree protected constructor(
         this.setCellRenderer(FileTreeCellRenderer(FileSystemView.getFileSystemView()))
         isShowHiddenFiles = showHiddenFiles
         isRootVisible = false
+        model.rootNode.preload(preloadDepth)
+        addTreeWillExpandListener(object : TreeWillExpandListener {
+            override fun treeWillExpand(event: TreeExpansionEvent?) {
+                event ?: return
+                val node = event.path.lastPathComponent as? FileTreeNode ?: return
+                node.preload(preloadDepth)
+            }
+
+            override fun treeWillCollapse(event: TreeExpansionEvent?) {}
+        })
     }
 }
