@@ -25,7 +25,7 @@
 package com.github.weisj.swingdsl.inspector
 
 import com.github.weisj.swingdsl.border.bottomBorder
-import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.components.DefaultJPanel
 import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty

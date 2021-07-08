@@ -25,20 +25,20 @@
 package com.github.weisj.swingdsl.inspector
 
 import com.github.weisj.swingdsl.border.emptyBorder
-import com.github.weisj.swingdsl.bottom
-import com.github.weisj.swingdsl.left
-import com.github.weisj.swingdsl.right
 import com.github.weisj.swingdsl.style.DynamicUI
-import com.github.weisj.swingdsl.subtract
-import com.github.weisj.swingdsl.top
 import com.github.weisj.swingdsl.util.SharedLazyComponents
+import com.github.weisj.swingdsl.util.bottom
 import com.github.weisj.swingdsl.util.drawCenteredString
 import com.github.weisj.swingdsl.util.drawDottedRectangle
 import com.github.weisj.swingdsl.util.drawRect
 import com.github.weisj.swingdsl.util.fillRect
+import com.github.weisj.swingdsl.util.left
+import com.github.weisj.swingdsl.util.right
 import com.github.weisj.swingdsl.util.setupStrokePainting
-import com.github.weisj.swingdsl.xCenter
-import com.github.weisj.swingdsl.yCenter
+import com.github.weisj.swingdsl.util.subtract
+import com.github.weisj.swingdsl.util.top
+import com.github.weisj.swingdsl.util.xCenter
+import com.github.weisj.swingdsl.util.yCenter
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension

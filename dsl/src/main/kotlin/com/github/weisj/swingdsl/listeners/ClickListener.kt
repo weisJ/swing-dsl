@@ -26,9 +26,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.listeners
 
-import com.github.weisj.swingdsl.util.getMultiClickInterval
 import java.awt.Component
 import java.awt.Point
+import java.awt.Toolkit
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
@@ -151,4 +151,9 @@ internal class ClickListenerImpl(
         }
         return e.isConsumed || clickedAt == null || e.isPopupTrigger || !e.component.contains(e.point)
     }
+}
+
+fun getMultiClickInterval(): Int {
+    val property: Any = Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")
+    return property as? Int ?: 500
 }

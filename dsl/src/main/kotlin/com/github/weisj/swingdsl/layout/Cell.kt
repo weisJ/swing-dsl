@@ -29,7 +29,7 @@ package com.github.weisj.swingdsl.layout
 import com.github.weisj.swingdsl.Modifiable
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.border.emptyBorder
-import com.github.weisj.swingdsl.component.DefaultJPanel
+import com.github.weisj.swingdsl.components.DefaultJPanel
 import com.github.weisj.swingdsl.core.binding.MutableProperty
 import com.github.weisj.swingdsl.core.binding.PropertyBinding
 import com.github.weisj.swingdsl.core.binding.toProperty

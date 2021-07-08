@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl
 
-import com.github.weisj.swingdsl.component.DefaultJPanel
-import com.github.weisj.swingdsl.component.ScrollRedirector
+import com.github.weisj.swingdsl.components.DefaultJPanel
+import com.github.weisj.swingdsl.components.ScrollRedirector
 import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.config.JFrameConfiguration

@@ -25,7 +25,7 @@
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
 import com.github.weisj.swingdsl.borderPanel
-import com.github.weisj.swingdsl.component.createFileBreadcrumbBar
+import com.github.weisj.swingdsl.components.createFileBreadcrumbBar
 import com.github.weisj.swingdsl.frame
 import com.github.weisj.swingdsl.model.file.FileTree
 import com.github.weisj.swingdsl.onSwingThread

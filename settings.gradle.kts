@@ -20,11 +20,13 @@ rootProject.name = "swing-extensions"
 
 include(
     "core",
+    "components",
     "laf-support",
     "dsl",
     "settings",
     "visual-padding",
-    "inspector"
+    "inspector",
+    "util"
 )
 
 for (p in rootProject.children) {

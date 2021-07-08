@@ -25,8 +25,8 @@
 package com.github.weisj.swingdsl.highlight
 
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.subtract
 import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
+import com.github.weisj.swingdsl.util.subtract
 import java.awt.Component
 import java.awt.Point
 import java.awt.Rectangle

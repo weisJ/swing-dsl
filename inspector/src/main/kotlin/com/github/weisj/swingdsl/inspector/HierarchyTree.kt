@@ -24,9 +24,10 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.component.HideableTree
-import com.github.weisj.swingdsl.component.HideableTreeModel
-import com.github.weisj.swingdsl.component.HideableTreeNode
+import com.github.weisj.swingdsl.components.HideableTree
+import com.github.weisj.swingdsl.components.HideableTreeModel
+import com.github.weisj.swingdsl.components.HideableTreeNode
+import com.github.weisj.swingdsl.components.addWithBinding
 import com.github.weisj.swingdsl.getWindow
 import com.github.weisj.swingdsl.properties
 import com.github.weisj.swingdsl.visibleBinding

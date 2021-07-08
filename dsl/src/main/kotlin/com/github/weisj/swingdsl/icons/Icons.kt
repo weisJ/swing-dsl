@@ -24,11 +24,11 @@
  */
 package com.github.weisj.swingdsl.icons
 
-import com.github.weisj.swingdsl.Insets
-import com.github.weisj.swingdsl.height
 import com.github.weisj.swingdsl.style.UIFactory
+import com.github.weisj.swingdsl.util.Insets
 import com.github.weisj.swingdsl.util.drawRect
-import com.github.weisj.swingdsl.width
+import com.github.weisj.swingdsl.util.height
+import com.github.weisj.swingdsl.util.width
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension

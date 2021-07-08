@@ -60,8 +60,8 @@
 package com.github.weisj.swingdsl.layout.miglayout.patched
 
 import com.github.weisj.swingdsl.getProperty
-import com.github.weisj.swingdsl.isEmpty
 import com.github.weisj.swingdsl.util.getVisualPaddingsForComponent
+import com.github.weisj.swingdsl.util.isEmpty
 import net.miginfocom.layout.ComponentWrapper
 import net.miginfocom.layout.ContainerWrapper
 import net.miginfocom.layout.LayoutUtil

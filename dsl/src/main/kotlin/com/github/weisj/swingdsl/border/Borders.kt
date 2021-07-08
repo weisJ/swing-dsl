@@ -24,10 +24,9 @@
  */
 package com.github.weisj.swingdsl.border
 
-import com.github.weisj.swingdsl.height
 import com.github.weisj.swingdsl.layout.getDefaultSpacingConfiguration
 import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.width
+import com.github.weisj.swingdsl.util.height
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics

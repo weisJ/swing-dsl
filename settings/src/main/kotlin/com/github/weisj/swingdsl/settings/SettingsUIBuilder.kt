@@ -25,7 +25,7 @@
 package com.github.weisj.swingdsl.settings
 
 import com.github.weisj.swingdsl.BuilderWithEnabledProperty
-import com.github.weisj.swingdsl.component.HyperlinkLabel
+import com.github.weisj.swingdsl.components.HyperlinkLabel
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.text.isConstantNullOrEmpty
 import com.github.weisj.swingdsl.highlight.LayoutTag

@@ -26,8 +26,8 @@ package com.github.weisj.swingdsl.settings.ui
 
 import com.github.weisj.swingdsl.ModifiableComponent
 import com.github.weisj.swingdsl.centered
-import com.github.weisj.swingdsl.component.DefaultJPanel
-import com.github.weisj.swingdsl.component.DefaultScrollableView
+import com.github.weisj.swingdsl.components.DefaultJPanel
+import com.github.weisj.swingdsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.conditionOf

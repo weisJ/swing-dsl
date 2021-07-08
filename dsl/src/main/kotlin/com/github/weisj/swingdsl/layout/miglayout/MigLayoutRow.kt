@@ -26,8 +26,8 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.layout.miglayout
 
-import com.github.weisj.swingdsl.component.CollapsibleTitledSeparator
-import com.github.weisj.swingdsl.component.TitledSeparator
+import com.github.weisj.swingdsl.components.CollapsibleTitledSeparator
+import com.github.weisj.swingdsl.components.TitledSeparator
 import com.github.weisj.swingdsl.core.binding.Property
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
@@ -57,7 +57,7 @@ import com.github.weisj.swingdsl.style.asUIResource
 import com.github.weisj.swingdsl.unaryPlus
 import com.github.weisj.swingdsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.util.getTextPropertyForComponent
-import com.github.weisj.swingdsl.width
+import com.github.weisj.swingdsl.util.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.ConstraintParser
