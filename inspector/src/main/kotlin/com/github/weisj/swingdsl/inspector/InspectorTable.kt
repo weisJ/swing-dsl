@@ -239,8 +239,8 @@ internal class InspectorTable(component: Component) : DefaultJPanel(BorderLayout
             titledRow("MigLayout Component Constraints") {
                 fullVisibleIf(comp.derive { it?.parent?.layout is PatchedMigLayout })
                 property("constraints", "miglayout.component.constraint")
-                property("cc.horizontal", "miglayout.component.constraint")
-                property("cc.horizontal", "miglayout.component.constraint")
+                property("cc.horizontal", "miglayout.component.cc.horizontal")
+                property("cc.horizontal", "miglayout.component.cc.vertical")
             }
         }
         hideableRow("Client Properties") {

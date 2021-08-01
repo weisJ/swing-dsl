@@ -262,7 +262,11 @@ internal class MigLayoutRow(
             if (getClientProperty(key) == false) {
                 // remove because for active row component state can be changed and we don't want to
                 // add listener to update value accordingly
-                putClientProperty(key, if (preserve) null else true)
+                if (preserve) {
+                    putClientProperty(key, null)
+                } else {
+                    putClientProperty(key, true)
+                }
                 // do not set to true, preserve old component state
                 return false
             }
@@ -437,6 +441,20 @@ internal class MigLayoutRow(
             incrementsIndentationLevel = incrementsIndent
         )
 
+        subRows.add(calculateInsertionIndex(subRows, insertionPosition), row)
+
+        if (label != null) {
+            issueSearchTag(label.component.textProperty(), label.createLayoutTag())
+            row.addComponent(label)
+        }
+
+        return row
+    }
+
+    private fun calculateInsertionIndex(
+        subRows: MutableList<MigLayoutRow>,
+        insertionPosition: InsertionPosition
+    ): Int {
         var insertIndex = subRows.size
         if (insertionPosition < InsertionPosition.TRAILING_SPACER) {
             if (insertionPosition < InsertionPosition.TRAILING_SEPARATOR) {
@@ -450,15 +468,7 @@ internal class MigLayoutRow(
                 }
             }
         }
-
-        subRows.add(insertIndex, row)
-
-        if (label != null) {
-            issueSearchTag(label.component.textProperty(), label.createLayoutTag())
-            row.addComponent(label)
-        }
-
-        return row
+        return insertIndex
     }
 
     private fun <T : JComponent> addTitleComponent(titleComponent: T, isEmpty: Boolean) {

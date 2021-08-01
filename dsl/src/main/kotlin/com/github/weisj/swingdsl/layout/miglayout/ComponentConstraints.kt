@@ -46,22 +46,26 @@ import javax.swing.text.JTextComponent
 
 internal fun overrideFlags(cc: CC, flags: Array<out Constraint>) {
     for (flag in flags) {
-        val w = flag.weight
-        when (flag.flag) {
-            CCFlags.grow -> if (w != null) cc.grow(w, w) else cc.grow()
-            CCFlags.growX -> cc.growX(w ?: 1000f)
-            CCFlags.growY -> cc.growY(w ?: 1000f)
+        setFlag(flag, cc)
+    }
+}
 
-            // If you have more than one component in a cell the alignment keywords will not work since the behavior would be Nondeterministic.
-            // You can however accomplish the same thing by setting a gap before and/or after the components.
-            // That gap may have a minimum size of 0 and a preferred size of a really large value to create a "pushing" gap.
-            // There is even a keyword for this: "push". So "gapleft push" will be the same as "align right" and work for multi-component cells as well.
-            // CCFlags.right -> horizontal.gapBefore = BoundSize(null, null, null, true, null)
+private fun setFlag(flag: Constraint, cc: CC) {
+    val w = flag.weight
+    when (flag.flag) {
+        CCFlags.grow -> if (w != null) cc.grow(w, w) else cc.grow()
+        CCFlags.growX -> cc.growX(w ?: 1000f)
+        CCFlags.growY -> cc.growY(w ?: 1000f)
 
-            CCFlags.push -> if (w != null) cc.push(w, w) else cc.push()
-            CCFlags.pushX -> if (w != null) cc.pushX(w) else cc.pushX()
-            CCFlags.pushY -> if (w != null) cc.pushY(w) else cc.pushY()
-        }
+        // If you have more than one component in a cell the alignment keywords will not work since the behavior would be Nondeterministic.
+        // You can however accomplish the same thing by setting a gap before and/or after the components.
+        // That gap may have a minimum size of 0 and a preferred size of a really large value to create a "pushing" gap.
+        // There is even a keyword for this: "push". So "gapleft push" will be the same as "align right" and work for multi-component cells as well.
+        // CCFlags.right -> horizontal.gapBefore = BoundSize(null, null, null, true, null)
+
+        CCFlags.push -> if (w != null) cc.push(w, w) else cc.push()
+        CCFlags.pushX -> if (w != null) cc.pushX(w) else cc.pushX()
+        CCFlags.pushY -> if (w != null) cc.pushY(w) else cc.pushY()
     }
 }
 

@@ -207,6 +207,7 @@ internal class ComponentPropertyBeans(
                 }.getOrDefault(false)
                 yield(PropertyBean(prefix + propertyName, propertyValue, changed))
             } catch (e: Exception) {
+                // If this fails simply don't show the property.
             }
         }
     }
