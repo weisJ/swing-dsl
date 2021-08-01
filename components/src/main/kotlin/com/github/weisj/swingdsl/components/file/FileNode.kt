@@ -188,7 +188,7 @@ open class NullFileNode internal constructor(name: String? = null) :
 private fun File?.safeToPath(): Path? = runCatching { this?.toPath() }.getOrNull()
 
 internal fun Path?.isHidden(): Boolean = runCatching {
-    if (this != null) Files.isHidden(this) else false
+    this != null && Files.isHidden(this)
 }.getOrElse { e ->
     e.printStackTrace()
     false

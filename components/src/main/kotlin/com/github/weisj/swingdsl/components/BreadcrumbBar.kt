@@ -63,7 +63,7 @@ interface BreadcrumbRenderer<in T> {
 fun interface NavigationListener<NodeType, T> : EventListener {
     fun onClick(index: Int, node: NodeType, item: T): Boolean
 
-    fun onClickInPopup(node: NodeType, item: T) {}
+    fun onClickInPopup(node: NodeType, item: T) { /* empty default implementation */ }
 }
 
 class BreadcrumbBar<NodeType, T>(
@@ -95,7 +95,7 @@ class BreadcrumbBar<NodeType, T>(
     private var popupMenu: JPopupMenu = JPopupMenu().apply {
         putClientProperty("maxPopupSize", Dimension(400, 400))
         addPopupMenuListener(object : PopupMenuListener {
-            override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) {}
+            override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) { /* do nothing */ }
 
             override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent?) {
                 popupIndex = -1

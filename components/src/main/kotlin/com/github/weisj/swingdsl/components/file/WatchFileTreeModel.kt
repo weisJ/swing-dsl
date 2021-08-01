@@ -115,6 +115,7 @@ class WatchFileTreeModel(
                 )
                 nodeMap.put(path, node)
             } catch (ignored: IOException) {
+                // Theres nothing we can do. File is simply not watched.
             }
         }
     }

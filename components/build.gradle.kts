@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     `java-library`
+    id("name.remal.sonarlint")
 }
 
 dependencies {

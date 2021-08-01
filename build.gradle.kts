@@ -7,7 +7,6 @@ import com.github.vlsi.gradle.properties.dsl.stringProperty
 import com.github.vlsi.gradle.properties.dsl.toBool
 import com.github.vlsi.gradle.publishing.dsl.simplifyXml
 import com.github.vlsi.gradle.publishing.dsl.versionFromResolution
-import name.remal.gradle_plugins.plugins.code_quality.sonar.SonarLintExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -149,14 +148,6 @@ allprojects {
                     }
                 }
             }
-        }
-    }
-
-    if (!skipSonarlint) {
-        apply(plugin = "name.remal.sonarlint")
-        val allowSonarlintFailures by props()
-        configure<SonarLintExtension> {
-            isIgnoreFailures = allowSonarlintFailures
         }
     }
 

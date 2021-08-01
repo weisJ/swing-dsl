@@ -150,52 +150,17 @@ open class FileTreeNode(
         if (depth < 0) return
         val childList = safeChildren
         if (childList.isNullOrEmpty()) return
-        backgroundWorker.runAggregated<ReloadOp>(
+        backgroundWorker.runAggregated(
             task = { publisher ->
                 addLoadIndicator()
                 traverseChildren { s ->
                     val nodes = childList.asSequence() + s.map { with(model) { createChildNode(it) } }
                     nodes.mapNotNull {
-                        val exists = !it.fileNode.isNonExistent
-                        val recentlyCreated = exists && it.fileNode.path?.let { path ->
-                            val time = Files.getAttribute(path, "creationTime") as? FileTime ?: return@let null
-                            val timeDifference = Instant.now().toEpochMilli() - time.toMillis()
-                            timeDifference < 1500
-                        } ?: false
-                        val isVisible =
-                            exists && (model.isShowHiddenFiles || !it.fileNode.isHiddenImpl(needsLocking = recentlyCreated))
-                        when {
-                            !isVisible -> {
-                                val index = childList.removeChild(it)
-                                if (index >= 0) ReloadOp.remove(it, index) else null
-                            }
-                            !childList.contains(it) -> {
-                                val index = childList.addChild(it)
-                                ReloadOp.add(it, index)
-                            }
-                            else -> null
-                        }
+                        doReloadOperation(it, childList)
                     }.filter { it.index >= 0 }.forEach(publisher)
                 }
             },
-            processor = { ops ->
-                val groupedOps = ops.groupBy(ReloadOp::type)
-                val addOps = groupedOps[ReloadOp.Type.ADD]
-                val removeOps = groupedOps[ReloadOp.Type.REMOVE]
-                if (addOps != null) {
-                    model.nodesWereInserted(
-                        this@FileTreeNode,
-                        addOps.toIntArray { it.index }
-                    )
-                }
-                if (removeOps != null) {
-                    model.nodesWereRemoved(
-                        this@FileTreeNode,
-                        removeOps.toIntArray { it.index },
-                        removeOps.toTypedArray { it.node }
-                    )
-                }
-            },
+            processor = ::processReloadOperations,
             finalizer = {
                 removeLoadIndicator()
                 fileNode.invalidate()
@@ -204,6 +169,50 @@ open class FileTreeNode(
                 }
             }
         )
+    }
+
+    private fun doReloadOperation(
+        node: FileTreeNode,
+        childList: MutableList<FileTreeNode>
+    ): ReloadOp? {
+        val exists = !node.fileNode.isNonExistent
+        val recentlyCreated = exists && fileNode.path?.let { path ->
+            val time = Files.getAttribute(path, "creationTime") as? FileTime ?: return@let null
+            val timeDifference = Instant.now().toEpochMilli() - time.toMillis()
+            timeDifference < 1500
+        } ?: false
+        val isVisible =
+            exists && (model.isShowHiddenFiles || !node.fileNode.isHiddenImpl(needsLocking = recentlyCreated))
+        return when {
+            !isVisible -> {
+                val index = childList.removeChild(node)
+                if (index >= 0) ReloadOp.remove(node, index) else null
+            }
+            !childList.contains(this) -> {
+                val index = childList.addChild(node)
+                ReloadOp.add(node, index)
+            }
+            else -> null
+        }
+    }
+
+    private fun processReloadOperations(ops: List<ReloadOp>) {
+        val groupedOps = ops.groupBy(ReloadOp::type)
+        val addOps = groupedOps[ReloadOp.Type.ADD]
+        val removeOps = groupedOps[ReloadOp.Type.REMOVE]
+        if (addOps != null) {
+            model.nodesWereInserted(
+                this@FileTreeNode,
+                addOps.toIntArray { it.index }
+            )
+        }
+        if (removeOps != null) {
+            model.nodesWereRemoved(
+                this@FileTreeNode,
+                removeOps.toIntArray { it.index },
+                removeOps.toTypedArray { it.node }
+            )
+        }
     }
 
     private fun addLoadIndicator() {

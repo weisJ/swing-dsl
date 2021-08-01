@@ -50,7 +50,7 @@ open class FileTreeModel(
         root = RootFileNode(this, roots)
     }
 
-    protected open fun beforeInit() {}
+    protected open fun beforeInit() { /* Relevant for WatchFileTreeModel */ }
 
     override fun reload(): Unit = rootNode.reload(Int.MAX_VALUE)
 
@@ -58,6 +58,6 @@ open class FileTreeModel(
         return FileTreeNode(this, this@FileTreeModel, fileNode!!)
     }
 
-    internal open fun register(node: FileTreeNode) {}
-    internal open fun unregister(node: FileTreeNode) {}
+    internal open fun register(node: FileTreeNode) { /* Default implementation. Do nothing */ }
+    internal open fun unregister(node: FileTreeNode) { /* Default implementation. Do nothing */ }
 }

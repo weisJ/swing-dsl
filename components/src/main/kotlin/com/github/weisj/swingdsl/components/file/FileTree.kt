@@ -111,7 +111,7 @@ open class FileTree protected constructor(
                 node.preload(preloadDepth)
             }
 
-            override fun treeWillCollapse(event: TreeExpansionEvent?) {}
+            override fun treeWillCollapse(event: TreeExpansionEvent?) { /* do nothing */ }
         })
     }
 }
