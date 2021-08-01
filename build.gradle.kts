@@ -151,6 +151,12 @@ allprojects {
         }
     }
 
+    if (skipSonarlint) {
+        tasks.withType<name.remal.gradle_plugins.plugins.code_quality.sonar.SonarLint>().configureEach {
+            enabled = false
+        }
+    }
+
     tasks.withType<AbstractArchiveTask>().configureEach {
         // Ensure builds are reproducible
         isPreserveFileTimestamps = false
