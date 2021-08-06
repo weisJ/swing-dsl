@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.darklaf.icons.IconLoader
+import com.github.weisj.darklaf.properties.icons.IconLoader
 import java.awt.Color
 import java.awt.Component
 import java.awt.Window

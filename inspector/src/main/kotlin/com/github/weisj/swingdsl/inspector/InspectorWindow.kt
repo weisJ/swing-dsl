@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.darklaf.icons.IconLoader
+import com.github.weisj.darklaf.properties.icons.IconLoader
 import com.github.weisj.swingdsl.border.emptyBorder
 import com.github.weisj.swingdsl.borderPanel
 import com.github.weisj.swingdsl.horizontalSplit

@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.components
 
-import com.github.weisj.darklaf.icons.IconLoader
+import com.github.weisj.darklaf.properties.icons.IconLoader
 import com.github.weisj.swingdsl.util.bottom
 import com.github.weisj.swingdsl.util.height
 import com.github.weisj.swingdsl.util.left

@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.darklaf.icons.DarkSVGIcon
+import com.github.weisj.darklaf.properties.icons.DarkSVGIcon
 import com.github.weisj.swingdsl.icons.SolidColorIcon
 import com.github.weisj.swingdsl.style.UIFactory
 import com.github.weisj.swingdsl.util.asCSSProperty
