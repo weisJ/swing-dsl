@@ -12,7 +12,6 @@ pluginManagement {
         idv("com.github.vlsi.gradle-extensions", "com.github.vlsi.vlsi-release-plugins")
         idv("com.github.vlsi.license-gather", "com.github.vlsi.vlsi-release-plugins")
         idv("com.github.vlsi.stage-vote-release", "com.github.vlsi.vlsi-release-plugins")
-        idv("name.remal.sonarlint")
     }
 }
 

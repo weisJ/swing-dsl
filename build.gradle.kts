@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.autostyle")
-    id("name.remal.sonarlint")
     id("com.github.vlsi.crlf")
     id("com.github.vlsi.gradle-extensions")
     id("com.github.vlsi.stage-vote-release")
@@ -20,7 +19,6 @@ plugins {
 }
 
 val skipJavadoc by props()
-val skipSonarlint by props(true)
 val enableMavenLocal by props()
 val enableGradleMetadata by props()
 val skipAutostyle by props()
@@ -148,12 +146,6 @@ allprojects {
                     }
                 }
             }
-        }
-    }
-
-    if (skipSonarlint) {
-        tasks.withType<name.remal.gradle_plugins.plugins.code_quality.sonar.SonarLint>().configureEach {
-            enabled = false
         }
     }
 
