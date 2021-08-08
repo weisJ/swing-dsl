@@ -24,9 +24,6 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.border.bottomBorder
-import com.github.weisj.swingdsl.components.DefaultJPanel
-import com.github.weisj.swingdsl.configureBorderLayout
 import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.bind
@@ -38,13 +35,16 @@ import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.not
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.unaryPlus
-import com.github.weisj.swingdsl.layout.ModifiablePanel
-import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.layout.RowBuilder
-import com.github.weisj.swingdsl.layout.miglayout.patched.PatchedMigLayout
-import com.github.weisj.swingdsl.layout.panel
-import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.unaryPlus
+import com.github.weisj.swingdsl.dsl.border.bottomBorder
+import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
+import com.github.weisj.swingdsl.dsl.configureBorderLayout
+import com.github.weisj.swingdsl.dsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.dsl.layout.Row
+import com.github.weisj.swingdsl.dsl.layout.RowBuilder
+import com.github.weisj.swingdsl.dsl.layout.miglayout.patched.PatchedMigLayout
+import com.github.weisj.swingdsl.dsl.layout.panel
+import com.github.weisj.swingdsl.dsl.scrollPane
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import net.miginfocom.swing.MigLayout
 import java.awt.BorderLayout
 import java.awt.CardLayout

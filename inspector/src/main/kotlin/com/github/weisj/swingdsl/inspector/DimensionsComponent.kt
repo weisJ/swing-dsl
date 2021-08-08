@@ -24,21 +24,21 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.border.emptyBorder
-import com.github.weisj.swingdsl.style.DynamicUI
-import com.github.weisj.swingdsl.util.SharedLazyComponents
-import com.github.weisj.swingdsl.util.bottom
-import com.github.weisj.swingdsl.util.drawCenteredString
-import com.github.weisj.swingdsl.util.drawDottedRectangle
-import com.github.weisj.swingdsl.util.drawRect
-import com.github.weisj.swingdsl.util.fillRect
-import com.github.weisj.swingdsl.util.left
-import com.github.weisj.swingdsl.util.right
-import com.github.weisj.swingdsl.util.setupStrokePainting
-import com.github.weisj.swingdsl.util.subtract
-import com.github.weisj.swingdsl.util.top
-import com.github.weisj.swingdsl.util.xCenter
-import com.github.weisj.swingdsl.util.yCenter
+import com.github.weisj.swingdsl.dsl.border.emptyBorder
+import com.github.weisj.swingdsl.dsl.style.DynamicUI
+import com.github.weisj.swingdsl.dsl.util.SharedLazyComponents
+import com.github.weisj.swingdsl.dsl.util.bottom
+import com.github.weisj.swingdsl.dsl.util.drawCenteredString
+import com.github.weisj.swingdsl.dsl.util.drawDottedRectangle
+import com.github.weisj.swingdsl.dsl.util.drawRect
+import com.github.weisj.swingdsl.dsl.util.fillRect
+import com.github.weisj.swingdsl.dsl.util.left
+import com.github.weisj.swingdsl.dsl.util.right
+import com.github.weisj.swingdsl.dsl.util.setupStrokePainting
+import com.github.weisj.swingdsl.dsl.util.subtract
+import com.github.weisj.swingdsl.dsl.util.top
+import com.github.weisj.swingdsl.dsl.util.xCenter
+import com.github.weisj.swingdsl.dsl.util.yCenter
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension

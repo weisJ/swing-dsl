@@ -31,8 +31,8 @@ import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.conditionOf
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.isConstantNullOrEmpty
-import com.github.weisj.swingdsl.layout.CellBuilder
-import com.github.weisj.swingdsl.layout.Row
+import com.github.weisj.swingdsl.dsl.layout.CellBuilder
+import com.github.weisj.swingdsl.dsl.layout.Row
 import java.awt.Color
 
 @DslMarker

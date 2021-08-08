@@ -24,9 +24,6 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
-import com.github.weisj.swingdsl.borderPanel
-import com.github.weisj.swingdsl.centered
-import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.inc
 import com.github.weisj.swingdsl.core.binding.observableProperty
@@ -34,14 +31,17 @@ import com.github.weisj.swingdsl.core.binding.plus
 import com.github.weisj.swingdsl.core.condition.isEqualTo
 import com.github.weisj.swingdsl.core.condition.isTrue
 import com.github.weisj.swingdsl.core.text.textOf
-import com.github.weisj.swingdsl.frame
-import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.layout.ModifiablePanel
-import com.github.weisj.swingdsl.layout.observableSelected
-import com.github.weisj.swingdsl.layout.observableText
-import com.github.weisj.swingdsl.layout.panel
-import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.unaryPlus
+import com.github.weisj.swingdsl.dsl.borderPanel
+import com.github.weisj.swingdsl.dsl.centered
+import com.github.weisj.swingdsl.dsl.config.CloseOperation
+import com.github.weisj.swingdsl.dsl.frame
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.dsl.layout.observableSelected
+import com.github.weisj.swingdsl.dsl.layout.observableText
+import com.github.weisj.swingdsl.dsl.layout.panel
+import com.github.weisj.swingdsl.dsl.scrollPane
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import javax.swing.JLabel
 
 data class Model(var boolValue: Boolean, var textValue: String)

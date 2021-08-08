@@ -24,7 +24,6 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.BuilderWithEnabledProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.and
@@ -33,6 +32,7 @@ import com.github.weisj.swingdsl.core.condition.isFalse
 import com.github.weisj.swingdsl.core.condition.isTrue
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
+import com.github.weisj.swingdsl.dsl.BuilderWithEnabledProperty
 import java.util.*
 import kotlin.reflect.KMutableProperty0
 

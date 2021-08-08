@@ -24,13 +24,13 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.IntelliJTheme
-import com.github.weisj.swingdsl.borderPanel
-import com.github.weisj.swingdsl.components.createFileBreadcrumbBar
-import com.github.weisj.swingdsl.components.file.FileTree
-import com.github.weisj.swingdsl.frame
-import com.github.weisj.swingdsl.onSwingThread
-import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.unaryPlus
+import com.github.weisj.swingdsl.dsl.borderPanel
+import com.github.weisj.swingdsl.dsl.components.createFileBreadcrumbBar
+import com.github.weisj.swingdsl.dsl.components.file.FileTree
+import com.github.weisj.swingdsl.dsl.frame
+import com.github.weisj.swingdsl.dsl.onSwingThread
+import com.github.weisj.swingdsl.dsl.scrollPane
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import java.awt.Dimension
 import javax.swing.filechooser.FileSystemView
 

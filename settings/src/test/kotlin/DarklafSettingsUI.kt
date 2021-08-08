@@ -25,10 +25,10 @@
 import com.github.weisj.darklaf.settings.ThemeSettings
 import com.github.weisj.darklaf.settings.ThemeSettingsUI
 import com.github.weisj.swingdsl.core.text.Text
-import com.github.weisj.swingdsl.layout.IndentationPolicy
-import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.observableUIManagerProperty
-import com.github.weisj.swingdsl.properties
+import com.github.weisj.swingdsl.dsl.layout.IndentationPolicy
+import com.github.weisj.swingdsl.dsl.layout.Row
+import com.github.weisj.swingdsl.dsl.observableUIManagerProperty
+import com.github.weisj.swingdsl.dsl.properties
 
 fun Row.createDarklafSettings() {
     indent(IndentationPolicy.NO)

@@ -22,11 +22,11 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.components
+package com.github.weisj.swingdsl.dsl.components
 
-import com.github.weisj.swingdsl.components.file.FileNode
-import com.github.weisj.swingdsl.components.file.FileTree
-import com.github.weisj.swingdsl.components.file.FileTreeNode
+import com.github.weisj.swingdsl.dsl.components.file.FileNode
+import com.github.weisj.swingdsl.dsl.components.file.FileTree
+import com.github.weisj.swingdsl.dsl.components.file.FileTreeNode
 
 class FileBreadcrumbBar private constructor() {
     companion object {

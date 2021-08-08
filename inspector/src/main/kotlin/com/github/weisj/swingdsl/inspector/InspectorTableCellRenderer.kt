@@ -24,8 +24,8 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.style.UIFactory
-import com.github.weisj.swingdsl.util.SharedLazyComponents
+import com.github.weisj.swingdsl.dsl.style.UIFactory
+import com.github.weisj.swingdsl.dsl.util.SharedLazyComponents
 import net.miginfocom.layout.AC
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.DimConstraint

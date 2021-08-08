@@ -24,15 +24,15 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.getWindow
-import com.github.weisj.swingdsl.highlight.AnchoredLayoutTag
-import com.github.weisj.swingdsl.highlight.ComponentHighlighter
-import com.github.weisj.swingdsl.highlight.LayoutTag
-import com.github.weisj.swingdsl.highlight.RegionPainter
-import com.github.weisj.swingdsl.highlight.createLayoutTag
-import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.util.drawRect
-import com.github.weisj.swingdsl.util.fillRect
+import com.github.weisj.swingdsl.dsl.getWindow
+import com.github.weisj.swingdsl.dsl.highlight.AnchoredLayoutTag
+import com.github.weisj.swingdsl.dsl.highlight.ComponentHighlighter
+import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.highlight.RegionPainter
+import com.github.weisj.swingdsl.dsl.highlight.createLayoutTag
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.util.drawRect
+import com.github.weisj.swingdsl.dsl.util.fillRect
 import java.awt.AWTEvent
 import java.awt.Color
 import java.awt.Component

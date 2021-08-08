@@ -31,8 +31,8 @@ import com.github.weisj.swingdsl.core.binding.container.ObservableList
 import com.github.weisj.swingdsl.core.binding.toProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textOf
-import com.github.weisj.swingdsl.highlight.createSink
-import com.github.weisj.swingdsl.layout.Row
+import com.github.weisj.swingdsl.dsl.highlight.createSink
+import com.github.weisj.swingdsl.dsl.layout.Row
 import kotlin.reflect.KMutableProperty0
 
 class ValueBuilder<T>(

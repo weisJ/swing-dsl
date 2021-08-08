@@ -25,8 +25,9 @@
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.DarculaTheme
 import com.github.weisj.swingdsl.core.text.unaryPlus
-import com.github.weisj.swingdsl.frame
-import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.dsl.frame
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.boolean
 import com.github.weisj.swingdsl.settings.category
@@ -34,7 +35,6 @@ import com.github.weisj.swingdsl.settings.choice
 import com.github.weisj.swingdsl.settings.createSettingsPanel
 import com.github.weisj.swingdsl.settings.int
 import com.github.weisj.swingdsl.settings.string
-import com.github.weisj.swingdsl.unaryPlus
 import java.awt.Color
 import java.awt.Dimension
 

@@ -23,7 +23,7 @@
  *
  */
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
-import com.github.weisj.swingdsl.util.toCapitalized
+import com.github.weisj.swingdsl.dsl.util.toCapitalized
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass

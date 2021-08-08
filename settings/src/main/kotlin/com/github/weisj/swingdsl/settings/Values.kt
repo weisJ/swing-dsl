@@ -24,14 +24,14 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.comboBoxModelOf
 import com.github.weisj.swingdsl.core.binding.MutableProperty
 import com.github.weisj.swingdsl.core.binding.PseudoObservableProperty
 import com.github.weisj.swingdsl.core.binding.container.ObservableList
 import com.github.weisj.swingdsl.core.text.Text
-import com.github.weisj.swingdsl.layout.CellBuilder
-import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.renderer.SimpleListCellRenderer
+import com.github.weisj.swingdsl.dsl.comboBoxModelOf
+import com.github.weisj.swingdsl.dsl.layout.CellBuilder
+import com.github.weisj.swingdsl.dsl.layout.Row
+import com.github.weisj.swingdsl.dsl.renderer.SimpleListCellRenderer
 
 class StringValue(element: ContainedElement<Group>, displayName: Text, value: MutableProperty<String>) :
     DefaultValue<String>(element, displayName, value) {

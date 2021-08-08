@@ -22,14 +22,14 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.components
+package com.github.weisj.swingdsl.dsl.components
 
 import com.github.weisj.darklaf.properties.icons.IconLoader
-import com.github.weisj.swingdsl.util.bottom
-import com.github.weisj.swingdsl.util.height
-import com.github.weisj.swingdsl.util.left
-import com.github.weisj.swingdsl.util.toHtml
-import com.github.weisj.swingdsl.util.width
+import com.github.weisj.swingdsl.dsl.util.bottom
+import com.github.weisj.swingdsl.dsl.util.height
+import com.github.weisj.swingdsl.dsl.util.left
+import com.github.weisj.swingdsl.dsl.util.toHtml
+import com.github.weisj.swingdsl.dsl.util.width
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension

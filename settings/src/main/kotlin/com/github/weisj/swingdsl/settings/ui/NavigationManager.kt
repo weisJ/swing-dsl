@@ -27,9 +27,9 @@ package com.github.weisj.swingdsl.settings.ui
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.observableProperty
 import com.github.weisj.swingdsl.core.collection.UndoRedoList
-import com.github.weisj.swingdsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.util.ModificationLock
 import com.github.weisj.swingdsl.settings.Category
-import com.github.weisj.swingdsl.util.ModificationLock
 
 data class NavigationPosition(
     val category: Category,

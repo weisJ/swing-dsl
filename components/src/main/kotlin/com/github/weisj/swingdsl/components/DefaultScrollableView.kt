@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.components
+package com.github.weisj.swingdsl.dsl.components
 
 import com.github.weisj.swingdsl.laf.ScrollableView
 

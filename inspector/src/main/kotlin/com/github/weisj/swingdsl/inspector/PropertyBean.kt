@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl.inspector
 
-import com.github.weisj.swingdsl.highlight.LayoutTag
-import com.github.weisj.swingdsl.layout.miglayout.patched.PatchedMigLayout
-import com.github.weisj.swingdsl.util.toCapitalized
+import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.layout.miglayout.patched.PatchedMigLayout
+import com.github.weisj.swingdsl.dsl.util.toCapitalized
 import net.miginfocom.layout.AC
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.ConstraintParser

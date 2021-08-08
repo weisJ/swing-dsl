@@ -24,7 +24,6 @@
  */
 import com.github.weisj.darklaf.LafManager
 import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
-import com.github.weisj.swingdsl.config.CloseOperation
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.container.observableListOf
 import com.github.weisj.swingdsl.core.binding.ensureMaxCapacity
@@ -39,13 +38,14 @@ import com.github.weisj.swingdsl.core.binding.setValue
 import com.github.weisj.swingdsl.core.binding.withFallback
 import com.github.weisj.swingdsl.core.condition.and
 import com.github.weisj.swingdsl.core.text.textOf
-import com.github.weisj.swingdsl.frame
-import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.layout.observableIntValue
-import com.github.weisj.swingdsl.layout.panel
-import com.github.weisj.swingdsl.listModelOf
-import com.github.weisj.swingdsl.observableSelection
-import com.github.weisj.swingdsl.toKeyStroke
+import com.github.weisj.swingdsl.dsl.config.CloseOperation
+import com.github.weisj.swingdsl.dsl.frame
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.layout.observableIntValue
+import com.github.weisj.swingdsl.dsl.layout.panel
+import com.github.weisj.swingdsl.dsl.listModelOf
+import com.github.weisj.swingdsl.dsl.observableSelection
+import com.github.weisj.swingdsl.dsl.toKeyStroke
 import java.awt.event.KeyEvent
 
 class GroceryList {

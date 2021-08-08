@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.util
+package com.github.weisj.swingdsl.dsl.util
 
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.SwingWorker

@@ -28,19 +28,19 @@ import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.binding.observableProperty
-import com.github.weisj.swingdsl.highlight.ComponentHighlighter
-import com.github.weisj.swingdsl.highlight.MaskedOvalPainter
-import com.github.weisj.swingdsl.highlight.SearchPresenter
-import com.github.weisj.swingdsl.highlight.SearchResult
-import com.github.weisj.swingdsl.highlight.SearchResultItem
-import com.github.weisj.swingdsl.highlight.search
+import com.github.weisj.swingdsl.dsl.highlight.ComponentHighlighter
+import com.github.weisj.swingdsl.dsl.highlight.MaskedOvalPainter
+import com.github.weisj.swingdsl.dsl.highlight.SearchPresenter
+import com.github.weisj.swingdsl.dsl.highlight.SearchResult
+import com.github.weisj.swingdsl.dsl.highlight.SearchResultItem
+import com.github.weisj.swingdsl.dsl.highlight.search
+import com.github.weisj.swingdsl.dsl.layered
+import com.github.weisj.swingdsl.dsl.style.UIFactory
 import com.github.weisj.swingdsl.laf.WrappedComponent
-import com.github.weisj.swingdsl.layered
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.Element
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.getNearestCategory
-import com.github.weisj.swingdsl.style.UIFactory
 import javax.swing.JComponent
 import javax.swing.JLayeredPane
 

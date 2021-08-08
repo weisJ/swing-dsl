@@ -24,18 +24,18 @@
  */
 package com.github.weisj.swingdsl.settings
 
-import com.github.weisj.swingdsl.BuilderWithEnabledProperty
-import com.github.weisj.swingdsl.components.HyperlinkLabel
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.text.isConstantNullOrEmpty
-import com.github.weisj.swingdsl.highlight.LayoutTag
-import com.github.weisj.swingdsl.highlight.SearchContext
-import com.github.weisj.swingdsl.highlight.SearchPresenter
-import com.github.weisj.swingdsl.highlight.createSink
-import com.github.weisj.swingdsl.layout.IndentationPolicy
-import com.github.weisj.swingdsl.layout.ModifiablePanel
-import com.github.weisj.swingdsl.layout.Row
-import com.github.weisj.swingdsl.layout.panel
+import com.github.weisj.swingdsl.dsl.BuilderWithEnabledProperty
+import com.github.weisj.swingdsl.dsl.components.HyperlinkLabel
+import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.highlight.SearchContext
+import com.github.weisj.swingdsl.dsl.highlight.SearchPresenter
+import com.github.weisj.swingdsl.dsl.highlight.createSink
+import com.github.weisj.swingdsl.dsl.layout.IndentationPolicy
+import com.github.weisj.swingdsl.dsl.layout.ModifiablePanel
+import com.github.weisj.swingdsl.dsl.layout.Row
+import com.github.weisj.swingdsl.dsl.layout.panel
 import com.github.weisj.swingdsl.settings.ui.NavigationPosition
 import com.github.weisj.swingdsl.settings.ui.SettingsPanel
 import com.github.weisj.swingdsl.settings.ui.SettingsSearchResult

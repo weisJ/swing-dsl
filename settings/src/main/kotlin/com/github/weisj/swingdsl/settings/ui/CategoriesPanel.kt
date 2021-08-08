@@ -24,22 +24,22 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
-import com.github.weisj.swingdsl.ModifiableComponent
-import com.github.weisj.swingdsl.centered
-import com.github.weisj.swingdsl.components.DefaultJPanel
-import com.github.weisj.swingdsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.conditionOf
 import com.github.weisj.swingdsl.core.condition.or
-import com.github.weisj.swingdsl.highlight.LayoutTag
-import com.github.weisj.swingdsl.invokeLater
+import com.github.weisj.swingdsl.dsl.ModifiableComponent
+import com.github.weisj.swingdsl.dsl.centered
+import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
+import com.github.weisj.swingdsl.dsl.components.DefaultScrollableView
+import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.style.DynamicUI
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import com.github.weisj.swingdsl.laf.ScrollableView
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.settings.UIContext
 import com.github.weisj.swingdsl.settings.createCategoryPanel
-import com.github.weisj.swingdsl.style.DynamicUI
-import com.github.weisj.swingdsl.unaryPlus
 import java.awt.CardLayout
 import java.awt.Container
 import java.awt.Dimension

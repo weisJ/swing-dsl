@@ -25,12 +25,12 @@
 package com.github.weisj.swingdsl.inspector
 
 import com.github.weisj.darklaf.properties.icons.IconLoader
-import com.github.weisj.swingdsl.border.emptyBorder
-import com.github.weisj.swingdsl.borderPanel
-import com.github.weisj.swingdsl.horizontalSplit
-import com.github.weisj.swingdsl.invokeLater
-import com.github.weisj.swingdsl.scrollPane
-import com.github.weisj.swingdsl.unaryPlus
+import com.github.weisj.swingdsl.dsl.border.emptyBorder
+import com.github.weisj.swingdsl.dsl.borderPanel
+import com.github.weisj.swingdsl.dsl.horizontalSplit
+import com.github.weisj.swingdsl.dsl.invokeLater
+import com.github.weisj.swingdsl.dsl.scrollPane
+import com.github.weisj.swingdsl.dsl.unaryPlus
 import java.awt.Component
 import javax.swing.JDialog
 
