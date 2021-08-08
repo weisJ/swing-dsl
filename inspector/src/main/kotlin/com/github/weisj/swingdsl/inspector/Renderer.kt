@@ -27,9 +27,9 @@ package com.github.weisj.swingdsl.inspector
 import com.github.weisj.darklaf.properties.icons.DarkSVGIcon
 import com.github.weisj.swingdsl.dsl.icons.SolidColorIcon
 import com.github.weisj.swingdsl.dsl.style.UIFactory
-import com.github.weisj.swingdsl.dsl.util.asCSSProperty
-import com.github.weisj.swingdsl.dsl.util.toHex
-import com.github.weisj.swingdsl.dsl.util.toHtml
+import com.github.weisj.swingdsl.util.asCSSProperty
+import com.github.weisj.swingdsl.util.toHex
+import com.github.weisj.swingdsl.util.toHtml
 import net.miginfocom.layout.AC
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC

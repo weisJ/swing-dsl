@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.util
+package com.github.weisj.swingdsl.util
 
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.contracts.ExperimentalContracts

@@ -32,7 +32,6 @@ import com.github.weisj.swingdsl.core.text.TextRadioButton
 import com.github.weisj.swingdsl.dsl.icons.ArrowDownIcon
 import com.github.weisj.swingdsl.dsl.icons.ArrowRightIcon
 import com.github.weisj.swingdsl.dsl.util.SharedLazyComponents
-import com.github.weisj.swingdsl.dsl.util.mix
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.ComponentFactory
 import com.github.weisj.swingdsl.laf.ComponentSpec
@@ -41,6 +40,7 @@ import com.github.weisj.swingdsl.laf.SelfWrappedComponent
 import com.github.weisj.swingdsl.laf.StateValue
 import com.github.weisj.swingdsl.laf.TextProperty
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.util.mix
 import java.awt.Color
 import java.util.function.Consumer
 import javax.swing.Icon

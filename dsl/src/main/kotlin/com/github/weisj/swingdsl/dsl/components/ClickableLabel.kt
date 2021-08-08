@@ -29,7 +29,7 @@ import com.github.weisj.swingdsl.core.text.TextLabel
 import com.github.weisj.swingdsl.dsl.listeners.ClickListener
 import com.github.weisj.swingdsl.dsl.on
 import com.github.weisj.swingdsl.dsl.toKeyStroke
-import com.github.weisj.swingdsl.dsl.util.toHtml
+import com.github.weisj.swingdsl.util.toHtml
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.ActionEvent

@@ -24,7 +24,7 @@
  */
 
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.weisj.swingdsl.dsl.components
+package com.github.weisj.swingdsl.components
 
 import java.awt.Component
 import java.awt.Point

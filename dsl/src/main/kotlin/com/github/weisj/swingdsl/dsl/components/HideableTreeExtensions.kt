@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl.dsl.components
 
+import com.github.weisj.swingdsl.components.HideableTree
+import com.github.weisj.swingdsl.components.HideableTreeNode
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.dsl.onSwingThread
 

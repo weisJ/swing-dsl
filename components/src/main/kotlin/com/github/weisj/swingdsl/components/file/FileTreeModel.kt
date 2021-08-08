@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.components.file
+package com.github.weisj.swingdsl.components.file
 
 import javax.swing.filechooser.FileSystemView
 import javax.swing.tree.DefaultTreeModel

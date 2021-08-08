@@ -24,10 +24,10 @@
  */
 package com.github.weisj.swingdsl.dsl.highlight
 
-import com.github.weisj.swingdsl.dsl.util.drawRect
-import com.github.weisj.swingdsl.dsl.util.drawRoundedRectangle
-import com.github.weisj.swingdsl.dsl.util.fillRect
-import com.github.weisj.swingdsl.dsl.util.setupStrokePainting
+import com.github.weisj.swingdsl.util.drawRect
+import com.github.weisj.swingdsl.util.drawRoundedRectangle
+import com.github.weisj.swingdsl.util.fillRect
+import com.github.weisj.swingdsl.util.setupStrokePainting
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics

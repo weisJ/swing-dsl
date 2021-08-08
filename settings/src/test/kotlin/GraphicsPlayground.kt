@@ -26,8 +26,8 @@ import com.github.weisj.swingdsl.dsl.borderPanel
 import com.github.weisj.swingdsl.dsl.frame
 import com.github.weisj.swingdsl.dsl.onSwingThread
 import com.github.weisj.swingdsl.dsl.unaryPlus
-import com.github.weisj.swingdsl.dsl.util.drawRect
-import com.github.weisj.swingdsl.dsl.util.drawRoundedRectangle
+import com.github.weisj.swingdsl.util.drawRect
+import com.github.weisj.swingdsl.util.drawRoundedRectangle
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics

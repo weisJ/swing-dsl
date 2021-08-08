@@ -25,8 +25,8 @@
 package com.github.weisj.swingdsl.inspector
 
 import com.github.weisj.swingdsl.dsl.style.UIFactory
-import com.github.weisj.swingdsl.dsl.util.asCSSProperty
-import com.github.weisj.swingdsl.dsl.util.escapeXmlEntities
+import com.github.weisj.swingdsl.util.asCSSProperty
+import com.github.weisj.swingdsl.util.escapeXmlEntities
 import java.awt.Component
 import javax.swing.JTree
 import javax.swing.tree.DefaultTreeCellRenderer

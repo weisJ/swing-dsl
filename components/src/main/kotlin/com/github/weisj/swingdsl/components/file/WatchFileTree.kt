@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.components.file
+package com.github.weisj.swingdsl.components.file
 
 import java.io.File
 import java.nio.file.Path

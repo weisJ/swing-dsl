@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
-import com.github.weisj.swingdsl.dsl.components.HideableTree
-import com.github.weisj.swingdsl.dsl.components.HideableTreeModel
-import com.github.weisj.swingdsl.dsl.components.HideableTreeNode
+import com.github.weisj.swingdsl.components.HideableTree
+import com.github.weisj.swingdsl.components.HideableTreeModel
+import com.github.weisj.swingdsl.components.HideableTreeNode
 import com.github.weisj.swingdsl.dsl.components.addWithBinding
 import com.github.weisj.swingdsl.dsl.properties
 import com.github.weisj.swingdsl.dsl.style.stripUIResource

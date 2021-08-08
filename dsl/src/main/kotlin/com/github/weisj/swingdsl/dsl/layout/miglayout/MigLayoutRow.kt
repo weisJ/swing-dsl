@@ -55,9 +55,9 @@ import com.github.weisj.swingdsl.dsl.style.asUIResource
 import com.github.weisj.swingdsl.dsl.unaryPlus
 import com.github.weisj.swingdsl.dsl.util.SharedLazyComponents
 import com.github.weisj.swingdsl.dsl.util.getTextPropertyForComponent
-import com.github.weisj.swingdsl.dsl.util.width
 import com.github.weisj.swingdsl.laf.CollapsibleComponent
 import com.github.weisj.swingdsl.laf.WrappedComponent
+import com.github.weisj.swingdsl.util.width
 import net.miginfocom.layout.BoundSize
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.ConstraintParser

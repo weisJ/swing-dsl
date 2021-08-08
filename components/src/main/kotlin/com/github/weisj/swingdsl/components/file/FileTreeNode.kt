@@ -22,10 +22,10 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.components.file
+package com.github.weisj.swingdsl.components.file
 
-import com.github.weisj.swingdsl.dsl.components.Hideable
-import com.github.weisj.swingdsl.dsl.util.BackgroundWorker
+import com.github.weisj.swingdsl.components.Hideable
+import com.github.weisj.swingdsl.util.BackgroundWorker
 import java.nio.file.Files
 import java.nio.file.WatchKey
 import java.nio.file.attribute.FileTime

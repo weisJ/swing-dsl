@@ -24,6 +24,9 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
+import com.github.weisj.swingdsl.components.BreadcrumbBar
+import com.github.weisj.swingdsl.components.DefaultBreadCrumbRenderer
+import com.github.weisj.swingdsl.components.ListBreadcrumbModel
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
@@ -37,11 +40,8 @@ import com.github.weisj.swingdsl.dsl.border.emptyBorder
 import com.github.weisj.swingdsl.dsl.border.topBorder
 import com.github.weisj.swingdsl.dsl.borderPanel
 import com.github.weisj.swingdsl.dsl.clampSizes
-import com.github.weisj.swingdsl.dsl.components.BreadcrumbBar
-import com.github.weisj.swingdsl.dsl.components.DefaultBreadCrumbRenderer
 import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
 import com.github.weisj.swingdsl.dsl.components.HyperlinkLabel
-import com.github.weisj.swingdsl.dsl.components.ListBreadcrumbModel
 import com.github.weisj.swingdsl.dsl.components.SearchField
 import com.github.weisj.swingdsl.dsl.configureBorderLayout
 import com.github.weisj.swingdsl.dsl.highlight.DefaultSearchContext

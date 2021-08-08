@@ -26,12 +26,12 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.weisj.swingdsl.dsl.layout
 
+import com.github.weisj.swingdsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.dsl.ModifiableComponent
 import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
-import com.github.weisj.swingdsl.dsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.dsl.getWindow
 import com.github.weisj.swingdsl.dsl.invokeLater
 import com.github.weisj.swingdsl.dsl.listeners.registerAWTEventListener

@@ -24,7 +24,7 @@
  */
 package com.github.weisj.swingdsl.dsl
 
-import com.github.weisj.swingdsl.dsl.components.FillingLayeredPane
+import com.github.weisj.swingdsl.components.FillingLayeredPane
 import com.github.weisj.swingdsl.dsl.config.JComponentConfiguration
 import com.github.weisj.swingdsl.dsl.config.JComponentConfigurationImpl
 import com.github.weisj.swingdsl.laf.WrappedComponent

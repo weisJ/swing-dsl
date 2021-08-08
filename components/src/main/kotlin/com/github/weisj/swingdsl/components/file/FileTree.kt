@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.components.file
+package com.github.weisj.swingdsl.components.file
 
-import com.github.weisj.swingdsl.dsl.components.HideableTreeSelectionModel
+import com.github.weisj.swingdsl.components.HideableTreeSelectionModel
 import java.io.File
 import java.nio.file.Path
 import javax.swing.JTree

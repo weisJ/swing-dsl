@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
+import com.github.weisj.swingdsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.condition.conditionOf
@@ -31,7 +32,6 @@ import com.github.weisj.swingdsl.core.condition.or
 import com.github.weisj.swingdsl.dsl.ModifiableComponent
 import com.github.weisj.swingdsl.dsl.centered
 import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
-import com.github.weisj.swingdsl.dsl.components.DefaultScrollableView
 import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.dsl.invokeLater
 import com.github.weisj.swingdsl.dsl.style.DynamicUI

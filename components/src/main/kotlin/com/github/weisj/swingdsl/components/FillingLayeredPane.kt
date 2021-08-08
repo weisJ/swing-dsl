@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.github.weisj.swingdsl.dsl.components
+package com.github.weisj.swingdsl.components
 
 import java.awt.Dimension
 import javax.swing.JComponent

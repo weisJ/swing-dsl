@@ -24,9 +24,9 @@
  */
 package com.github.weisj.swingdsl.dsl.components
 
-import com.github.weisj.swingdsl.dsl.util.ModificationLock
-import com.github.weisj.swingdsl.dsl.util.ancestorMatching
 import com.github.weisj.swingdsl.laf.ScrollableView
+import com.github.weisj.swingdsl.util.ModificationLock
+import com.github.weisj.swingdsl.util.ancestorMatching
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Dimension
