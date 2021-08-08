@@ -218,7 +218,9 @@ class SettingsPanel(private val categories: List<Category>) :
     private fun createBreadCrumbBar(): BreadcrumbBar<*, Element> {
         val model = ListBreadcrumbModel<Element>()
         return BreadcrumbBar(model).apply {
-            padding = getDefaultSpacingConfiguration().dialogLeftRight
+            val spaceConfig = getDefaultSpacingConfiguration()
+            margin.left = spaceConfig.dialogLeftRight
+            margin.right = spaceConfig.dialogLeftRight
             renderer = DynamicUI.withBoldFont(
                 DefaultBreadCrumbRenderer(
                     stringFunc = {
