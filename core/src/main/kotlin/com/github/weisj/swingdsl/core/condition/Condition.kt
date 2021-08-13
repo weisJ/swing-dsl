@@ -38,7 +38,7 @@ typealias ObservableCondition = ObservableProperty<Boolean>
  * Condition with a constant value.
  */
 class ConstantCondition(private val value: Boolean) : ObservableCondition {
-    override fun onChange(callback: (Boolean) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
         /* Do nothing. Value never changes */
     }
 
@@ -53,8 +53,8 @@ internal class ObservablePropertyCondition<T>(
     private val property: ObservableProperty<T>,
     private val checker: (T) -> Boolean
 ) : ObservableCondition {
-    override fun onChange(callback: (Boolean) -> Unit) {
-        property.onChange { callback(get()) }
+    override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
+        property.onChange(observeKey) { callback(get()) }
     }
 
     override fun get(): Boolean = checker(property.get())

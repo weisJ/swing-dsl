@@ -28,22 +28,22 @@ import java.util.*
 
 object Locales {
 
-    private val listeners by lazy { mutableSetOf<(Locale) -> Unit>() }
+    private val listeners by lazy { mutableMapOf<Any, (Locale) -> Unit>() }
     private var currentLocale = Locale.getDefault()
 
-    fun registerListener(listener: (Locale) -> Unit) {
-        listeners.add(listener)
+    fun registerListener(key: Any, listener: (Locale) -> Unit) {
+        listeners[key] = listener
     }
 
-    fun removeListener(listener: (Locale) -> Unit) {
-        listeners.remove(listener)
+    fun removeListener(key: Any) {
+        listeners.remove(key)
     }
 
     fun setLocale(locale: Locale) {
         if (currentLocale != locale) {
             currentLocale = locale
             Locale.setDefault(locale)
-            listeners.forEach { it(locale) }
+            listeners.forEach { (_, it) -> it(locale) }
         }
     }
 }

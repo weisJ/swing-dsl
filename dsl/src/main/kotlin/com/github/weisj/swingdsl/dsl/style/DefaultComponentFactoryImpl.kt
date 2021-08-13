@@ -58,16 +58,16 @@ import javax.swing.UIManager
 internal class TextPropertyWrapper(internal val text: Text) : TextProperty {
     override fun get(): String = text.get()
 
-    override fun onChange(callback: Consumer<String>) {
-        text.onChange { callback.accept(it) }
+    override fun onChange(observeKey: Any?, callback: Consumer<String>) {
+        text.onChange(observeKey) { callback.accept(it) }
     }
 }
 
 internal class TextWrapper(internal val textProp: TextProperty) : Text {
     override fun get(): String = textProp.get()
 
-    override fun onChange(callback: (String) -> Unit) {
-        textProp.onChange(callback)
+    override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
+        textProp.onChange(observeKey, callback)
     }
 }
 

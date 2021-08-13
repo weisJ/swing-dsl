@@ -48,7 +48,7 @@ data class ConstantText(internal val text: String) : Text {
 
     override fun get(): String = text
 
-    override fun onChange(callback: (String) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
         /* Do nothing. Constant values never change */
     }
 }

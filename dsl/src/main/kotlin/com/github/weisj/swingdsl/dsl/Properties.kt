@@ -40,7 +40,7 @@ inline fun <reified T> Component.getProperty(key: Any): T? {
 internal class UIManagerProperty<T>(private val key: String, private val type: Class<T>) : ObservableProperty<T> {
     override fun get(): T = type.cast(UIManager.get(key, Locale.getDefault()))!!
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         DynamicUI.registerUIListener { callback(get()) }
     }
 }

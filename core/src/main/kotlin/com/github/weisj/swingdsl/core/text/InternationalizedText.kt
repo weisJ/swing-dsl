@@ -40,7 +40,7 @@ data class InternationalizedText(private val bundle: DynamicResourceBundle, priv
 
     override fun get(): String = bundle.bundle.getString(resourceString)
 
-    override fun onChange(callback: (String) -> Unit) {
-        Locales.registerListener { callback(get()) }
+    override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
+        Locales.registerListener(observeKey ?: callback) { callback(get()) }
     }
 }

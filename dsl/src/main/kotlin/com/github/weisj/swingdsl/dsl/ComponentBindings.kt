@@ -39,7 +39,7 @@ import javax.swing.text.JTextComponent
 fun Component.visibleBinding(): ObservableCondition = object : ObservableCondition {
     override fun get(): Boolean = isVisible
 
-    override fun onChange(callback: (Boolean) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
         addComponentListener(object : ComponentAdapter() {
             override fun componentShown(e: ComponentEvent?) = callback(get())
             override fun componentHidden(e: ComponentEvent?) = callback(get())
@@ -50,7 +50,7 @@ fun Component.visibleBinding(): ObservableCondition = object : ObservableConditi
 fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
     override fun get(): IntArray = selectedIndicesArray
 
-    override fun onChange(callback: (IntArray) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (IntArray) -> Unit) {
         addListSelectionListener {
             if (!it.valueIsAdjusting) {
                 callback(get())
@@ -68,7 +68,7 @@ fun JTextComponent.observableText(): ObservableMutableProperty<String> =
             text = value
         }
 
-        override fun onChange(callback: (String) -> Unit) {
+        override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
             addDocumentChangeListener { callback(get()) }
         }
     }
@@ -81,7 +81,7 @@ fun AbstractButton.observableSelected(): ObservableMutableProperty<Boolean> =
             isSelected = value
         }
 
-        override fun onChange(callback: (Boolean) -> Unit) {
+        override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
             addChangeListener { callback(get()) }
         }
     }
@@ -95,7 +95,7 @@ fun <V> JSpinner.observableValue(): ObservableMutableProperty<V> =
             this@observableValue.value = value
         }
 
-        override fun onChange(callback: (V) -> Unit) {
+        override fun onChange(observeKey: Any?, callback: (V) -> Unit) {
             addChangeListener { callback(get()) }
         }
     }

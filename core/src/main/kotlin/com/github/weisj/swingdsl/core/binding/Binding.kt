@@ -55,20 +55,24 @@ data class PropertyBinding<V>(
 }
 
 interface Observable<out T> {
-    fun onChange(callback: (T) -> Unit)
+    fun onChange(callback: (T) -> Unit) {
+        onChange(null, callback)
+    }
+
+    fun onChange(observeKey: Any?, callback: (T) -> Unit)
 }
 
 class PseudoObservableProperty<T>(val getter: () -> T) : ObservableProperty<T> {
     override fun get(): T = getter()
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         /* Can't know whether something changed */
     }
 }
 
 interface ObservableProperty<out T> : Property<T>, Observable<T>
 
-fun <T> ObservableProperty<T>.onChange(invokeOnce: Boolean, callback: (T) -> Unit) {
+fun <T> ObservableProperty<T>.onChangeInit(invokeOnce: Boolean, callback: (T) -> Unit) {
     onChange(callback)
     if (invokeOnce) callback(get())
 }
@@ -89,8 +93,8 @@ class ChangeTracker<T>(initial: T) {
         get() = current
     val isInitialized
         get() = lazyChangeMap.isInitialized()
-    private val lazyChangeMap = lazy { mutableMapOf<(T) -> Unit, Boolean>() }
-    private val changeStatus: MutableMap<(T) -> Unit, Boolean> by lazyChangeMap
+    private val lazyChangeMap = lazy { mutableMapOf<Any, Boolean>() }
+    private val changeStatus: MutableMap<Any, Boolean> by lazyChangeMap
 
     fun refresh(updated: T) {
         val changed = updated != current
@@ -100,12 +104,12 @@ class ChangeTracker<T>(initial: T) {
         }
     }
 
-    fun registerListener(listener: (T) -> Unit) {
-        changeStatus[listener] = false
+    fun registerListener(observeKey: Any) {
+        changeStatus[observeKey] = false
     }
 
-    fun hasChangedFor(listener: (T) -> Unit): Boolean {
-        return changeStatus[listener] ?: true
+    fun hasChangedFor(observeKey: Any): Boolean {
+        return changeStatus[observeKey] ?: true
     }
 }
 
@@ -124,13 +128,13 @@ private class ObservableDerivedProperty<T, K>(
 
     override fun get(): T = if (!changeTracker.isInitialized) super.get() else changeTracker.cache
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         if (!changeTracker.isInitialized) {
-            prop.onChange { changeTracker.refresh(super.get()) }
+            prop.onChange(changeTracker) { changeTracker.refresh(super.get()) }
         }
-        changeTracker.registerListener(callback)
-        prop.onChange {
-            if (changeTracker.hasChangedFor(callback)) callback(get())
+        changeTracker.registerListener(observeKey = observeKey ?: callback)
+        prop.onChange(observeKey) {
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
         }
     }
 }
@@ -144,14 +148,18 @@ private class CombinedProperty<T, K1, K2>(
     private fun getImpl() = combiner(first.get(), second.get())
     override fun get(): T = changeTracker.cache
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         if (!changeTracker.isInitialized) {
-            first.onChange { changeTracker.refresh(getImpl()) }
-            second.onChange { changeTracker.refresh(getImpl()) }
+            first.onChange(changeTracker) { changeTracker.refresh(getImpl()) }
+            second.onChange(changeTracker) { changeTracker.refresh(getImpl()) }
         }
-        changeTracker.registerListener(callback)
-        first.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
-        second.onChange { if (changeTracker.hasChangedFor(callback)) callback(get()) }
+        changeTracker.registerListener(observeKey = observeKey ?: callback)
+        first.onChange(observeKey) {
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        }
+        second.onChange(observeKey) {
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        }
     }
 }
 
@@ -202,30 +210,30 @@ fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 inline fun <reified T> ObservableProperty<*>.isInstance(): ObservableCondition = derive { it is T }
 
 fun <T> ObservableProperty<T>.bind(setter: (T) -> Unit) {
-    onChange(invokeOnce = true) { setter(it) }
+    onChangeInit(invokeOnce = true) { setter(it) }
 }
 
 fun <T> ObservableProperty<T>.bind(prop: MutableProperty<T>) {
-    onChange(invokeOnce = true) { prop.set(it) }
+    onChangeInit(invokeOnce = true) { prop.set(it) }
 }
 
 fun <T> ObservableProperty<T>.bind(prop: KMutableProperty0<T>) {
-    onChange(invokeOnce = true) { prop.set(it) }
+    onChangeInit(invokeOnce = true) { prop.set(it) }
 }
 
 fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
-    private val listeners by lazy { mutableListOf<(T) -> Unit>() }
+    private val listeners by lazy { mutableMapOf<Any, (T) -> Unit>() }
     private var backingField: T = initial
 
     override fun get(): T = backingField
     override fun set(value: T) {
         if (backingField != value) {
             backingField = value
-            listeners.forEach { it(backingField) }
+            listeners.forEach { (_, v) -> v(backingField) }
         }
     }
 
-    override fun onChange(callback: (T) -> Unit) {
-        listeners.add(callback)
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
+        listeners[observeKey ?: callback] = callback
     }
 }

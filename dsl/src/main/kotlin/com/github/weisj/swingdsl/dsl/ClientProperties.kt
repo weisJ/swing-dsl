@@ -52,7 +52,7 @@ class ObservableComponentProperty<T, C : JComponent>(
 ) : ObservableProperty<T> {
     override fun get(): T = comp.accessor()
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         comp.addPropertyChangeListener(key) { callback(get()) }
     }
 }

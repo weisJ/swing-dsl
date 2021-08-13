@@ -24,11 +24,17 @@ package com.github.weisj.swingdsl.laf;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface TextProperty {
 
     @NotNull
     String get();
 
-    void onChange(@NotNull Consumer<String> callback);
+    void onChange(@Nullable Object observeKey, @NotNull Consumer<String> callback);
+
+    default void onChange(@NotNull Consumer<String> callback) {
+        onChange(null, callback);
+    }
+
 }

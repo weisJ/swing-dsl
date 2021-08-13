@@ -112,14 +112,14 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
         AWTEventListener {
 
         private var modified = false
-        private val listeners: MutableList<(Boolean) -> Unit> by lazy {
+        private val listeners: MutableMap<Any, (Boolean) -> Unit> by lazy {
             registerAWTEventListener(AWTEvent.KEY_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK, this)
             modified = panel.isModified()
-            mutableListOf()
+            mutableMapOf()
         }
 
-        override fun onChange(callback: (Boolean) -> Unit) {
-            listeners.add(callback)
+        override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
+            listeners[observeKey ?: callback] = callback
         }
 
         override fun get(): Boolean = modified
@@ -148,7 +148,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
         fun updateModifiedState(newModified: Boolean) {
             if (newModified == modified) return
             modified = newModified
-            listeners.forEach { it(newModified) }
+            listeners.forEach { (_, it) -> it(newModified) }
         }
 
         fun maybeModified() {

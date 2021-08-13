@@ -41,10 +41,10 @@ interface ObservableList<T> : MutableList<T> {
 
     val observables: ListObservables<T>
 
-    fun onClear(block: (Collection<T>) -> Unit)
-    fun onAdd(block: (Int, T) -> Unit)
-    fun onRemove(block: (Int, T) -> Unit)
-    fun onSet(block: (Int, T, T) -> Unit)
+    fun onClear(observeKey: Any? = null, block: (Collection<T>) -> Unit)
+    fun onAdd(observeKey: Any? = null, block: (Int, T) -> Unit)
+    fun onRemove(observeKey: Any? = null, block: (Int, T) -> Unit)
+    fun onSet(observeKey: Any? = null, block: (Int, T, T) -> Unit)
 
     fun removeAllAt(indices: IntRange) {
         for (i in indices.last downTo indices.first) {
@@ -70,25 +70,25 @@ fun <T> observableListOf(vararg elements: T): ObservableList<T> = ObservableList
 fun <T> observableListOf(): ObservableList<T> = ObservableListImpl(mutableListOf())
 
 internal class ObservableListHandlerImpl<T> : ObservableListHandler<T> {
-    internal val onClearCallbacks by lazy { mutableListOf<(Collection<T>) -> Unit>() }
-    internal val onAddCallbacks by lazy { mutableListOf<(Int, T) -> Unit>() }
-    internal val onRemoveCallbacks by lazy { mutableListOf<(Int, T) -> Unit>() }
-    internal val onSetCallbacks by lazy { mutableListOf<(Int, T, T) -> Unit>() }
+    internal val onClearCallbacks by lazy { mutableMapOf<Any, (Collection<T>) -> Unit>() }
+    internal val onAddCallbacks by lazy { mutableMapOf<Any, (Int, T) -> Unit>() }
+    internal val onRemoveCallbacks by lazy { mutableMapOf<Any, (Int, T) -> Unit>() }
+    internal val onSetCallbacks by lazy { mutableMapOf<Any, (Int, T, T) -> Unit>() }
 
     override fun onClear(elements: Collection<T>) {
-        onClearCallbacks.forEach { it(elements) }
+        onClearCallbacks.forEach { (_, it) -> it(elements) }
     }
 
     override fun onAdd(index: Int, element: T) {
-        onAddCallbacks.forEach { it(index, element) }
+        onAddCallbacks.forEach { (_, it) -> it(index, element) }
     }
 
     override fun onRemove(index: Int, element: T) {
-        onRemoveCallbacks.forEach { it(index, element) }
+        onRemoveCallbacks.forEach { (_, it) -> it(index, element) }
     }
 
     override fun onSet(index: Int, prevValue: T, newValue: T) {
-        onSetCallbacks.forEach { it(index, prevValue, newValue) }
+        onSetCallbacks.forEach { (_, it) -> it(index, prevValue, newValue) }
     }
 }
 
@@ -114,20 +114,20 @@ internal class ObservableListImpl<T> internal constructor(
         }
     }
 
-    override fun onClear(block: (Collection<T>) -> Unit) {
-        handler.onClearCallbacks.add(block)
+    override fun onClear(observeKey: Any?, block: (Collection<T>) -> Unit) {
+        handler.onClearCallbacks[observeKey ?: block] = block
     }
 
-    override fun onAdd(block: (Int, T) -> Unit) {
-        handler.onAddCallbacks.add(block)
+    override fun onAdd(observeKey: Any?, block: (Int, T) -> Unit) {
+        handler.onAddCallbacks[observeKey ?: block] = block
     }
 
-    override fun onRemove(block: (Int, T) -> Unit) {
-        handler.onRemoveCallbacks.add(block)
+    override fun onRemove(observeKey: Any?, block: (Int, T) -> Unit) {
+        handler.onRemoveCallbacks[observeKey ?: block] = block
     }
 
-    override fun onSet(block: (Int, T, T) -> Unit) {
-        handler.onSetCallbacks.add(block)
+    override fun onSet(observeKey: Any?, block: (Int, T, T) -> Unit) {
+        handler.onSetCallbacks[observeKey ?: block] = block
     }
 }
 
@@ -136,15 +136,21 @@ private abstract class ObservableListProperty<T>(private val observableList: Obs
     @Suppress("LeakingThis")
     private val changeTracker = ChangeTracker(get())
 
-    override fun onChange(callback: (T) -> Unit) {
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         if (!changeTracker.isInitialized) {
-            observableList.onClear { changeTracker.refresh(get()) }
-            observableList.onAdd { _, _ -> changeTracker.refresh(get()) }
-            observableList.onRemove { _, _ -> changeTracker.refresh(get()) }
+            observableList.onClear(changeTracker) { changeTracker.refresh(get()) }
+            observableList.onAdd(changeTracker) { _, _ -> changeTracker.refresh(get()) }
+            observableList.onRemove(changeTracker) { _, _ -> changeTracker.refresh(get()) }
         }
-        changeTracker.registerListener(callback)
-        observableList.onClear { if (changeTracker.hasChangedFor(callback)) callback(get()) }
-        observableList.onAdd { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
-        observableList.onRemove { _, _ -> if (changeTracker.hasChangedFor(callback)) callback(get()) }
+        changeTracker.registerListener(observeKey = observeKey ?: callback)
+        observableList.onClear(observeKey) {
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        }
+        observableList.onAdd(observeKey) { _, _ ->
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        }
+        observableList.onRemove(observeKey) { _, _ ->
+            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        }
     }
 }
