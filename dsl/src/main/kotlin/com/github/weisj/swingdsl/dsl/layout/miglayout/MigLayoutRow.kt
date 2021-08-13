@@ -28,11 +28,11 @@ package com.github.weisj.swingdsl.dsl.layout.miglayout
 
 import com.github.weisj.swingdsl.core.binding.Property
 import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.binding.bindToComponentWhileVisible
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.HasTextProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textProperty
-import com.github.weisj.swingdsl.dsl.bindToComponentWhileVisible
 import com.github.weisj.swingdsl.dsl.components.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.dsl.components.TitledSeparator
 import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
@@ -886,6 +886,7 @@ internal class MigLayoutRow(
         }
 
         private fun updateText(it: String) {
+            if (text == it) return
             text = it
 
             val oldWrap = lineWrap

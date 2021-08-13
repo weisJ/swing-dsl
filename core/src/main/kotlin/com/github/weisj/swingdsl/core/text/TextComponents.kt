@@ -27,6 +27,7 @@ package com.github.weisj.swingdsl.core.text
 import com.github.weisj.swingdsl.core.binding.Property
 import com.github.weisj.swingdsl.core.binding.PseudoObservableProperty
 import com.github.weisj.swingdsl.core.binding.SimpleProperty
+import com.github.weisj.swingdsl.core.binding.bindToComponentWhileVisible
 import javax.swing.AbstractButton
 import javax.swing.Icon
 import javax.swing.JButton
@@ -62,6 +63,13 @@ fun JComponent.textProperty(): Property<String>? = when (this) {
     else -> null
 }
 
+private fun JComponent.invalidateIfNecessary(text: String, current: String): String {
+    if (text != current) {
+        invalidate()
+    }
+    return text
+}
+
 /**
  * Button which takes [Text] instead of a [String].
  */
@@ -70,20 +78,17 @@ open class TextButton @JvmOverloads constructor(
     icon: Icon? = null
 ) : JButton(textProp.get(), icon), HasTextProperty {
     init {
-        textProp.onChange {
+        @Suppress("LeakingThis")
+        textProp.bindToComponentWhileVisible(this) {
             this.text = it
         }
     }
 
-    private fun String.invalidateIfNecessary(): String {
-        if (this != super.getText()) {
-            invalidate()
-        }
-        return this
-    }
-
     override fun getText(): String {
-        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
+        return if (textProp is PseudoObservableProperty<*>) invalidateIfNecessary(
+            textProp.get(),
+            super.getText()
+        ) else super.getText()
     }
 }
 
@@ -95,20 +100,17 @@ open class TextCheckBox @JvmOverloads constructor(
     icon: Icon? = null
 ) : JCheckBox(textProp.get(), icon), HasTextProperty {
     init {
-        textProp.onChange {
+        @Suppress("LeakingThis")
+        textProp.bindToComponentWhileVisible(this) {
             this.text = it
         }
     }
 
-    private fun String.invalidateIfNecessary(): String {
-        if (this != super.getText()) {
-            invalidate()
-        }
-        return this
-    }
-
     override fun getText(): String {
-        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
+        return if (textProp is PseudoObservableProperty<*>) invalidateIfNecessary(
+            textProp.get(),
+            super.getText()
+        ) else super.getText()
     }
 }
 
@@ -120,20 +122,17 @@ open class TextRadioButton @JvmOverloads constructor(
     icon: Icon? = null
 ) : JRadioButton(textProp.get(), icon), HasTextProperty {
     init {
-        textProp.onChange {
+        @Suppress("LeakingThis")
+        textProp.bindToComponentWhileVisible(this) {
             this.text = it
         }
     }
 
-    private fun String.invalidateIfNecessary(): String {
-        if (this != super.getText()) {
-            invalidate()
-        }
-        return this
-    }
-
     override fun getText(): String {
-        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
+        return if (textProp is PseudoObservableProperty<*>) invalidateIfNecessary(
+            textProp.get(),
+            super.getText()
+        ) else super.getText()
     }
 }
 
@@ -145,19 +144,16 @@ open class TextLabel @JvmOverloads constructor(
     icon: Icon? = null
 ) : JLabel(textProp.get(), icon, LEFT), HasTextProperty {
     init {
-        textProp.onChange {
+        @Suppress("LeakingThis")
+        textProp.bindToComponentWhileVisible(this) {
             this.text = it
         }
     }
 
-    private fun String.invalidateIfNecessary(): String {
-        if (this != super.getText()) {
-            invalidate()
-        }
-        return this
-    }
-
     override fun getText(): String {
-        return if (textProp is PseudoObservableProperty<*>) textProp.get().invalidateIfNecessary() else super.getText()
+        return if (textProp is PseudoObservableProperty<*>) invalidateIfNecessary(
+            textProp.get(),
+            super.getText()
+        ) else super.getText()
     }
 }
