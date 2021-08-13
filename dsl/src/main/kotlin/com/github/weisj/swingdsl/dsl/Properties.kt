@@ -27,6 +27,7 @@ package com.github.weisj.swingdsl.dsl
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.dsl.style.DynamicUI
 import java.awt.Component
+import java.lang.UnsupportedOperationException
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.UIManager
@@ -42,6 +43,10 @@ internal class UIManagerProperty<T>(private val key: String, private val type: C
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         DynamicUI.registerUIListener { callback(get()) }
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        throw UnsupportedOperationException()
     }
 }
 

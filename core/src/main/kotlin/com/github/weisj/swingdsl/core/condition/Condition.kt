@@ -42,6 +42,10 @@ class ConstantCondition(private val value: Boolean) : ObservableCondition {
         /* Do nothing. Value never changes */
     }
 
+    override fun removeCallback(observeKey: Any?) {
+        /* Never registered any callbacks */
+    }
+
     override fun get(): Boolean = value
 
     override fun toString(): String {
@@ -55,6 +59,10 @@ internal class ObservablePropertyCondition<T>(
 ) : ObservableCondition {
     override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
         property.onChange(observeKey) { callback(get()) }
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        return property.removeCallback(observeKey)
     }
 
     override fun get(): Boolean = checker(property.get())

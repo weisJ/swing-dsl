@@ -42,6 +42,7 @@ import com.github.weisj.swingdsl.laf.TextProperty
 import com.github.weisj.swingdsl.laf.WrappedComponent
 import com.github.weisj.swingdsl.util.mix
 import java.awt.Color
+import java.lang.UnsupportedOperationException
 import java.util.function.Consumer
 import javax.swing.Icon
 import javax.swing.JButton
@@ -68,6 +69,10 @@ internal class TextWrapper(internal val textProp: TextProperty) : Text {
 
     override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
         textProp.onChange(observeKey, callback)
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        throw UnsupportedOperationException()
     }
 }
 

@@ -155,4 +155,8 @@ private class PreviewObservable<T>(resolver: () -> Value<T>) : ObservablePropert
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         valueElement.preview.onChange(observeKey, callback)
     }
+
+    override fun removeCallback(observeKey: Any?) {
+        valueElement.preview.removeCallback(observeKey)
+    }
 }

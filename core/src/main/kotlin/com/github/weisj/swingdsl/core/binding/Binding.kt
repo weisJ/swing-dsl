@@ -60,6 +60,8 @@ interface Observable<out T> {
     }
 
     fun onChange(observeKey: Any?, callback: (T) -> Unit)
+
+    fun removeCallback(observeKey: Any?)
 }
 
 class PseudoObservableProperty<T>(val getter: () -> T) : ObservableProperty<T> {
@@ -67,6 +69,10 @@ class PseudoObservableProperty<T>(val getter: () -> T) : ObservableProperty<T> {
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         /* Can't know whether something changed */
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        /* Never registered any callbacks */
     }
 }
 
@@ -91,8 +97,11 @@ class ChangeTracker<T>(initial: T) {
     private var current: T = initial
     val cache: T
         get() = current
-    val isInitialized
+    val isInitialized: Boolean
         get() = lazyChangeMap.isInitialized()
+    val listenerCount: Int
+        get() = if (isInitialized) changeStatus.size else 0
+    var isCacheEnabled: Boolean = false
     private val lazyChangeMap = lazy { mutableMapOf<Any, Boolean>() }
     private val changeStatus: MutableMap<Any, Boolean> by lazyChangeMap
 
@@ -108,7 +117,12 @@ class ChangeTracker<T>(initial: T) {
         changeStatus[observeKey] = false
     }
 
+    fun removeListener(observeKey: Any) {
+        changeStatus.remove(observeKey)
+    }
+
     fun hasChangedFor(observeKey: Any): Boolean {
+        if (!lazyChangeMap.isInitialized()) return true
         return changeStatus[observeKey] ?: true
     }
 }
@@ -126,42 +140,90 @@ private class ObservableDerivedProperty<T, K>(
 ) : DerivedProperty<T, K, ObservableProperty<K>>(prop, transform), ObservableProperty<T> {
     private val changeTracker = ChangeTracker(super.get())
 
-    override fun get(): T = if (!changeTracker.isInitialized) super.get() else changeTracker.cache
+    override fun get(): T = if (!changeTracker.isCacheEnabled) super.get() else changeTracker.cache
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        if (!changeTracker.isInitialized) {
-            prop.onChange(changeTracker) { changeTracker.refresh(super.get()) }
+        val realKey = observeKey.toSkipKey(callback)
+        // Ensure only the topmost property registers the change tracker
+        if (!observeKey.isSkipKey()) {
+            if (!changeTracker.isCacheEnabled) {
+                prop.onChange(SkipKey(changeTracker)) { changeTracker.refresh(super.get()) }
+                changeTracker.isCacheEnabled = true
+            }
+            changeTracker.registerListener(observeKey = realKey)
         }
-        changeTracker.registerListener(observeKey = observeKey ?: callback)
-        prop.onChange(observeKey) {
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        prop.onChange(realKey) {
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        val realKey = observeKey.toSkipKey(Any())
+        if (changeTracker.isCacheEnabled) {
+            changeTracker.removeListener(realKey)
+            if (changeTracker.listenerCount == 0) {
+                changeTracker.isCacheEnabled = false
+                prop.removeCallback(SkipKey(changeTracker))
+            }
+        }
+        prop.removeCallback(realKey)
     }
 }
 
 private class CombinedProperty<T, K1, K2>(
     private val first: ObservableProperty<K1>,
     private val second: ObservableProperty<K2>,
-    private val combiner: (K1, K2) -> T
+    private val combinator: (K1, K2) -> T
 ) : ObservableProperty<T> {
     private val changeTracker = ChangeTracker(getImpl())
-    private fun getImpl() = combiner(first.get(), second.get())
+    private fun getImpl() = combinator(first.get(), second.get())
     override fun get(): T = changeTracker.cache
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        if (!changeTracker.isInitialized) {
-            first.onChange(changeTracker) { changeTracker.refresh(getImpl()) }
-            second.onChange(changeTracker) { changeTracker.refresh(getImpl()) }
+        val realKey = observeKey.toSkipKey(callback)
+        // Ensure only the topmost property registers the change tracker
+        if (!observeKey.isSkipKey()) {
+            if (!changeTracker.isCacheEnabled) {
+                val trackerKey = SkipKey(changeTracker)
+                first.onChange(trackerKey) { changeTracker.refresh(getImpl()) }
+                second.onChange(trackerKey) { changeTracker.refresh(getImpl()) }
+                changeTracker.isCacheEnabled = true
+            }
+            changeTracker.registerListener(observeKey = realKey)
         }
-        changeTracker.registerListener(observeKey = observeKey ?: callback)
-        first.onChange(observeKey) {
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        first.onChange(realKey) {
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
-        second.onChange(observeKey) {
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        second.onChange(realKey) {
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
     }
+
+    override fun removeCallback(observeKey: Any?) {
+        val realKey = observeKey.toSkipKey(Any())
+        if (changeTracker.isCacheEnabled) {
+            changeTracker.removeListener(realKey)
+            if (changeTracker.listenerCount == 0) {
+                changeTracker.isCacheEnabled = false
+                val trackerKey = SkipKey(changeTracker)
+                first.removeCallback(trackerKey)
+                second.removeCallback(trackerKey)
+            }
+        }
+        first.removeCallback(realKey)
+        second.removeCallback(realKey)
+    }
 }
+
+private data class SkipKey(val realKey: Any)
+
+fun Any.toSkipKey(): Any =
+    if (this is SkipKey) this else SkipKey(this)
+
+fun Any?.toSkipKey(fallback: Any): Any =
+    (this ?: fallback).toSkipKey()
+
+fun Any?.isSkipKey(): Boolean = this is SkipKey
 
 fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> =
     ObservableDerivedProperty(this, transform)
@@ -222,7 +284,8 @@ fun <T> ObservableProperty<T>.bind(prop: KMutableProperty0<T>) {
 }
 
 fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
-    private val listeners by lazy { mutableMapOf<Any, (T) -> Unit>() }
+    private val lazyListeners = lazy { mutableMapOf<Any, (T) -> Unit>() }
+    private val listeners by lazyListeners
     private var backingField: T = initial
 
     override fun get(): T = backingField
@@ -235,5 +298,9 @@ fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : 
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         listeners[observeKey ?: callback] = callback
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        if (lazyListeners.isInitialized()) listeners.remove(observeKey)
     }
 }

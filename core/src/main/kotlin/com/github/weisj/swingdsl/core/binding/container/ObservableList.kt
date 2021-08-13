@@ -26,6 +26,8 @@ package com.github.weisj.swingdsl.core.binding.container
 
 import com.github.weisj.swingdsl.core.binding.ChangeTracker
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.isSkipKey
+import com.github.weisj.swingdsl.core.binding.toSkipKey
 import net.pearx.okservable.collection.ObservableListHandler
 import net.pearx.okservable.collection.observableList
 
@@ -137,20 +139,28 @@ private abstract class ObservableListProperty<T>(private val observableList: Obs
     private val changeTracker = ChangeTracker(get())
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        if (!changeTracker.isInitialized) {
-            observableList.onClear(changeTracker) { changeTracker.refresh(get()) }
-            observableList.onAdd(changeTracker) { _, _ -> changeTracker.refresh(get()) }
-            observableList.onRemove(changeTracker) { _, _ -> changeTracker.refresh(get()) }
+        val realKey = observeKey.toSkipKey(callback)
+        if (!observeKey.isSkipKey()) {
+            if (!changeTracker.isCacheEnabled) {
+                val trackerKey = changeTracker.toSkipKey()
+                observableList.onClear(trackerKey) { changeTracker.refresh(get()) }
+                observableList.onAdd(trackerKey) { _, _ -> changeTracker.refresh(get()) }
+                observableList.onRemove(trackerKey) { _, _ -> changeTracker.refresh(get()) }
+                changeTracker.isCacheEnabled = true
+            }
+            changeTracker.registerListener(observeKey = realKey)
         }
-        changeTracker.registerListener(observeKey = observeKey ?: callback)
-        observableList.onClear(observeKey) {
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        observableList.onClear(realKey) {
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
-        observableList.onAdd(observeKey) { _, _ ->
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        observableList.onAdd(realKey) { _, _ ->
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
-        observableList.onRemove(observeKey) { _, _ ->
-            if (changeTracker.hasChangedFor(observeKey = observeKey ?: callback)) callback(get())
+        observableList.onRemove(realKey) { _, _ ->
+            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
         }
+    }
+
+    override fun removeCallback(observeKey: Any?) {
     }
 }

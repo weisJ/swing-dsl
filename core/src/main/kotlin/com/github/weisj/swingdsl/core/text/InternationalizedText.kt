@@ -43,4 +43,8 @@ data class InternationalizedText(private val bundle: DynamicResourceBundle, priv
     override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
         Locales.registerListener(observeKey ?: callback) { callback(get()) }
     }
+
+    override fun removeCallback(observeKey: Any?) {
+        Locales.removeListener(observeKey ?: Any())
+    }
 }

@@ -25,6 +25,8 @@
 package com.github.weisj.swingdsl.dsl
 
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
 import javax.swing.JComponent
 
 class ClientPropertyAccessor(@PublishedApi internal val comp: JComponent) {
@@ -50,9 +52,34 @@ class ObservableComponentProperty<T, C : JComponent>(
     private val key: String,
     private val accessor: C.() -> T
 ) : ObservableProperty<T> {
+    private val keySet = mutableSetOf<Any?>()
     override fun get(): T = comp.accessor()
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        comp.addPropertyChangeListener(key) { callback(get()) }
+        val realKey = observeKey ?: Any()
+        if (!keySet.add(realKey)) return
+        comp.addPropertyChangeListener(key, IndexedPropertyChangeListener(realKey) { callback(get()) })
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        if (!keySet.contains(observeKey)) return
+        comp.removePropertyChangeListener(key, IndexedPropertyChangeListener(key) {})
+    }
+}
+
+internal class IndexedPropertyChangeListener(
+    private val key: Any,
+    private val listener: PropertyChangeListener?
+) : PropertyChangeListener {
+    override fun propertyChange(evt: PropertyChangeEvent?) {
+        listener?.propertyChange(evt)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is IndexedPropertyChangeListener && key == other.key
+    }
+
+    override fun hashCode(): Int {
+        return key.hashCode()
     }
 }

@@ -84,6 +84,11 @@ class CategoriesPanel private constructor(
             modifiedListeners[observeKey ?: Any()] = callback
             modifiedConditionInternal.onChange(observeKey, callback)
         }
+
+        override fun removeCallback(observeKey: Any?) {
+            modifiedListeners.remove(observeKey)
+            modifiedConditionInternal.removeCallback(observeKey)
+        }
     }
 
     constructor(context: UIContext, categories: List<Category>, fallbackCategory: Category) :

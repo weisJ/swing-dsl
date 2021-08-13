@@ -30,6 +30,7 @@ import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import java.awt.Component
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.lang.UnsupportedOperationException
 import javax.swing.AbstractButton
 import javax.swing.JList
 import javax.swing.JSpinner
@@ -45,6 +46,10 @@ fun Component.visibleBinding(): ObservableCondition = object : ObservableConditi
             override fun componentHidden(e: ComponentEvent?) = callback(get())
         })
     }
+
+    override fun removeCallback(observeKey: Any?) {
+        throw UnsupportedOperationException()
+    }
 }
 
 fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object : ObservableProperty<IntArray> {
@@ -56,6 +61,10 @@ fun ListSelectionModel.selectionBinding(): ObservableProperty<IntArray> = object
                 callback(get())
             }
         }
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        throw UnsupportedOperationException()
     }
 }
 
@@ -71,6 +80,10 @@ fun JTextComponent.observableText(): ObservableMutableProperty<String> =
         override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
             addDocumentChangeListener { callback(get()) }
         }
+
+        override fun removeCallback(observeKey: Any?) {
+            throw UnsupportedOperationException()
+        }
     }
 
 fun AbstractButton.observableSelected(): ObservableMutableProperty<Boolean> =
@@ -83,6 +96,10 @@ fun AbstractButton.observableSelected(): ObservableMutableProperty<Boolean> =
 
         override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
             addChangeListener { callback(get()) }
+        }
+
+        override fun removeCallback(observeKey: Any?) {
+            throw UnsupportedOperationException()
         }
     }
 
@@ -97,5 +114,9 @@ fun <V> JSpinner.observableValue(): ObservableMutableProperty<V> =
 
         override fun onChange(observeKey: Any?, callback: (V) -> Unit) {
             addChangeListener { callback(get()) }
+        }
+
+        override fun removeCallback(observeKey: Any?) {
+            throw UnsupportedOperationException()
         }
     }

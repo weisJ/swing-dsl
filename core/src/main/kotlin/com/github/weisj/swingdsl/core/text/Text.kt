@@ -51,6 +51,10 @@ data class ConstantText(internal val text: String) : Text {
     override fun onChange(observeKey: Any?, callback: (String) -> Unit) {
         /* Do nothing. Constant values never change */
     }
+
+    override fun removeCallback(observeKey: Any?) {
+        /* Never registered any callbacks */
+    }
 }
 
 operator fun String.unaryPlus(): Text = textOf(this)
