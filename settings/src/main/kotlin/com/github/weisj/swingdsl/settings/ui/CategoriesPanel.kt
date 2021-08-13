@@ -96,7 +96,7 @@ class CategoriesPanel private constructor(
 
     init {
         addCategories(categories)
-        context.currentPosition.bind {
+        context.currentPosition.bind(this) {
             reveal(it.category, it.tag)
         }
         updateModifiedCondition()

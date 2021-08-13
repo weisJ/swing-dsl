@@ -61,7 +61,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     }
 
     init {
-        title?.bind(::setName)
+        title?.bind(this, ::setName)
         if (topLevel) {
             putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
         }

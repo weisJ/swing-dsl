@@ -71,7 +71,7 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     fun withSearchPointSink(sink: StringSearchPointSink, init: Row.() -> Unit)
 
     fun subRowsEnabledIf(condition: ObservableCondition) {
-        condition.bind {
+        condition.bind(this) {
             subRowsEnabled = it
         }
     }
@@ -81,7 +81,7 @@ interface RowBuilder : ButtonGroupBuilder, ModifiableContainerBuilder<Row>, Buil
     }
 
     fun subRowsVisibleIf(condition: ObservableCondition) {
-        condition.bind {
+        condition.bind(this) {
             subRowsVisible = it
         }
     }

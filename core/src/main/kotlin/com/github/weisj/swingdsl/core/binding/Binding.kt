@@ -78,8 +78,8 @@ class PseudoObservableProperty<T>(val getter: () -> T) : ObservableProperty<T> {
 
 interface ObservableProperty<out T> : Property<T>, Observable<T>
 
-fun <T> ObservableProperty<T>.onChangeInit(invokeOnce: Boolean, callback: (T) -> Unit) {
-    onChange(callback)
+fun <T> ObservableProperty<T>.onChangeInit(invokeOnce: Boolean, observeKey: Any?, callback: (T) -> Unit) {
+    onChange(observeKey, callback)
     if (invokeOnce) callback(get())
 }
 
@@ -271,16 +271,16 @@ fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == nu
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 inline fun <reified T> ObservableProperty<*>.isInstance(): ObservableCondition = derive { it is T }
 
-fun <T> ObservableProperty<T>.bind(setter: (T) -> Unit) {
-    onChangeInit(invokeOnce = true) { setter(it) }
+fun <T> ObservableProperty<T>.bind(key: Any?, setter: (T) -> Unit) {
+    onChangeInit(invokeOnce = true, key) { setter(it) }
 }
 
-fun <T> ObservableProperty<T>.bind(prop: MutableProperty<T>) {
-    onChangeInit(invokeOnce = true) { prop.set(it) }
+fun <T> ObservableProperty<T>.bind(key: Any?, prop: MutableProperty<T>) {
+    onChangeInit(invokeOnce = true, key) { prop.set(it) }
 }
 
-fun <T> ObservableProperty<T>.bind(prop: KMutableProperty0<T>) {
-    onChangeInit(invokeOnce = true) { prop.set(it) }
+fun <T> ObservableProperty<T>.bind(key: Any?, prop: KMutableProperty0<T>) {
+    onChangeInit(invokeOnce = true, key) { prop.set(it) }
 }
 
 fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {

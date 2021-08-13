@@ -101,11 +101,11 @@ fun JComponent.mouseLocation(): Point? {
 }
 
 fun JComponent.bindVisible(condition: ObservableCondition) {
-    condition.bind { isVisible = it }
+    condition.bind(this) { isVisible = it }
 }
 
 fun JComponent.bindEnabled(condition: ObservableCondition) {
-    condition.bind { isEnabled = it }
+    condition.bind(this) { isEnabled = it }
 }
 
 fun JButton.makeDefaultButton(requestFocus: Boolean = true) {

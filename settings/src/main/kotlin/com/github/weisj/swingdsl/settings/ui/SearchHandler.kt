@@ -63,7 +63,7 @@ class SearchHandler(
 
     init {
         highlighter.isVisible = false
-        result.bind {
+        result.bind(this) {
             if (it == null) {
                 highlighter.targets = emptyList()
                 highlighter.isVisible = false

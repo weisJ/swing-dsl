@@ -835,12 +835,12 @@ internal class MigLayoutRow(
     }
 
     override fun enableIf(predicate: ObservableCondition): MigLayoutRow {
-        predicate.bind { this.enabled = it && (parent?.subRowsEnabled ?: true) }
+        predicate.bind(this) { this.enabled = it && (parent?.subRowsEnabled ?: true) }
         return this
     }
 
     override fun visibleIf(predicate: ObservableCondition): MigLayoutRow {
-        predicate.bind { this.visible = it && (parent?.subRowsVisible ?: true) }
+        predicate.bind(this) { this.visible = it && (parent?.subRowsVisible ?: true) }
         return this
     }
 
@@ -881,7 +881,7 @@ internal class MigLayoutRow(
 
         init {
             minimumSize = Dimension(10, 10)
-            textProp.bind {
+            textProp.bind(this) {
                 text = it
 
                 val oldWrap = lineWrap
