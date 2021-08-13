@@ -76,7 +76,9 @@ internal class IndexedPropertyChangeListener(
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is IndexedPropertyChangeListener && key == other.key
+        if (this === other) return true
+        if (other !is IndexedPropertyChangeListener) return false
+        return key == other.key
     }
 
     override fun hashCode(): Int {

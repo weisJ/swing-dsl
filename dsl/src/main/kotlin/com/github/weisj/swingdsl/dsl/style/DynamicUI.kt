@@ -41,7 +41,15 @@ private typealias UIUpdate = (Component) -> Unit
 
 class DynamicUI private constructor() {
     companion object {
-        private val freeListeners: MutableSet<() -> Unit> = Collections.newSetFromMap(WeakHashMap())
+        private class IndexedListener(private val key: Any, val listener: () -> Unit) {
+            override fun hashCode(): Int = key.hashCode()
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is IndexedListener) return false
+                return key == other.key
+            }
+        }
+        private val freeListeners: MutableSet<IndexedListener> = Collections.newSetFromMap(WeakHashMap())
         private val listeners: MutableMap<Component, MutableList<UIUpdate>> = WeakHashMap()
 
         /**
@@ -82,8 +90,12 @@ class DynamicUI private constructor() {
             return component
         }
 
-        fun registerUIListener(onLafChange: () -> Unit) {
-            freeListeners.add(onLafChange)
+        fun registerUIListener(key: Any, onLafChange: () -> Unit) {
+            freeListeners.add(IndexedListener(key, onLafChange))
+        }
+
+        fun unregisterUIListener(key: Any) {
+            freeListeners.add(IndexedListener(key) { })
         }
 
         fun <T : Component> withBoldFont(component: T): T {
@@ -115,7 +127,7 @@ class DynamicUI private constructor() {
         }
 
         fun updateAll() {
-            freeListeners.forEach { it() }
+            freeListeners.forEach { it.listener() }
             listeners.forEach { (t, u) ->
                 u.forEach { it(t) }
             }

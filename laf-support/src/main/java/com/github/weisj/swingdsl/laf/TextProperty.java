@@ -33,8 +33,9 @@ public interface TextProperty {
 
     void onChange(@Nullable Object observeKey, @NotNull Consumer<String> callback);
 
+    void removeCallback(@Nullable Object observeKey);
+
     default void onChange(@NotNull Consumer<String> callback) {
         onChange(null, callback);
     }
-
 }
