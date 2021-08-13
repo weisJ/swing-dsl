@@ -101,7 +101,7 @@ class SettingsPanel(private val categories: List<Category>) :
     init {
         configureContentArea()
 
-        currentSearchResult.bind(this) { result ->
+        currentSearchResult.bind { result ->
             navigationManager.searchMode = result != null
             result ?: return@bind
             val target = result.bestMatch?.searchable
@@ -127,7 +127,7 @@ class SettingsPanel(private val categories: List<Category>) :
                             wrap({
                                 border = getDefaultSpacingConfiguration().run { emptyBorder(horizontalGap) }
                                 isOpaque = true
-                                backgroundColorOf(categoryTree).bind(this, ::setBackground)
+                                backgroundColorOf(categoryTree).bind(setter = ::setBackground)
                             }) { createSearchField() }
                         }
                         center {
@@ -228,7 +228,7 @@ class SettingsPanel(private val categories: List<Category>) :
                     }
                 )
             )
-            currentPosition.bind(model) { model.nodes = it.category.getPath() }
+            currentPosition.bind { model.nodes = it.category.getPath() }
             addNavigationListener { _, _, item ->
                 if (item is Category) reveal(item)
                 item is Category

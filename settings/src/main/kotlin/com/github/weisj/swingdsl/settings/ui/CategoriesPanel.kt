@@ -98,7 +98,7 @@ class CategoriesPanel private constructor(
                 result
             }
         }
-        context.currentPosition.bind(this) {
+        context.currentPosition.bind {
             reveal(it.category, it.tag)
         }
     }

@@ -272,15 +272,15 @@ fun <T> ObservableProperty<T?>.isNull(): ObservableCondition = derive { it == nu
 fun <T> ObservableProperty<T?>.isNotNull(): ObservableCondition = !isNull()
 inline fun <reified T> ObservableProperty<*>.isInstance(): ObservableCondition = derive { it is T }
 
-fun <T> ObservableProperty<T>.bind(key: Any?, setter: (T) -> Unit) {
+fun <T> ObservableProperty<T>.bind(key: Any? = null, setter: (T) -> Unit) {
     onChangeInit(invokeOnce = true, key) { setter(it) }
 }
 
-fun <T> ObservableProperty<T>.bind(key: Any?, prop: MutableProperty<T>) {
+fun <T> ObservableProperty<T>.bind(key: Any? = null, prop: MutableProperty<T>) {
     onChangeInit(invokeOnce = true, key) { prop.set(it) }
 }
 
-fun <T> ObservableProperty<T>.bind(key: Any?, prop: KMutableProperty0<T>) {
+fun <T> ObservableProperty<T>.bind(key: Any? = null, prop: KMutableProperty0<T>) {
     onChangeInit(invokeOnce = true, key) { prop.set(it) }
 }
 

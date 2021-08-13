@@ -131,7 +131,7 @@ internal class InspectorTable(component: Component) : DefaultJPanel(BorderLayout
     }.apply {
         val colNames = Vector(listOf("Key", "Value"))
         model = DefaultTableModel(colNames, 1)
-        clientProperties.bind(this) { props ->
+        clientProperties.bind { props ->
             (model as DefaultTableModel).setDataVector(props, colNames)
         }
         val columnModel: TableColumnModel = table.columnModel
