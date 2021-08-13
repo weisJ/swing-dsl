@@ -284,6 +284,10 @@ fun <T> ObservableProperty<T>.bind(key: Any? = null, prop: KMutableProperty0<T>)
     onChangeInit(invokeOnce = true, key) { prop.set(it) }
 }
 
+fun <T> ObservableProperty<T>.unbind(key: Any) {
+    removeCallback(key)
+}
+
 fun <T> observableProperty(initial: T): ObservableMutableProperty<T> = object : ObservableMutableProperty<T> {
     private val lazyListeners = lazy { mutableMapOf<Any, (T) -> Unit>() }
     private val listeners by lazyListeners
