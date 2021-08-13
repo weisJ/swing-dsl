@@ -63,14 +63,9 @@ class CategoriesPanel private constructor(
     private val modifiedListeners = mutableMapOf<Any, (Boolean) -> Unit>()
     private lateinit var modifiedConditionInternal: ObservableCondition
 
-    private fun updateModifiedCondition() {
-        modifiedConditionInternal = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
-            if (panel.isInitialized()) {
-                result or panel.value.modifiedCondition
-            } else {
-                result
-            }
-        }
+    private fun addModifiedCondition(modifiedCondition: ObservableCondition) {
+        modifiedListeners.forEach { (k, _), -> modifiedConditionInternal.removeCallback(k) }
+        modifiedConditionInternal = modifiedConditionInternal or modifiedCondition
         modifiedListeners.forEach { (k, v) -> modifiedConditionInternal.onChange(k, v) }
     }
 
@@ -96,10 +91,16 @@ class CategoriesPanel private constructor(
 
     init {
         addCategories(categories)
+        modifiedConditionInternal = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
+            if (panel.isInitialized()) {
+                result or panel.value.modifiedCondition
+            } else {
+                result
+            }
+        }
         context.currentPosition.bind(this) {
             reveal(it.category, it.tag)
         }
-        updateModifiedCondition()
     }
 
     private fun addCategories(categories: List<Category>) {
@@ -122,7 +123,7 @@ class CategoriesPanel private constructor(
         categoryPanels.getOrPut(category) {
             lazy {
                 val panel = panelProvider()
-                invokeLater(::updateModifiedCondition)
+                addModifiedCondition(panel.modifiedCondition)
                 panel
             }
         }

@@ -139,7 +139,7 @@ private class ObservableDerivedProperty<T, K>(
     transform: (K) -> T
 ) : DerivedProperty<T, K, ObservableProperty<K>>(prop, transform), ObservableProperty<T> {
     private val changeTracker = ChangeTracker(super.get())
-
+    // Caching happens at the top most property which has an installed listener
     override fun get(): T = if (!changeTracker.isCacheEnabled) super.get() else changeTracker.cache
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
@@ -177,7 +177,8 @@ private class CombinedProperty<T, K1, K2>(
 ) : ObservableProperty<T> {
     private val changeTracker = ChangeTracker(getImpl())
     private fun getImpl() = combinator(first.get(), second.get())
-    override fun get(): T = changeTracker.cache
+    // Caching happens at the top most property which has an installed listener
+    override fun get(): T = if (!changeTracker.isCacheEnabled) getImpl() else changeTracker.cache
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
         val realKey = observeKey.toSkipKey(callback)
