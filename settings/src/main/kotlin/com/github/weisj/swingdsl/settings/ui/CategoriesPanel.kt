@@ -56,11 +56,35 @@ class CategoriesPanel private constructor(
     private val cardLayout: ScrollCardLayout
 ) : DefaultJPanel(cardLayout), ScrollableView by DefaultScrollableView(20, 100) {
 
-    private val categoryPanels = mutableMapOf<Category, ModifiableComponent<out JComponent>>()
+    private val categoryPanels = mutableMapOf<Category, Lazy<ModifiableComponent<out JComponent>>>()
 
     private val defaultCategory = fallbackCategory
 
-    val modifiedCondition: ObservableCondition
+    private val modifiedListeners = mutableMapOf<Any, (Boolean) -> Unit>()
+    private lateinit var modifiedConditionInternal: ObservableCondition
+
+    private fun updateModifiedCondition() {
+        modifiedConditionInternal = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
+            if (panel.isInitialized()) {
+                result or panel.value.modifiedCondition
+            } else {
+                result
+            }
+        }
+        modifiedListeners.forEach { (k, v) -> modifiedConditionInternal.onChange(k, v) }
+    }
+
+    val modifiedCondition: ObservableCondition = object : ObservableCondition {
+        override fun get(): Boolean {
+            return modifiedConditionInternal.get()
+        }
+
+        override fun onChange(observeKey: Any?, callback: (Boolean) -> Unit) {
+            // Ensure all callbacks have keys that aren't a lambda.
+            modifiedListeners[observeKey ?: Any()] = callback
+            modifiedConditionInternal.onChange(observeKey, callback)
+        }
+    }
 
     constructor(context: UIContext, categories: List<Category>, fallbackCategory: Category) :
         this(context, categories, fallbackCategory, ScrollCardLayout())
@@ -70,9 +94,7 @@ class CategoriesPanel private constructor(
         context.currentPosition.bind {
             reveal(it.category, it.tag)
         }
-        modifiedCondition = categoryPanels.values.fold(conditionOf(false)) { result, panel ->
-            result or panel.modifiedCondition
-        }
+        updateModifiedCondition()
     }
 
     private fun addCategories(categories: List<Category>) {
@@ -91,20 +113,35 @@ class CategoriesPanel private constructor(
         }
     }
 
-    private inline fun addCategory(category: Category, panelProvider: () -> ModifiableComponent<out JComponent>) {
-        add(categoryPanels.getOrPut(category) { panelProvider() }.container, category.layoutIdentifier())
+    private fun addCategory(category: Category, panelProvider: () -> ModifiableComponent<out JComponent>) {
+        categoryPanels.getOrPut(category) {
+            lazy {
+                val panel = panelProvider()
+                invokeLater(::updateModifiedCondition)
+                panel
+            }
+        }
     }
 
     private fun reveal(category: Category, tag: LayoutTag? = null) {
-        cardLayout.showCard(this, category.layoutIdentifier(), categoryPanels[category]?.container)
+        val container = categoryPanels[category]?.value?.container ?: return
+        val identifier = category.layoutIdentifier()
+        if (container.parent != this) {
+            add(container, identifier)
+        }
+        cardLayout.showCard(this, identifier, container)
         if (tag != null) {
             invokeLater { scrollRectToVisible(tag.getBoundsIn(this)) }
         }
     }
 
-    fun reset(): Unit = categoryPanels.forEach { (_, panel) -> panel.reset() }
+    fun reset(): Unit = categoryPanels.forEach { (_, panel) -> panel.ifPresent { it.reset() } }
 
-    fun apply(): Unit = categoryPanels.forEach { (_, panel) -> panel.apply() }
+    fun apply(): Unit = categoryPanels.forEach { (_, panel) -> panel.ifPresent { it.apply() } }
+
+    private inline fun <T> Lazy<T>.ifPresent(block: (T) -> Unit) {
+        if (isInitialized()) block(value)
+    }
 }
 
 private class ScrollCardLayout : CardLayout() {
