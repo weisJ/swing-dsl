@@ -26,15 +26,20 @@ package com.github.weisj.swingdsl.dsl
 
 import com.github.weisj.swingdsl.core.binding.ObservableMutableProperty
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.bind
+import com.github.weisj.swingdsl.core.binding.unbind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import java.awt.Component
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.lang.UnsupportedOperationException
 import javax.swing.AbstractButton
+import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.JSpinner
 import javax.swing.ListSelectionModel
+import javax.swing.event.AncestorEvent
+import javax.swing.event.AncestorListener
 import javax.swing.text.JTextComponent
 
 fun Component.visibleBinding(): ObservableCondition = object : ObservableCondition {
@@ -120,3 +125,19 @@ fun <V> JSpinner.observableValue(): ObservableMutableProperty<V> =
             throw UnsupportedOperationException()
         }
     }
+
+fun <T> ObservableProperty<T>.bindToComponentWhileVisible(comp: JComponent, block: (T) -> Unit) {
+    comp.addAncestorListener(object : AncestorListener {
+        override fun ancestorAdded(event: AncestorEvent?) {
+            bind(this, block)
+        }
+
+        override fun ancestorRemoved(event: AncestorEvent?) {
+            unbind(this)
+        }
+
+        override fun ancestorMoved(event: AncestorEvent?) {
+            /* Nothing to do */
+        }
+    })
+}

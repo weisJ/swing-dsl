@@ -32,6 +32,7 @@ import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.HasTextProperty
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.core.text.textProperty
+import com.github.weisj.swingdsl.dsl.bindToComponentWhileVisible
 import com.github.weisj.swingdsl.dsl.components.CollapsibleTitledSeparator
 import com.github.weisj.swingdsl.dsl.components.TitledSeparator
 import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
@@ -881,29 +882,31 @@ internal class MigLayoutRow(
 
         init {
             minimumSize = Dimension(10, 10)
-            textProp.bind(this) {
-                text = it
+            textProp.bindToComponentWhileVisible(this, ::updateText)
+        }
 
-                val oldWrap = lineWrap
-                lineWrap = false
-                columns = 0
+        private fun updateText(it: String) {
+            text = it
 
-                prefWidth = super.getPreferredSize().width
+            val oldWrap = lineWrap
+            lineWrap = false
+            columns = 0
 
-                val maxLength = maxLineLength
-                val prefWidthWithColumns = insets.width + columnWidth * maxLength
-                val preWidthWithText = super.getPreferredSize().width
-                if (preWidthWithText > prefWidthWithColumns) {
-                    columns = max(0, maxLength)
-                }
-                maximumSize = if (columns > 0) {
-                    val w = insets.width + columnWidth * columns
-                    prefWidth = min(prefWidth, w)
-                    Dimension(w, Int.MAX_VALUE)
-                } else null
+            prefWidth = super.getPreferredSize().width
 
-                lineWrap = oldWrap
+            val maxLength = maxLineLength
+            val prefWidthWithColumns = insets.width + columnWidth * maxLength
+            val preWidthWithText = super.getPreferredSize().width
+            if (preWidthWithText > prefWidthWithColumns) {
+                columns = max(0, maxLength)
             }
+            maximumSize = if (columns > 0) {
+                val w = insets.width + columnWidth * columns
+                prefWidth = min(prefWidth, w)
+                Dimension(w, Int.MAX_VALUE)
+            } else null
+
+            lineWrap = oldWrap
         }
 
         override fun getComponent(): JTextArea = this

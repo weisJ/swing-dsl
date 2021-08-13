@@ -27,10 +27,10 @@
 package com.github.weisj.swingdsl.dsl.layout
 
 import com.github.weisj.swingdsl.components.DefaultScrollableView
-import com.github.weisj.swingdsl.core.binding.bind
 import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.core.text.Text
 import com.github.weisj.swingdsl.dsl.ModifiableComponent
+import com.github.weisj.swingdsl.dsl.bindToComponentWhileVisible
 import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
 import com.github.weisj.swingdsl.dsl.getWindow
 import com.github.weisj.swingdsl.dsl.invokeLater
@@ -61,7 +61,7 @@ class ModifiablePanel(val title: Text? = null, layout: LayoutManager? = BorderLa
     }
 
     init {
-        title?.bind(this, ::setName)
+        title?.bindToComponentWhileVisible(this, ::setName)
         if (topLevel) {
             putClientProperty(DIALOG_CONTENT_PANEL_PROPERTY, true)
         }
