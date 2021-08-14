@@ -39,7 +39,6 @@ import com.github.weisj.swingdsl.util.subtract
 import com.github.weisj.swingdsl.util.top
 import com.github.weisj.swingdsl.util.xCenter
 import com.github.weisj.swingdsl.util.yCenter
-import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FontMetrics
@@ -102,7 +101,6 @@ internal class DimensionsComponent(private var component: Component) : JComponen
         g.color = foreground
         g.drawCenteredAtPoint(fm, fontHeight, sizeString, centerX, centerY)
 
-        g.color = Color.GRAY
         g.drawRect(innerRect, lineWidth = 1)
 
         val borderInsets: Insets? = componentBorder?.getBorderInsets(component)
@@ -127,10 +125,9 @@ internal class DimensionsComponent(private var component: Component) : JComponen
         fontHeight: Int,
         innerRect: Rectangle
     ) {
-        color = Color.BLACK
+        color = foreground
         drawString(name, innerRect.x - offset + 5, innerRect.y - offset + fontHeight)
 
-        color = Color.GRAY
         val shift = 7
         val outerRect = Rectangle(innerRect).also { it.grow(offset - shift, offset - shift) }
         drawCenteredAtPoint(
@@ -158,7 +155,7 @@ internal class DimensionsComponent(private var component: Component) : JComponen
 
     init {
         isOpaque = true
-        background = Color.WHITE
+        background = SharedLazyComponents.tree.background
         border = emptyBorder(5, 0, 5, 0)
         DynamicUI.withDynamic(this) {
             it.font = SharedLazyComponents.label.font.deriveFont(9f)
