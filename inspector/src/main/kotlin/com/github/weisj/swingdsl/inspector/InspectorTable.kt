@@ -160,7 +160,7 @@ internal class InspectorTable(component: Component) : DefaultJPanel(BorderLayout
         val initial = prop.get()
         label(initial.first ?: BeanRenderer.NULL_VALUE_STRING).applyToComponent {
             icon = initial.second
-            prop.onChange {
+            prop.onChange(this@applyToComponent) {
                 text = it.first ?: BeanRenderer.NULL_VALUE_STRING
                 icon = it.second
             }
@@ -216,7 +216,7 @@ internal class InspectorTable(component: Component) : DefaultJPanel(BorderLayout
         property("UI", "ui")
         property("Text", "text", hideIfBlank = true)
         property("Icon", "icon", hideIfNull = true)
-        property("Border", "border")
+        property("Border", "border", hideIfNull = true)
         property("Foreground", "foreground")
         property("Background", "background")
         property("Font", "font")
