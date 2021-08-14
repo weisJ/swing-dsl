@@ -93,37 +93,67 @@ operator fun <R, T> MutableProperty<T>.setValue(thisRef: R, property: KProperty<
     return set(value)
 }
 
-class ChangeTracker<T>(initial: T) {
-    private var current: T = initial
-    val cache: T
-        get() = current
-    val isInitialized: Boolean
-        get() = lazyChangeMap.isInitialized()
-    val listenerCount: Int
-        get() = if (isInitialized) changeStatus.size else 0
-    var isCacheEnabled: Boolean = false
-    private val lazyChangeMap = lazy { mutableMapOf<Any, Boolean>() }
-    private val changeStatus: MutableMap<Any, Boolean> by lazyChangeMap
+class ChangeTracker<T>(private val getter: () -> T) {
+    private var current: T = getter()
+    private val isInitialized: Boolean
+        get() = lazyListeners.isInitialized()
+    val listenerCount
+        get() = if (isInitialized) listeners.size else 0
+    private val lazyListeners = lazy { mutableMapOf<Any, (T) -> Unit>() }
+    private val listeners: MutableMap<Any, (T) -> Unit> by lazyListeners
 
-    fun refresh(updated: T) {
-        val changed = updated != current
-        current = updated
-        if (changed) {
-            changeStatus.entries.forEach { it.setValue(true) }
+    val value: T
+        get() = if (listenerCount == 0) {
+            current = getter()
+            current
+        } else {
+            current
+        }
+
+    fun register(observeKey: Any?, callback: (T) -> Unit, vararg properties: Observable<*>) {
+        val realKey = observeKey.toSkipKey(callback)
+        // Ensure only the topmost property registers the change tracker
+        if (listenerCount == 0) {
+            val trackerKey = SkipKey(this)
+            properties.forEach {
+                it.onChange(trackerKey) { refresh(getter()) }
+            }
+        }
+        listeners[realKey] = callback
+    }
+
+    fun register(observeKey: Any?, callback: (T) -> Unit, vararg registerFunctions: (Any, () -> Unit) -> Unit) {
+        val realKey = observeKey.toSkipKey(callback)
+        // Ensure only the topmost property registers the change tracker
+        if (listenerCount == 0) {
+            val trackerKey = SkipKey(this)
+            registerFunctions.forEach {
+                it(trackerKey) { refresh(getter()) }
+            }
+        }
+        listeners[realKey] = callback
+    }
+
+    fun unregister(observeKey: Any?, vararg properties: Observable<*>) {
+        val realKey = observeKey.toSkipKey(Any())
+        listeners.remove(realKey)
+        if (listenerCount == 0) {
+            val trackerKey = SkipKey(this)
+            properties.forEach {
+                it.removeCallback(trackerKey)
+            }
         }
     }
 
-    fun registerListener(observeKey: Any) {
-        changeStatus[observeKey] = false
-    }
-
-    fun removeListener(observeKey: Any) {
-        changeStatus.remove(observeKey)
-    }
-
-    fun hasChangedFor(observeKey: Any): Boolean {
-        if (!lazyChangeMap.isInitialized()) return true
-        return changeStatus[observeKey] ?: true
+    fun refresh(updated: T) {
+        val changed = updated != current
+        println("Updating value to $updated")
+        current = updated
+        if (changed) {
+            listeners.forEach { (_, it) ->
+                it(current)
+            }
+        }
     }
 }
 
@@ -138,35 +168,15 @@ private class ObservableDerivedProperty<T, K>(
     prop: ObservableProperty<K>,
     transform: (K) -> T
 ) : DerivedProperty<T, K, ObservableProperty<K>>(prop, transform), ObservableProperty<T> {
-    private val changeTracker = ChangeTracker(super.get())
-    // Caching happens at the top most property which has an installed listener
-    override fun get(): T = if (!changeTracker.isCacheEnabled) super.get() else changeTracker.cache
+    private val changeTracker = ChangeTracker { super.get() }
+    override fun get(): T = changeTracker.value
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        val realKey = observeKey.toSkipKey(callback)
-        // Ensure only the topmost property registers the change tracker
-        if (!observeKey.isSkipKey()) {
-            if (!changeTracker.isCacheEnabled) {
-                prop.onChange(SkipKey(changeTracker)) { changeTracker.refresh(super.get()) }
-                changeTracker.isCacheEnabled = true
-            }
-            changeTracker.registerListener(observeKey = realKey)
-        }
-        prop.onChange(realKey) {
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
+        changeTracker.register(observeKey, callback, prop)
     }
 
     override fun removeCallback(observeKey: Any?) {
-        val realKey = observeKey.toSkipKey(Any())
-        if (changeTracker.isCacheEnabled) {
-            changeTracker.removeListener(realKey)
-            if (changeTracker.listenerCount == 0) {
-                changeTracker.isCacheEnabled = false
-                prop.removeCallback(SkipKey(changeTracker))
-            }
-        }
-        prop.removeCallback(realKey)
+        changeTracker.unregister(observeKey, prop)
     }
 }
 
@@ -175,44 +185,16 @@ private class CombinedProperty<T, K1, K2>(
     private val second: ObservableProperty<K2>,
     private val combinator: (K1, K2) -> T
 ) : ObservableProperty<T> {
-    private val changeTracker = ChangeTracker(getImpl())
+    private val changeTracker = ChangeTracker(this::getImpl)
     private fun getImpl() = combinator(first.get(), second.get())
-    // Caching happens at the top most property which has an installed listener
-    override fun get(): T = if (!changeTracker.isCacheEnabled) getImpl() else changeTracker.cache
+    override fun get(): T = changeTracker.value
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        val realKey = observeKey.toSkipKey(callback)
-        // Ensure only the topmost property registers the change tracker
-        if (!observeKey.isSkipKey()) {
-            if (!changeTracker.isCacheEnabled) {
-                val trackerKey = SkipKey(changeTracker)
-                first.onChange(trackerKey) { changeTracker.refresh(getImpl()) }
-                second.onChange(trackerKey) { changeTracker.refresh(getImpl()) }
-                changeTracker.isCacheEnabled = true
-            }
-            changeTracker.registerListener(observeKey = realKey)
-        }
-        first.onChange(realKey) {
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
-        second.onChange(realKey) {
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
+        changeTracker.register(observeKey, callback, first, second)
     }
 
     override fun removeCallback(observeKey: Any?) {
-        val realKey = observeKey.toSkipKey(Any())
-        if (changeTracker.isCacheEnabled) {
-            changeTracker.removeListener(realKey)
-            if (changeTracker.listenerCount == 0) {
-                changeTracker.isCacheEnabled = false
-                val trackerKey = SkipKey(changeTracker)
-                first.removeCallback(trackerKey)
-                second.removeCallback(trackerKey)
-            }
-        }
-        first.removeCallback(realKey)
-        second.removeCallback(realKey)
+        changeTracker.unregister(observeKey, first, second)
     }
 }
 

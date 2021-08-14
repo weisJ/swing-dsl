@@ -24,6 +24,7 @@
  */
 package com.github.weisj.swingdsl.core.binding
 
+import com.github.weisj.swingdsl.core.condition.isEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -40,51 +41,51 @@ internal class BindingTests {
 
         val key = Any()
         o4.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o4.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o4.onChange(Any()) { }
-        assertEquals(3, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o3.onChange(Any()) { }
-        assertEquals(5, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.onChange(key) { }
-        assertEquals(6, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o1.onChange(Any()) { }
-        assertEquals(7, o1.listenerKeys.size)
+        assertEquals(2, o1.listenerKeys.size)
     }
 
     @Test
     fun `deriving observables doesn't increase listener count`() {
         val o1 = TestObservable()
         val o2 = o1.derive { it }
-        val o3 = o1.derive { it }
-        val o4 = o1.derive { it }
+        val o3 = o2.derive { it }
+        val o4 = o3.derive { it }
 
         assertEquals(0, o1.listenerKeys.size)
 
         val key = Any()
         o4.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o4.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o4.onChange(Any()) { }
-        assertEquals(3, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o3.onChange(Any()) { }
-        assertEquals(5, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.onChange(key) { }
-        assertEquals(6, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o1.onChange(Any()) { }
-        assertEquals(7, o1.listenerKeys.size)
+        assertEquals(2, o1.listenerKeys.size)
     }
 
     @Test
@@ -95,20 +96,20 @@ internal class BindingTests {
 
         val key = Any()
         o2.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.removeCallback(key)
         assertEquals(0, o1.listenerKeys.size)
 
         o3.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         val key2 = Any()
         o2.onChange(key2) { }
-        assertEquals(4, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o3.removeCallback(key)
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.removeCallback(key2)
         assertEquals(0, o1.listenerKeys.size)
@@ -122,23 +123,64 @@ internal class BindingTests {
 
         val key = Any()
         o2.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.removeCallback(key)
         assertEquals(0, o1.listenerKeys.size)
 
         o3.onChange(key) { }
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         val key2 = Any()
         o2.onChange(key2) { }
-        assertEquals(4, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o3.removeCallback(key)
-        assertEquals(2, o1.listenerKeys.size)
+        assertEquals(1, o1.listenerKeys.size)
 
         o2.removeCallback(key2)
         assertEquals(0, o1.listenerKeys.size)
+    }
+
+    @Test
+    fun `combined property reports correct value`() {
+        val o1 = observableProperty("A")
+        val o2 = observableProperty("A")
+        val o3 = o1 + o2
+        var value: String? = null
+        o3.onChange { value = it }
+
+        o1.set("B")
+        assertEquals("BA", value)
+        o2.set("C")
+        assertEquals("BC", value)
+
+        val o4 = o3 + o3
+        var value2: String? = null
+        o4.onChange { value2 = it }
+        o1.set("D")
+        assertEquals("DCDC", value2)
+    }
+
+    @Test
+    fun `derived cache reports correct value`() {
+        val expected = "BBBBB"
+        val o1 = observableProperty("A")
+        val o2 = o1.derive { it.length }
+        val o3 = o2 isEqualTo expected.length
+
+        var value2: Int? = null
+        var value3: Boolean? = null
+        o3.onChange { value3 = it }
+        o2.onChange { value2 = it }
+
+        o1.set("CCC")
+        assertEquals(3, value2)
+        assertEquals(false, value3)
+
+        o1.set(expected)
+        assertEquals(expected.length, value2)
+        assertEquals(true, value3)
     }
 
     internal class TestObservable : ObservableMutableProperty<Any> {

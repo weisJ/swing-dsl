@@ -26,8 +26,6 @@ package com.github.weisj.swingdsl.core.binding.container
 
 import com.github.weisj.swingdsl.core.binding.ChangeTracker
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
-import com.github.weisj.swingdsl.core.binding.isSkipKey
-import com.github.weisj.swingdsl.core.binding.toSkipKey
 import net.pearx.okservable.collection.ObservableListHandler
 import net.pearx.okservable.collection.observableList
 
@@ -103,13 +101,13 @@ internal class ObservableListImpl<T> internal constructor(
         object : ListObservables<T> {
             override val size: ObservableProperty<Int> =
                 object : ObservableListProperty<Int>(this@ObservableListImpl) {
-                    override fun get(): Int = this@ObservableListImpl.size
+                    override fun getImpl(): Int = this@ObservableListImpl.size
                 }
 
             override fun get(index: Int): ObservableProperty<T?> {
                 check(index >= 0)
                 return object : ObservableListProperty<T?>(this@ObservableListImpl) {
-                    override fun get(): T? =
+                    override fun getImpl(): T? =
                         if (index < this@ObservableListImpl.size) this@ObservableListImpl[index] else null
                 }
             }
@@ -136,31 +134,20 @@ internal class ObservableListImpl<T> internal constructor(
 private abstract class ObservableListProperty<T>(private val observableList: ObservableList<*>) :
     ObservableProperty<T> {
     @Suppress("LeakingThis")
-    private val changeTracker = ChangeTracker(get())
+    private val changeTracker = ChangeTracker(this::getImpl)
+    protected abstract fun getImpl(): T
+    override fun get(): T = changeTracker.value
 
     override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        val realKey = observeKey.toSkipKey(callback)
-        if (!observeKey.isSkipKey()) {
-            if (!changeTracker.isCacheEnabled) {
-                val trackerKey = changeTracker.toSkipKey()
-                observableList.onClear(trackerKey) { changeTracker.refresh(get()) }
-                observableList.onAdd(trackerKey) { _, _ -> changeTracker.refresh(get()) }
-                observableList.onRemove(trackerKey) { _, _ -> changeTracker.refresh(get()) }
-                changeTracker.isCacheEnabled = true
-            }
-            changeTracker.registerListener(observeKey = realKey)
-        }
-        observableList.onClear(realKey) {
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
-        observableList.onAdd(realKey) { _, _ ->
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
-        observableList.onRemove(realKey) { _, _ ->
-            if (changeTracker.hasChangedFor(observeKey = realKey)) callback(get())
-        }
+        changeTracker.register(
+            observeKey, callback,
+            { key, call -> observableList.onClear(key) { call() } },
+            { key, call -> observableList.onAdd(key) { _, _ -> call() } },
+            { key, call -> observableList.onRemove(key) { _, _ -> call() } },
+        )
     }
 
     override fun removeCallback(observeKey: Any?) {
+        throw UnsupportedOperationException()
     }
 }
