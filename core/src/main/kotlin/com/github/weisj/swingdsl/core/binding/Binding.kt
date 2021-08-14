@@ -97,7 +97,7 @@ class ChangeTracker<T>(private val getter: () -> T) {
     private var current: T = getter()
     private val isInitialized: Boolean
         get() = lazyListeners.isInitialized()
-    val listenerCount
+    private val listenerCount
         get() = if (isInitialized) listeners.size else 0
     private val lazyListeners = lazy { mutableMapOf<Any, (T) -> Unit>() }
     private val listeners: MutableMap<Any, (T) -> Unit> by lazyListeners
@@ -111,10 +111,10 @@ class ChangeTracker<T>(private val getter: () -> T) {
         }
 
     fun register(observeKey: Any?, callback: (T) -> Unit, vararg properties: Observable<*>) {
-        val realKey = observeKey.toSkipKey(callback)
+        val realKey = observeKey ?: callback
         // Ensure only the topmost property registers the change tracker
         if (listenerCount == 0) {
-            val trackerKey = SkipKey(this)
+            val trackerKey = this
             properties.forEach {
                 it.onChange(trackerKey) { refresh(getter()) }
             }
@@ -123,10 +123,10 @@ class ChangeTracker<T>(private val getter: () -> T) {
     }
 
     fun register(observeKey: Any?, callback: (T) -> Unit, vararg registerFunctions: (Any, () -> Unit) -> Unit) {
-        val realKey = observeKey.toSkipKey(callback)
+        val realKey = observeKey ?: callback
         // Ensure only the topmost property registers the change tracker
         if (listenerCount == 0) {
-            val trackerKey = SkipKey(this)
+            val trackerKey = this
             registerFunctions.forEach {
                 it(trackerKey) { refresh(getter()) }
             }
@@ -135,19 +135,17 @@ class ChangeTracker<T>(private val getter: () -> T) {
     }
 
     fun unregister(observeKey: Any?, vararg properties: Observable<*>) {
-        val realKey = observeKey.toSkipKey(Any())
-        listeners.remove(realKey)
+        listeners.remove(observeKey)
         if (listenerCount == 0) {
-            val trackerKey = SkipKey(this)
+            val trackerKey = this
             properties.forEach {
                 it.removeCallback(trackerKey)
             }
         }
     }
 
-    fun refresh(updated: T) {
+    private fun refresh(updated: T) {
         val changed = updated != current
-        println("Updating value to $updated")
         current = updated
         if (changed) {
             listeners.forEach { (_, it) ->
@@ -197,16 +195,6 @@ private class CombinedProperty<T, K1, K2>(
         changeTracker.unregister(observeKey, first, second)
     }
 }
-
-private data class SkipKey(val realKey: Any)
-
-fun Any.toSkipKey(): Any =
-    if (this is SkipKey) this else SkipKey(this)
-
-fun Any?.toSkipKey(fallback: Any): Any =
-    (this ?: fallback).toSkipKey()
-
-fun Any?.isSkipKey(): Boolean = this is SkipKey
 
 fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> =
     ObservableDerivedProperty(this, transform)
