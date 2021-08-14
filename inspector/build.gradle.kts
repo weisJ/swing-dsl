@@ -11,7 +11,13 @@ dependencies {
     implementation(libs.darklaf.propertyLoader)
     compileOnly(libs.svgSalamander)
     implementation(libs.miglayout)
+
     testImplementation(libs.darklaf.core)
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 fun Jar.includeLicenses() {

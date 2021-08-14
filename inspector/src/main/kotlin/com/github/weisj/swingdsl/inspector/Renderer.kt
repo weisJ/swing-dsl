@@ -176,7 +176,7 @@ internal class BorderRenderer : Renderer<Border> {
             return builder
         }
         return builder.apply {
-            append(value.containingClassName)
+            append(value.javaClass.readableClassName)
             if (value is TitledBorder) {
                 append(" title='").append(value.title).append("'")
                 if (value is CompoundBorder) {
@@ -260,13 +260,20 @@ internal class ClassRenderer : Renderer<Class<*>> {
     override fun render(value: Class<*>): String = value.render().toHtml(escapeExistingHtml = false)
 }
 
+internal val Class<*>.readableClassName: String
+    get() {
+        val enclosingClass = enclosingClass
+        return when {
+            this.isAnonymousClass -> "${superclass.readableClassName} in ${enclosingClass?.readableClassName}"
+            enclosingClass != null -> "${enclosingClass.readableClassName}.$simpleName"
+            else -> simpleName
+        }
+    }
+
 internal fun <T> Class<T>.render(): String {
     val target = if (isAnonymousClass) enclosingClass else this
     val fgProp = UIFactory.secondaryTextForeground.asCSSProperty()
-    val displayStr = "${target.simpleName} <span style=\"$fgProp\">(${target.packageName})</span>"
-    return if (isAnonymousClass) {
-        "${superclass.simpleName} in $displayStr"
-    } else displayStr
+    return "${target.readableClassName} <span style=\"$fgProp\">(${target.packageName})</span>"
 }
 
 internal class ObjectClassRenderer : Renderer<Any> {

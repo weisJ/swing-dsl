@@ -78,7 +78,7 @@ internal class ComponentTreeCellRenderer : DefaultTreeCellRenderer() {
     }
 }
 
-internal val Any?.containingClassName: String
+private val Any?.containingClassName: String
     get() = this?.javaClass?.let {
         if (it.isAnonymousClass) it.superclass?.simpleName else it.simpleName
     } ?: ""
