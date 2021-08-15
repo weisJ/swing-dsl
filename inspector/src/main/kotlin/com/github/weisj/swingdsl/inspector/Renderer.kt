@@ -49,6 +49,7 @@ import javax.swing.Icon
 import javax.swing.border.Border
 import javax.swing.border.CompoundBorder
 import javax.swing.border.EmptyBorder
+import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
 import javax.swing.plaf.UIResource
 import kotlin.math.abs
@@ -101,17 +102,21 @@ internal class RectangleRenderer : Renderer<Rectangle> {
     override fun render(value: Rectangle): String = value.render()
 }
 
-internal class ColorRenderer : Renderer<Color> {
+internal class ColorRenderer(private val short: Boolean = false) :
+    Renderer<Color> {
     override fun render(value: Color): String = buildString {
+        val pad = if (short) 0 else 3
         append("r:")
-        append(value.red.render(pad = 3))
+        append(value.red.render(pad = pad))
         append(" g:")
-        append(value.green.render(pad = 3))
+        append(value.green.render(pad = pad))
         append(" b:")
-        append(value.blue.render(pad = 3))
-        append(" argb:#")
-        append(value.toHex(includeAlpha = true))
-        if (value is UIResource) {
+        append(value.blue.render(pad = pad))
+        if (!short) {
+            append(" argb:#")
+            append(value.toHex(includeAlpha = true))
+        }
+        if (!short && value is UIResource) {
             append(" UIResource")
         }
     }
@@ -168,34 +173,49 @@ internal class IconRenderer : Renderer<Icon> {
 }
 
 internal class BorderRenderer : Renderer<Border> {
-    override fun render(value: Border): String = getTextDescription(value).toString()
+    override fun render(value: Border): String = getTextDescription(value)
+        .toString()
+        .toHtml(escapeExistingHtml = false)
 
-    private fun getTextDescription(value: Border?, builder: StringBuilder = StringBuilder()): StringBuilder {
+    private fun getTextDescription(
+        value: Border?,
+        builder: StringBuilder = StringBuilder(),
+        indentDepth: Int = 0
+    ): StringBuilder {
         if (value == null) {
             builder.append("null")
             return builder
         }
+        val baseIndent = "&nbsp;&nbsp;"
+        val ident = baseIndent.repeat(indentDepth)
+        val innerIndent = ident + baseIndent
         return builder.apply {
             append(value.javaClass.readableClassName)
-            if (value is TitledBorder) {
-                append(" title='").append(value.title).append("'")
-                if (value is CompoundBorder) {
-                    append(" inside={")
-                    getTextDescription(value.insideBorder, builder = this)
-                    append(" outside={")
-                    getTextDescription(value.outsideBorder, builder = this)
-                    append("}")
+            when (value) {
+                is TitledBorder -> append("{ title = '").append(value.title).append("' }")
+                is EmptyBorder -> append("{ insets = ").append(value.borderInsets.render()).append(" }")
+                is LineBorder -> {
+                    append("{ color = ")
+                    val colorText = """
+                    <TT style="background-color:#${value.lineColor.toHex()}">&nbsp;&nbsp;</TT>&nbsp;
+                    """.trimIndent()
+                    append(colorText)
+                    append(ColorRenderer(short = true).render(value.lineColor))
+                    append(", thickness = ").append(value.thickness)
+                    if (value.roundedCorners) {
+                        append(", rounded")
+                    }
+                    append(" }")
                 }
-                if (value is EmptyBorder) {
-                    val insets = value.borderInsets
-                    append(" insets={top=").append(insets.top)
-                    append(" left=").append(insets.left)
-                    append(" bottom=").append(insets.bottom)
-                    append(" right=").append(insets.right)
-                    append("}")
+                is CompoundBorder -> {
+                    append("{<br>${innerIndent}inside = ")
+                    getTextDescription(value.insideBorder, builder = this, indentDepth = indentDepth + 1)
+                    append("<br>${innerIndent}outside = ")
+                    getTextDescription(value.outsideBorder, builder = this, indentDepth = indentDepth + 1)
+                    append("<br>$ident}")
                 }
-                if (value is UIResource) append(" UIResource")
             }
+            if (value is UIResource) append(" UIResource")
         }
     }
 }
