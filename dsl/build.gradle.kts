@@ -15,9 +15,7 @@ dependencies {
     implementation(libs.miglayout)
     implementation(libs.fuzzySearch)
 
-    testImplementation(libs.darklaf.core) {
-        isChanging = true
-    }
+    testImplementation(testLibs.darklaf.core)
     testImplementation(kotlin("reflect"))
 }
 

@@ -8,6 +8,6 @@ dependencies {
 
     testImplementation(projects.swingExtensionsInspector)
     testImplementation(libs.miglayout)
-    testImplementation(libs.darklaf.core)
-    testImplementation(libs.flatInspector)
+    testImplementation(testLibs.darklaf.core)
+    testImplementation(testLibs.flatInspector)
 }

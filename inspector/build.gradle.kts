@@ -12,7 +12,7 @@ dependencies {
     compileOnly(libs.svgSalamander)
     implementation(libs.miglayout)
 
-    testImplementation(libs.darklaf.core)
+    testImplementation(testLibs.darklaf.core)
     testImplementation(kotlin("test"))
 }
 

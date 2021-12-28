@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.obersvableCollections)
+    implementation(libs.observableCollections)
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
