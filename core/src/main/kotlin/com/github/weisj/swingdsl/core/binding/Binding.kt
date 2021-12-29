@@ -178,22 +178,42 @@ private class ObservableDerivedProperty<T, K>(
     }
 }
 
+private abstract class AbstractCombinedProperty<T> : ObservableProperty<T> {
+    override fun get(): T = changeTracker.value
+
+    protected abstract val changeTracker: ChangeTracker<T>
+    protected abstract val dependencies: Array<ObservableProperty<*>>
+    protected abstract fun getImpl(): T
+
+    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
+        changeTracker.register(observeKey, callback, *dependencies)
+    }
+
+    override fun removeCallback(observeKey: Any?) {
+        changeTracker.unregister(observeKey, *dependencies)
+    }
+}
+
 private class CombinedProperty<T, K1, K2>(
     private val first: ObservableProperty<K1>,
     private val second: ObservableProperty<K2>,
     private val combinator: (K1, K2) -> T
-) : ObservableProperty<T> {
-    private val changeTracker = ChangeTracker(this::getImpl)
-    private fun getImpl() = combinator(first.get(), second.get())
-    override fun get(): T = changeTracker.value
+) : AbstractCombinedProperty<T>() {
+    override val changeTracker: ChangeTracker<T> = ChangeTracker(this::getImpl)
+    override fun getImpl() = combinator(first.get(), second.get())
+    override val dependencies: Array<ObservableProperty<*>>
+        get() = arrayOf(first, second)
+}
 
-    override fun onChange(observeKey: Any?, callback: (T) -> Unit) {
-        changeTracker.register(observeKey, callback, first, second)
-    }
-
-    override fun removeCallback(observeKey: Any?) {
-        changeTracker.unregister(observeKey, first, second)
-    }
+private class DecisionProperty<T>(
+    private val decision: ObservableCondition,
+    private val ifTrueProperty: ObservableProperty<T>,
+    private val ifFalseProperty: ObservableProperty<T>,
+) : AbstractCombinedProperty<T>() {
+    override val changeTracker: ChangeTracker<T> = ChangeTracker(this::getImpl)
+    override fun getImpl() = if (decision.get()) ifTrueProperty.get() else ifFalseProperty.get()
+    override val dependencies: Array<ObservableProperty<*>>
+        get() = arrayOf(decision, ifTrueProperty, ifFalseProperty)
 }
 
 fun <T, K> ObservableProperty<K>.derive(transform: (K) -> T): ObservableProperty<T> =
@@ -212,6 +232,11 @@ fun <K1, K2, T> ObservableProperty<K1>.combine(
     other: ObservableProperty<K2>,
     combiner: (K1, K2) -> T
 ): ObservableProperty<T> = combinedProperty(this, other, combiner)
+
+fun <T> ObservableCondition.choose(
+    ifTrue: ObservableProperty<T>,
+    ifFalse: ObservableProperty<T>
+): ObservableProperty<T> = DecisionProperty(this, ifTrue, ifFalse)
 
 class KPropertyBackedProperty<T>(val prop: KMutableProperty0<T>) : MutableProperty<T> {
     override fun get(): T = prop.get()

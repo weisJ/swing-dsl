@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(projects.swingExtensionsDsl)
+    implementation(libs.darklaf.propertyLoader)
 
     testImplementation(projects.swingExtensionsInspector)
     testImplementation(libs.miglayout)

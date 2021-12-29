@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <defs id="colors">
+        <linearGradient id="menuIconDisabled" fallback="Label.disabledForeground">
+            <stop offset="0" stop-color="#6E6E6E"/>
+            <stop offset="1" stop-color="#6E6E6E"/>
+        </linearGradient>
+    </defs>
+    <g fill="url(#menuIconDisabled)" fill-rule="evenodd">
+        <rect width="11" height="2" x="2" y="7" transform="matrix(-1 0 0 1 15 0)"/>
+        <g transform="matrix(-1 0 0 1 15 3.02)">
+            <rect width="7" height="1.8" x="-.389" y="2.24" transform="rotate(-45 3.111 3.14)"/>
+            <rect width="1.8" height="7" x="2.211" y="3.317" transform="rotate(-45 3.111 6.817)"/>
+        </g>
+    </g>
+</svg>

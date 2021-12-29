@@ -41,6 +41,7 @@ import java.awt.Dimension
 import java.awt.GridBagLayout
 import java.lang.Integer.max
 import java.lang.Integer.min
+import javax.swing.Box
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -175,6 +176,24 @@ inline fun <T : JComponent> centered(compProvider: ComponentBuilderScope.() -> W
             add(comp.container)
         }
     )
+}
+
+interface ContainerBuilder {
+    fun <T : JComponent> add(component: T, init: T.() -> Unit)
+}
+
+private class DefaultContainerBuilder<C : JComponent>(val container: C) : ContainerBuilder {
+    override fun <T : JComponent> add(component: T, init: T.() -> Unit) {
+        container.add(component.apply(init))
+    }
+}
+
+fun verticalBox(init: ContainerBuilder.() -> Unit): WrappedComponent<Box> {
+    return +DefaultContainerBuilder(Box.createVerticalBox()).apply(init).container
+}
+
+fun horizontalBox(init: ContainerBuilder.() -> Unit): WrappedComponent<Box> {
+    return +DefaultContainerBuilder(Box.createHorizontalBox()).apply(init).container
 }
 
 fun <T : JComponent> layered(comp: WrappedComponent<T>, init: LayerBuilder.() -> Unit): WrappedComponent<T> {

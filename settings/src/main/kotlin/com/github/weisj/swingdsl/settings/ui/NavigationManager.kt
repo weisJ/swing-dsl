@@ -25,8 +25,12 @@
 package com.github.weisj.swingdsl.settings.ui
 
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
+import com.github.weisj.swingdsl.core.binding.choose
+import com.github.weisj.swingdsl.core.binding.getValue
 import com.github.weisj.swingdsl.core.binding.observableProperty
+import com.github.weisj.swingdsl.core.binding.setValue
 import com.github.weisj.swingdsl.core.collection.UndoRedoList
+import com.github.weisj.swingdsl.core.condition.ObservableCondition
 import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.settings.Category
 import com.github.weisj.swingdsl.util.ModificationLock
@@ -48,20 +52,32 @@ class NavigationManager(
     private var unsavedNavigationMode = false
     private var savedPosition: NavigationPosition = currentPosition.get()
 
+    private val searchModeObservable = observableProperty(false)
+    var searchMode: Boolean by searchModeObservable
+
     private val defaultHistory = UndoRedoList()
     private val searchModeHistory = UndoRedoList()
-    private var context = defaultHistory
+    private val context
+        get() = if (searchMode) searchModeHistory else defaultHistory
 
-    var searchMode: Boolean = false
-        set(value) {
-            if (field == value) return
-            field = value
-            context = if (value) searchModeHistory else defaultHistory
-            if (!value) searchModeHistory.clear()
-            if (!value && currentPosition.get().category == defaultCategory) {
+    val canGoBackProperty: ObservableCondition = searchModeObservable.choose(
+        ifTrue = searchModeHistory.observable.canUndo,
+        ifFalse = defaultHistory.observable.canUndo
+    )
+
+    val canGoForwardProperty: ObservableCondition = searchModeObservable.choose(
+        ifTrue = searchModeHistory.observable.canRedo,
+        ifFalse = defaultHistory.observable.canRedo
+    )
+
+    init {
+        searchModeObservable.onChange {
+            if (!it) searchModeHistory.clear()
+            if (!it && currentPosition.get().category == defaultCategory) {
                 defaultHistory.currentOrNull()?.doAction?.invoke()
             }
         }
+    }
 
     private fun createExactCurrentLocation(): NavigationPosition =
         NavigationPosition(currentPosition.get().category, createTagForCurrentPosition())

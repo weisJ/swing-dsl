@@ -24,6 +24,8 @@
  */
 package com.github.weisj.swingdsl.settings.ui
 
+import com.github.weisj.darklaf.properties.icons.IconLoader
+import com.github.weisj.darklaf.properties.icons.IconResolver
 import com.github.weisj.swingdsl.components.BreadcrumbBar
 import com.github.weisj.swingdsl.components.DefaultBreadCrumbRenderer
 import com.github.weisj.swingdsl.components.ListBreadcrumbModel
@@ -34,6 +36,7 @@ import com.github.weisj.swingdsl.core.text.emptyText
 import com.github.weisj.swingdsl.core.text.unaryPlus
 import com.github.weisj.swingdsl.dsl.FocusState
 import com.github.weisj.swingdsl.dsl.SplitPaneBuilder
+import com.github.weisj.swingdsl.dsl.bindEnabled
 import com.github.weisj.swingdsl.dsl.bindVisible
 import com.github.weisj.swingdsl.dsl.border.dialogSpacing
 import com.github.weisj.swingdsl.dsl.border.emptyBorder
@@ -43,11 +46,13 @@ import com.github.weisj.swingdsl.dsl.clampSizes
 import com.github.weisj.swingdsl.dsl.components.DefaultJPanel
 import com.github.weisj.swingdsl.dsl.components.HyperlinkLabel
 import com.github.weisj.swingdsl.dsl.components.SearchField
+import com.github.weisj.swingdsl.dsl.components.ToolbarButton
 import com.github.weisj.swingdsl.dsl.configureBorderLayout
 import com.github.weisj.swingdsl.dsl.highlight.DefaultSearchContext
 import com.github.weisj.swingdsl.dsl.highlight.LayoutTag
 import com.github.weisj.swingdsl.dsl.highlight.SearchContext
 import com.github.weisj.swingdsl.dsl.highlight.createLayoutTag
+import com.github.weisj.swingdsl.dsl.horizontalBox
 import com.github.weisj.swingdsl.dsl.horizontalSplit
 import com.github.weisj.swingdsl.dsl.invokeLater
 import com.github.weisj.swingdsl.dsl.layout.getDefaultSpacingConfiguration
@@ -182,9 +187,30 @@ class SettingsPanel(private val categories: List<Category>) :
             border = getDefaultSpacingConfiguration().run { emptyBorder(componentVerticalGap, 0, 0, dialogLeftRight) }
             center { +breadcrumbBar }
             east {
-                +DynamicUI.withBoldFont(HyperlinkLabel(+"Reset")).apply {
-                    addListener { reset() }
-                    bindVisible(modifiedCondition)
+                horizontalBox {
+                    add(DynamicUI.withBoldFont(HyperlinkLabel(+"Reset"))) {
+                        addListener { reset() }
+                        bindVisible(modifiedCondition)
+                    }
+                    val iconLoader: IconResolver = IconLoader.get(SettingsPanel::class.java)
+                    add(
+                        ToolbarButton(
+                            iconLoader.getIcon("back.svg", true),
+                            iconLoader.getIcon("backDisabled.svg", true)
+                        )
+                    ) {
+                        bindEnabled(navigationManager.canGoBackProperty)
+                        addActionListener { navigationManager.goBack() }
+                    }
+                    add(
+                        ToolbarButton(
+                            iconLoader.getIcon("forward.svg", true),
+                            iconLoader.getIcon("forwardDisabled.svg", true)
+                        )
+                    ) {
+                        bindEnabled(navigationManager.canGoForwardProperty)
+                        addActionListener { navigationManager.goForward() }
+                    }
                 }
             }
         }
