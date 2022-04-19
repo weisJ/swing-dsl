@@ -23,7 +23,7 @@
  *
  */
 import com.github.weisj.darklaf.LafManager
-import com.github.weisj.darklaf.theme.info.PreferredThemeStyle
+import com.github.weisj.darklaf.theme.spec.PreferredThemeStyle
 import com.github.weisj.swingdsl.core.binding.ObservableProperty
 import com.github.weisj.swingdsl.core.binding.container.observableListOf
 import com.github.weisj.swingdsl.core.binding.ensureMaxCapacity

@@ -155,7 +155,7 @@ internal class BooleanRenderer : Renderer<Boolean> {
 internal class IconRenderer : Renderer<Icon> {
     override fun render(value: Icon): String {
         if (value is DarkSVGIcon) {
-            val text = value.svgIcon.svgURI.toASCIIString()
+            val text = "TODO: svg rendering ${value.javaClass.name}"
             if (text.startsWith("jar:") && text.contains("!")) {
                 val fgProp = UIFactory.secondaryTextForeground.asCSSProperty()
                 val index: Int = text.lastIndexOf("!")
